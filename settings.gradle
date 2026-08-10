@@ -8,23 +8,29 @@ pluginManagement {
 
 rootProject.name = 'runtoolkit-suite'
 
-// Automatically include every folder under mods/ and examples/ that has a build.gradle
+// Recursively find every build.gradle(.kts) under mods/, packs/, examples/
+// and include it as a subproject, regardless of nesting depth.
 def includeIfGradle = { String base ->
     File baseDir = file(base)
     if (!baseDir.exists() || !baseDir.isDirectory()) {
         return
     }
-    baseDir.listFiles(new FileFilter() {
-        boolean accept(File f) { return f.isDirectory() }
-    }).each { File dir ->
-        File groovyBuild = new File(dir, 'build.gradle')
-        File kotlinBuild = new File(dir, 'build.gradle.kts')
-        if (groovyBuild.exists() || kotlinBuild.exists()) {
-            def path = ":${base}:${dir.name}"
-            include(path)
-            project(path).projectDir = dir
+    baseDir.eachFileRecurse { File f ->
+        if (f.name == 'build.gradle' || f.name == 'build.gradle.kts') {
+            File dir = f.parentFile
+            if (dir.path.contains(File.separator + 'build' + File.separator) ||
+                dir.path.contains(File.separator + '.gradle' + File.separator)) {
+                return
+            }
+            String rel = baseDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, ':')
+            def path = ":${base}:${rel}"
+            if (!findProject(path)) {
+                include(path)
+                project(path).projectDir = dir
+            }
         }
     }
 }
 includeIfGradle('mods')
+includeIfGradle('packs')
 includeIfGradle('examples')
