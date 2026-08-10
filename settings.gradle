@@ -12,6 +12,9 @@ rootProject.name = 'runtoolkit-suite'
 // Reason for each is noted so future edits know why it's here.
 def EXCLUDED_PROJECT_DIRS = [
     'packs/dataLib-dp',        // archived; requires Fabric Loom 1.18.0-alpha.9, no Gradle-9.4-compatible variant published
+    'packs/datapack-fixer',    // ACTIVE project, not archived. Pinned to a broken Loom SNAPSHOT
+                                // (1.17-SNAPSHOT:20260807.132355-19) with no matching Gradle 9.4 variant.
+                                // Fix the Loom version in its build.gradle, then remove this line.
 ]
 
 // Recursively find every build.gradle(.kts) under mods/, packs/, examples/
