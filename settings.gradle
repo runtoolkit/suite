@@ -1,11 +1,27 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'runtoolkit-suite'
 
 // Automatically include every folder under mods/ and examples/ that has a build.gradle
-def includeIfGradle = { base ->
-    file(base).eachDir { dir ->
-        if (file("${dir}/build.gradle").exists() || file("${dir}/build.gradle.kts").exists()) {
+def includeIfGradle = { String base ->
+    File baseDir = file(base)
+    if (!baseDir.exists() || !baseDir.isDirectory()) {
+        return
+    }
+    baseDir.listFiles(new FileFilter() {
+        boolean accept(File f) { return f.isDirectory() }
+    }).each { File dir ->
+        File groovyBuild = new File(dir, 'build.gradle')
+        File kotlinBuild = new File(dir, 'build.gradle.kts')
+        if (groovyBuild.exists() || kotlinBuild.exists()) {
             def path = ":${base}:${dir.name}"
-            include path
+            include(path)
             project(path).projectDir = dir
         }
     }

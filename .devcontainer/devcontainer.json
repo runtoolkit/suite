@@ -3,7 +3,6 @@
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "chmod +x .devcontainer/consolidate.sh && echo 'Installation complete. To run: bash .devcontainer/consolidate.sh",
   "remoteEnv": {
     "GITHUB_TOKEN": "${localEnv:RT_CONSOLIDATE_TOKEN}"
   }
