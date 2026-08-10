@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'runtoolkit-suite'
 
 // Automatically include every folder under mods/ and examples/ that has a build.gradle
