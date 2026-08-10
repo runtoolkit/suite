@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# runtoolkit -> suite konsolidasyon script'i
-# Kullanım: GITHUB_TOKEN=ghp_xxx ./consolidate.sh
+# runtoolkit -> suite consolidation script
+# Usage: GITHUB_TOKEN=ghp_xxx ./consolidate.sh
 #
-# Bu script SENİN makinende çalışır. Token asla Claude'a veya başka bir yere gönderilmez.
+# This script runs on YOUR machine. The token is never sent to Claude or anywhere else.
 set -euo pipefail
 
 if [ -z "${GITHUB_TOKEN:-}" ]; then
-  echo "HATA: GITHUB_TOKEN env değişkeni set değil."
-  echo "Kullanım: GITHUB_TOKEN=ghp_xxx ./consolidate.sh"
+  echo "ERROR: GITHUB_TOKEN env variable is not set."
+  echo "Usage: GITHUB_TOKEN=ghp_xxx ./consolidate.sh"
   exit 1
 fi
 
 ORG="runtoolkit"
-NEW_REPO="suite"
+NEW_REPO="suite"   # <-- change this if you renamed the target repo
 WORKDIR="$(mktemp -d)"
 API="https://api.github.com"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
-echo "Çalışma dizini: $WORKDIR"
+echo "Working directory: $WORKDIR"
 cd "$WORKDIR"
 
 # ---------------------------------------------------------------------------
-# 1. Repo listesini çek
+# 1. Fetch repo list
 # ---------------------------------------------------------------------------
-echo "== Repo listesi çekiliyor =="
+echo "== Fetching repo list =="
 curl -s -H "$AUTH_HEADER" "$API/orgs/$ORG/repos?per_page=100" > repos.json
 python3 -c "
 import json
@@ -31,28 +31,28 @@ repos = json.load(open('repos.json'))
 for r in repos:
     print(r['name'])
 " > repo_names.txt
-echo "$(wc -l < repo_names.txt) repo bulundu."
+echo "$(wc -l < repo_names.txt) repos found."
 
 # ---------------------------------------------------------------------------
-# 2. Her repoyu clone et ve analiz et (boş / tutarsız tespiti)
+# 2. Clone and analyze each repo (empty / inconsistent detection)
 # ---------------------------------------------------------------------------
 mkdir -p clones
 declare -A DECISION   # repo -> "include" | "skip-empty" | "skip-stale"
 declare -A REASON
 
-echo "== Repolar clone ediliyor ve analiz ediliyor =="
+echo "== Cloning and analyzing repos =="
 while read -r name; do
   [ -z "$name" ] && continue
 
-  # Manuel olarak atlanacaklar (kullanıcı ile netleşen)
+  # Manually skipped repos (confirmed with the user)
   if [ "$name" == "DataLibFabric" ]; then
-    DECISION[$name]="skip-empty"; REASON[$name]="1KB, boş/placeholder (manuel onaylı)"
+    DECISION[$name]="skip-empty"; REASON[$name]="1KB, empty/placeholder (manually confirmed)"
     continue
   fi
 
   echo "  -> $name"
   if ! git clone --quiet "https://x-access-token:${GITHUB_TOKEN}@github.com/${ORG}/${name}.git" "clones/$name" 2>/tmp/clone_err; then
-    DECISION[$name]="skip-error"; REASON[$name]="clone başarısız: $(cat /tmp/clone_err | tail -1)"
+    DECISION[$name]="skip-error"; REASON[$name]="clone failed: $(cat /tmp/clone_err | tail -1)"
     continue
   fi
 
@@ -70,63 +70,64 @@ for r in repos:
 ")
   cd "$WORKDIR"
 
-  # Boş repo (sadece .gitignore/LICENSE gibi dosyalar veya hiç dosya)
+  # Empty repo (only files like .gitignore/LICENSE, or no files at all)
   if [ "$file_count" -le 2 ]; then
-    DECISION[$name]="skip-empty"; REASON[$name]="sadece $file_count dosya"
+    DECISION[$name]="skip-empty"; REASON[$name]="only $file_count file(s)"
     continue
   fi
 
-  # 1 yıldan eski VE archived değilse "muhtemelen terk edilmiş" -> flag et ama otomatik atlama,
-  # kullanıcı onayı olmadan sessizce atlamıyoruz. Rapora yazıyoruz.
-  DECISION[$name]="include"; REASON[$name]="dosya=$file_count son_commit=$last_commit_date archived=$is_archived readme=$has_readme"
+  # Older than 1 year AND not archived -> "probably abandoned", flag it but don't
+  # auto-skip without user approval. We just record it in the report.
+  DECISION[$name]="include"; REASON[$name]="files=$file_count last_commit=$last_commit_date archived=$is_archived readme=$has_readme"
 
 done < repo_names.txt
 
 # ---------------------------------------------------------------------------
-# 3. Karar raporunu yazdır ve kullanıcıdan onay iste (interaktif)
+# 3. Print the decision report and ask for user confirmation (interactive)
 # ---------------------------------------------------------------------------
 echo ""
 echo "======================================================================"
-echo " ANALİZ RAPORU - suite/ deposuna dahil edilecek/edilmeyecek repolar"
+echo " ANALYSIS REPORT - repos to include/exclude in suite/"
 echo "======================================================================"
 for name in "${!DECISION[@]}"; do
   printf "%-30s %-12s %s\n" "$name" "${DECISION[$name]}" "${REASON[$name]}"
 done | sort
 
 echo ""
-read -p "Bu kararlarla devam edilsin mi? (evet/hayır): " confirm
-if [ "$confirm" != "evet" ]; then
-  echo "İptal edildi. clones/ ve repos.json dosyalarını $WORKDIR altında inceleyip"
-  echo "script içindeki DECISION dizisini elle düzenleyip tekrar çalıştırabilirsin."
+read -p "Proceed with these decisions? (yes/no): " confirm
+if [ "$confirm" != "yes" ]; then
+  echo "Cancelled. You can inspect clones/ and repos.json under $WORKDIR,"
+  echo "manually edit the DECISION array in the script, and re-run it."
   exit 0
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Yeni suite reposunu oluştur
+# 4. Create the new suite repo
 # ---------------------------------------------------------------------------
-echo "== $ORG/$NEW_REPO oluşturuluyor =="
+echo "== Creating $ORG/$NEW_REPO =="
 curl -s -X POST -H "$AUTH_HEADER" "$API/orgs/$ORG/repos" \
   -d "{\"name\":\"$NEW_REPO\",\"description\":\"Consolidated runtoolkit monorepo: mods, packs, scripts, examples\",\"private\":false,\"auto_init\":true}" \
   > create_result.json
-echo "Oluşturuldu: $(python3 -c "import json; print(json.load(open('create_result.json')).get('html_url','HATA - create_result.json dosyasına bak'))")"
+echo "Created: $(python3 -c "import json; print(json.load(open('create_result.json')).get('html_url','ERROR - check create_result.json'))")"
 
 git clone --quiet "https://x-access-token:${GITHUB_TOKEN}@github.com/${ORG}/${NEW_REPO}.git" suite
 cd suite
 mkdir -p mods packs scripts archived other examples
 
 # ---------------------------------------------------------------------------
-# 5. Her "include" repoyu kategorize edip taşı (git history KORUNMAZ - dosya kopyası)
-#    Not: history korumak istersen git subtree/filter-repo gerekir, bu script
-#    basit dosya kopyalama yapar. İstersen sonraki adımda subtree'ye çevirebiliriz.
+# 5. Categorize and move each "include" repo (git history is NOT preserved -
+#    this is a plain file copy). Note: preserving history would require
+#    git subtree/filter-repo; this script does a simple copy. We can switch
+#    to subtree later if you want.
 # ---------------------------------------------------------------------------
-echo "== Dosyalar kategorize edilip taşınıyor =="
+echo "== Categorizing and moving files =="
 for name in "${!DECISION[@]}"; do
   [ "${DECISION[$name]}" != "include" ] && continue
   src="$WORKDIR/clones/$name"
   [ ! -d "$src" ] && continue
 
-  # Kategori tahmini: fabric.mod.json varsa mod, pack.mcmeta varsa pack,
-  # "template" veya "example" isimde geçiyorsa examples, script/tool ise scripts
+  # Category guess: fabric.mod.json -> mod, pack.mcmeta -> pack,
+  # name contains "template" or "example" -> examples, otherwise -> scripts
   if [ -f "$src/fabric.mod.json" ] || find "$src" -maxdepth 3 -iname "fabric.mod.json" | grep -q .; then
     if [[ "$name" == *"emplate"* || "$name" == *"xample"* ]]; then
       dest="examples/$name"
@@ -151,12 +152,12 @@ for name in "${!DECISION[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-# 6. Kök Gradle build script'i (settings.gradle ile alt projeleri birleştir)
+# 6. Root Gradle build script (settings.gradle wires up subprojects)
 # ---------------------------------------------------------------------------
 cat > settings.gradle << 'EOF'
 rootProject.name = 'runtoolkit-suite'
 
-// mods/ ve examples/ altındaki build.gradle içeren her klasörü otomatik dahil et
+// Automatically include every folder under mods/ and examples/ that has a build.gradle
 def includeIfGradle = { base ->
     file(base).eachDir { dir ->
         if (file("${dir}/build.gradle").exists() || file("${dir}/build.gradle.kts").exists()) {
@@ -171,7 +172,7 @@ includeIfGradle('examples')
 EOF
 
 cat > build.gradle << 'EOF'
-// Kök build.gradle - tüm alt projeler için ortak lint/build task'ları
+// Root build.gradle - shared lint/build tasks for all subprojects
 allprojects {
     repositories {
         mavenCentral()
@@ -181,39 +182,39 @@ allprojects {
 
 task lint {
     group = 'verification'
-    description = 'Tüm alt projelerde lint çalıştırır (varsa checkstyle/spotless).'
+    description = 'Runs lint across all subprojects (checkstyle/spotless if present).'
     doLast {
         subprojects.each { sub ->
             if (sub.tasks.findByName('checkstyleMain')) {
                 sub.tasks.checkstyleMain.actions.each { it.execute(sub.tasks.checkstyleMain) }
             }
         }
-        println "Lint tamamlandı (alt projelerde checkstyle/spotless tanımlıysa çalıştı)."
+        println "Lint completed (ran checkstyle/spotless where configured)."
     }
 }
 
 task buildAll {
     group = 'build'
-    description = 'Tüm alt projeleri build eder.'
+    description = 'Builds all subprojects.'
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
 }
 EOF
 
 # ---------------------------------------------------------------------------
-# 7. Ana README
+# 7. Main README
 # ---------------------------------------------------------------------------
 cat > README.md << EOF
 # runtoolkit/suite
 
-runtoolkit ekosisteminin konsolide edilmiş monorepo'su.
+Consolidated monorepo for the runtoolkit ecosystem.
 
-## Yapı
-- \`mods/\`      — Fabric modları
-- \`packs/\`     — Datapack / resource pack'ler
-- \`scripts/\`   — Yardımcı script'ler ve tool'lar
-- \`examples/\`  — Template'ler, örnek Fabric modları, örnek datapack'ler, test dosyaları
-- \`archived/\`  — Artık geliştirilmeyen ama referans için tutulan projeler
-- \`other/\`     — Kategorize edilemeyen diğer içerik
+## Structure
+- \`mods/\`      — Fabric mods
+- \`packs/\`     — Datapacks / resource packs
+- \`scripts/\`   — Helper scripts and tools
+- \`examples/\`  — Templates, example Fabric mods, example datapacks, test files
+- \`archived/\`  — Projects no longer developed but kept for reference
+- \`other/\`     — Content that doesn't fit another category
 
 ## Build
 \`\`\`
@@ -221,8 +222,8 @@ runtoolkit ekosisteminin konsolide edilmiş monorepo'su.
 ./gradlew lint
 \`\`\`
 
-## Eski depolar
-Aşağıdaki depolar bu monorepo'ya taşındı ve artık **arşivli + private**:
+## Old repos
+The following repos were moved into this monorepo and are now **archived + private**:
 $(for name in "${!DECISION[@]}"; do
   [ "${DECISION[$name]}" == "include" ] && echo "- [$name](https://github.com/$ORG/$name) -> \`$(
     if [[ "$name" == *"emplate"* || "$name" == *"xample"* ]]; then echo examples;
@@ -230,7 +231,7 @@ $(for name in "${!DECISION[@]}"; do
   )/$name\`"
 done)
 
-## Atlanan depolar (boş veya tutarsız)
+## Skipped repos (empty or inconsistent)
 $(for name in "${!DECISION[@]}"; do
   [ "${DECISION[$name]}" == "include" ] || echo "- $name: ${REASON[$name]}"
 done)
@@ -241,31 +242,32 @@ git commit -m "Initial consolidation from runtoolkit org repos"
 git push origin main || git push origin master
 
 echo ""
-echo "== suite reposu hazır: https://github.com/$ORG/$NEW_REPO =="
+echo "== suite repo is ready: https://github.com/$ORG/$NEW_REPO =="
 
 # ---------------------------------------------------------------------------
-# 8. Eski repoları arşivle + private yap + README'lerine yönlendirme ekle
+# 8. Archive + make old repos private + add redirect notice to their README
 # ---------------------------------------------------------------------------
-echo "== Eski repolar güncelleniyor (archived + private + README yönlendirmesi) =="
+echo "== Updating old repos (archived + private + README redirect) =="
 for name in "${!DECISION[@]}"; do
   [ "${DECISION[$name]}" != "include" ] && continue
 
   echo "  -> $name"
   src="$WORKDIR/clones/$name"
 
-  # README'ye yönlendirme ekle (önce private yapmadan commit atmak lazım, sıra önemli)
+  # Add redirect notice (must commit BEFORE making private/archived - order matters)
   cd "$src"
   cat > REDIRECT_NOTICE.md << EOF
-# ⚠️ Bu depo taşındı
+# ⚠️ This repo has moved
 
-Bu proje artık [$ORG/$NEW_REPO](https://github.com/$ORG/$NEW_REPO) altında konsolide edilmiş
-monorepo içinde geliştirilmektedir. Bu depo arşivlenmiş ve private yapılmıştır, referans amaçlı korunmaktadır.
+This project is now developed inside the consolidated monorepo at
+[$ORG/$NEW_REPO](https://github.com/$ORG/$NEW_REPO). This repo has been archived and made
+private, kept around for reference only.
 EOF
   git add REDIRECT_NOTICE.md
   git commit -m "Redirect notice: moved to $ORG/$NEW_REPO" --allow-empty -q || true
-  git push --quiet || echo "    UYARI: push başarısız, README yönlendirmesi atlanmış olabilir"
+  git push --quiet || echo "    WARNING: push failed, README redirect may not have been added"
 
-  # Önce private yap, SONRA archive et (GitHub API sırası: archived repo değiştirilemez)
+  # Make private FIRST, then archive (GitHub API rule: archived repos can't be modified)
   curl -s -X PATCH -H "$AUTH_HEADER" "$API/repos/$ORG/$name" \
     -d '{"private": true}' > /dev/null
   curl -s -X PATCH -H "$AUTH_HEADER" "$API/repos/$ORG/$name" \
@@ -275,9 +277,9 @@ done
 
 echo ""
 echo "===================================================================="
-echo " TAMAMLANDI"
-echo " Yeni depo : https://github.com/$ORG/$NEW_REPO"
-echo " Geçici dosyalar : $WORKDIR (istersen sil: rm -rf $WORKDIR)"
-echo " ÖNEMLİ: Kullandığın token'ı şimdi GitHub Settings > Developer settings"
-echo " üzerinden REVOKE ET."
+echo " DONE"
+echo " New repo   : https://github.com/$ORG/$NEW_REPO"
+echo " Temp files : $WORKDIR (delete with: rm -rf $WORKDIR)"
+echo " IMPORTANT: Go REVOKE the token you used now, via GitHub Settings >"
+echo " Developer settings > Personal access tokens."
 echo "===================================================================="
