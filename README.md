@@ -28,10 +28,8 @@ The following repos were moved into this monorepo and are now **archived + priva
 - [TEMPLATE-MOD](https://github.com/runtoolkit/TEMPLATE-MOD) -> `mods|packs|scripts/TEMPLATE-MOD``
 - [dataLib-dp](https://github.com/runtoolkit/dataLib-dp) -> `mods|packs|scripts/dataLib-dp`
 - [inv_gui](https://github.com/runtoolkit/inv_gui) -> `mods|packs|scripts/inv_gui`
-- [dataLib-FabricMod](https://github.com/runtoolkit/dataLib-FabricMod) -> `mods|packs|scripts/dataLib-FabricMod`
 - [dataLib-log](https://github.com/runtoolkit/dataLib-log) -> `mods|packs|scripts/dataLib-log`
 - [macroEngine-dp](https://github.com/runtoolkit/macroEngine-dp) -> `mods|packs|scripts/macroEngine-dp`
-- [DataLibSite](https://github.com/runtoolkit/DataLibSite) -> `mods|packs|scripts/DataLibSite`
 
 ## Skipped repos (empty or inconsistent)
 - FunctionPP: only 2 file(s)
