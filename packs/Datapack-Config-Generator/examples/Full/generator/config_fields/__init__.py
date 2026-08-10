@@ -1,1 +1,0 @@
-__all__ = ["config_base", "config_interactable", "config_pages", "config_text"]
