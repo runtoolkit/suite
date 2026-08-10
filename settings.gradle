@@ -8,6 +8,12 @@ pluginManagement {
 
 rootProject.name = 'runtoolkit-suite'
 
+// Subprojects to skip entirely (kept as files, not wired into the Gradle build).
+// Reason for each is noted so future edits know why it's here.
+def EXCLUDED_PROJECT_DIRS = [
+    'packs/dataLib-dp',        // archived; requires Fabric Loom 1.18.0-alpha.9, no Gradle-9.4-compatible variant published
+]
+
 // Recursively find every build.gradle(.kts) under mods/, packs/, examples/
 // and include it as a subproject, regardless of nesting depth.
 def includeIfGradle = { String base ->
@@ -20,6 +26,10 @@ def includeIfGradle = { String base ->
             File dir = f.parentFile
             if (dir.path.contains(File.separator + 'build' + File.separator) ||
                 dir.path.contains(File.separator + '.gradle' + File.separator)) {
+                return
+            }
+            String relToRoot = rootDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, '/')
+            if (EXCLUDED_PROJECT_DIRS.any { relToRoot == it || relToRoot.startsWith(it + '/') }) {
                 return
             }
             String rel = baseDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, ':')
