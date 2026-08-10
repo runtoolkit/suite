@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>macroEngine (AME) — API Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:#0d0f0e; --bg2:#131614; --bg3:#1a1d1b; --bg4:#222622;
+    --border:#2a2f2b; --green:#4ade80; --green2:#22c55e; --green-dim:#166534;
+    --amber:#fbbf24; --red:#f87171; --blue:#60a5fa; --muted:#6b7a6d;
+    --text:#d4e4d6; --text2:#a8bfaa; --heading:#e8f5e9; --code-bg:#0a0c0b;
+    --tag-bg:#1e2b1f; --radius:6px; --sidebar:268px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+  /* TOPBAR */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(13,15,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 20px}
+  .topbar-logo{font-size:15px;font-weight:800;letter-spacing:.04em;color:var(--green);white-space:nowrap;flex-shrink:0}
+  .topbar-logo span{color:var(--text2);font-weight:400;font-size:12px;margin-left:8px}
+  .topbar-search{flex:1;max-width:400px;display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+  .topbar-search:focus-within{border-color:var(--green-dim)}
+  .topbar-search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 12px}
+  .topbar-search input::placeholder{color:var(--muted)}
+  .search-icon{padding:0 10px;color:var(--muted);font-size:13px}
+  .topbar-badges{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+  .badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500}
+  .badge-green{background:#14532d;color:var(--green);border:1px solid #166534}
+  .badge-amber{background:#431407;color:var(--amber);border:1px solid #92400e}
+  .badge-ver{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+
+  /* LAYOUT */
+  .layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
+
+  /* SIDEBAR */
+  aside{width:var(--sidebar);flex-shrink:0;position:fixed;top:56px;bottom:0;left:0;overflow-y:auto;overflow-x:hidden;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0 40px}
+  aside::-webkit-scrollbar{width:4px}
+  aside::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  .sidebar-section{margin-bottom:4px}
+  .sidebar-heading{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 20px 4px}
+  .sidebar-link{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:12.5px;font-weight:500;color:var(--text2);text-decoration:none;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+  .sidebar-link:hover{color:var(--heading);background:var(--bg3)}
+  .sidebar-link.active{color:var(--green);border-left-color:var(--green);background:var(--tag-bg)}
+  .sidebar-link .mod-icon{font-size:14px;width:18px;text-align:center}
+
+  /* MAIN */
+  main{margin-left:var(--sidebar);flex:1;padding:40px 48px 80px;max-width:calc(100vw - var(--sidebar))}
+
+  /* HERO */
+  .hero{padding:48px 0 56px;border-bottom:1px solid var(--border);margin-bottom:56px}
+  .hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+  .hero-title{font-size:clamp(32px,4vw,52px);font-weight:800;line-height:1.05;color:var(--heading);margin-bottom:16px}
+  .hero-title em{color:var(--green);font-style:normal}
+  .hero-desc{font-size:15px;color:var(--text2);max-width:640px;line-height:1.7;margin-bottom:28px}
+  .hero-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+  .chip.green{background:var(--tag-bg);border-color:var(--green-dim);color:var(--green)}
+
+  /* SECTIONS */
+  .section-anchor{scroll-margin-top:80px}
+  .module-header{display:flex;align-items:flex-start;gap:16px;padding:32px 0 20px;border-top:1px solid var(--border);margin-top:48px}
+  .module-header:first-of-type{border-top:none;margin-top:0}
+  .module-icon-box{width:46px;height:46px;border-radius:8px;background:var(--tag-bg);border:1px solid var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+  .module-meta{flex:1}
+  .module-name{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:var(--green);margin-bottom:4px}
+  .module-name .ns{color:var(--muted);font-weight:400}
+  .module-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+  /* FN CARDS */
+  .fn-list{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+  .fn-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
+  .fn-card:hover{border-color:var(--green-dim)}
+  .fn-card-head{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;user-select:none;background:var(--bg3)}
+  .fn-card-head:hover{background:var(--bg4)}
+  .fn-method{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:2px 6px;border-radius:3px;flex-shrink:0}
+  .fn-method.fn{background:#1e3a5f;color:var(--blue)}
+  .fn-method.tag{background:#1a2e1a;color:var(--green)}
+  .fn-method.st{background:#2a1f0d;color:var(--amber)}
+  .fn-path{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--heading);font-weight:500;flex:1}
+  .fn-path .ns-part{color:var(--muted)}
+  .fn-summary{font-size:11.5px;color:var(--text2);margin-left:auto;text-align:right;max-width:260px}
+  .fn-toggle{color:var(--muted);font-size:12px;margin-left:8px;transition:transform .2s;flex-shrink:0}
+  .fn-card.open .fn-toggle{transform:rotate(180deg)}
+  .fn-card-body{display:none;padding:16px;border-top:1px solid var(--border)}
+  .fn-card.open .fn-card-body{display:block}
+
+  /* PARAM TABLE */
+  .param-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:16px}
+  .param-label:first-child{margin-top:0}
+  .param-table{width:100%;border-collapse:collapse;margin-bottom:4px}
+  .param-table th{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:left;font-weight:500;padding:5px 10px;border-bottom:1px solid var(--border)}
+  .param-table td{font-size:12px;padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .param-table tr:last-child td{border-bottom:none}
+  .param-table td:first-child{font-family:'JetBrains Mono',monospace;color:var(--green);font-size:11px}
+  .param-table td:nth-child(2){font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:11px}
+  .param-table td:nth-child(3){color:var(--text2)}
+  .req{color:var(--red)!important;font-size:10px!important}
+  .opt{color:var(--muted)!important;font-size:10px!important}
+
+  /* CODE */
+  .code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:10px}
+  .code-block-header{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:var(--bg3);border-bottom:1px solid var(--border)}
+  .code-lang{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+  .copy-btn{font-family:'JetBrains Mono',monospace;font-size:10px;background:none;border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:3px;cursor:pointer;transition:all .15s}
+  .copy-btn:hover{color:var(--green);border-color:var(--green-dim)}
+  .copy-btn.copied{color:var(--green);border-color:var(--green)}
+  pre{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;padding:16px;overflow-x:auto;color:var(--text)}
+  .kw{color:#c084fc} .str{color:#86efac} .cmt{color:#4b5e4d;font-style:italic}
+  .num{color:var(--amber)} .fn-hl{color:#60a5fa} .var{color:#fca5a5} .mac{color:#f9a8d4}
+
+  /* CALLOUT */
+  .callout{border-radius:6px;padding:12px 14px;margin:12px 0;font-size:12px;line-height:1.6;display:flex;gap:10px}
+  .callout-warn{background:#271f0a;border:1px solid #92400e;color:#fcd34d}
+  .callout-info{background:#0d1f35;border:1px solid #1e3a5f;color:#93c5fd}
+  .callout-tip{background:var(--tag-bg);border:1px solid var(--green-dim);color:#86efac}
+  .callout-icon{font-size:14px;flex-shrink:0}
+
+  /* CONVENTION TABLE */
+  .conv-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+  .conv-card{background:var(--code-bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px}
+  .conv-key{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);margin-bottom:4px}
+  .conv-val{font-size:11px;color:var(--text2);line-height:1.5}
+
+  /* SEARCH */
+  .hidden{display:none!important}
+  .hl{background:#422006;color:var(--amber);border-radius:2px}
+
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  .page-footer{text-align:center;padding:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-left:var(--sidebar)}
+
+  @media(max-width:768px){
+    aside{display:none}
+    main{margin-left:0;padding:24px 20px 60px;max-width:100vw}
+    .page-footer{margin-left:0}
+    .conv-grid{grid-template-columns:1fr}
+    .fn-summary{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">macroEngine <span>AME · API Reference</span></div>
+  <div class="topbar-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" placeholder="Search modules, functions…" autocomplete="off"/>
+  </div>
+  <div class="topbar-badges">
+    <span class="badge badge-green">✔ Server</span>
+    <span class="badge badge-amber">⚠ Singleplayer</span>
+    <span class="badge badge-ver">pack_format 94</span>
+    <span class="badge badge-ver">1.21.11</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Overview</div>
+    <a class="sidebar-link active" data-target="overview" onclick="nav(this,'overview')"><span class="mod-icon">📖</span> Introduction</a>
+    <a class="sidebar-link" data-target="convention" onclick="nav(this,'convention')"><span class="mod-icon">🗄</span> Convention</a>
+    <a class="sidebar-link" data-target="calling" onclick="nav(this,'calling')"><span class="mod-icon">⚙</span> Calling Pattern</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Core / Runtime</div>
+    <a class="sidebar-link" data-target="mod-scheduler" onclick="nav(this,'mod-scheduler')"><span class="mod-icon">⏱</span> core/lib — Scheduler</a>
+    <a class="sidebar-link" data-target="mod-fiber" onclick="nav(this,'mod-fiber')"><span class="mod-icon">🧵</span> core/lib — Fiber</a>
+    <a class="sidebar-link" data-target="mod-queue" onclick="nav(this,'mod-queue')"><span class="mod-icon">📋</span> core/queue</a>
+    <a class="sidebar-link" data-target="mod-cooldown" onclick="nav(this,'mod-cooldown')"><span class="mod-icon">🔒</span> core/cooldown</a>
+    <a class="sidebar-link" data-target="mod-io" onclick="nav(this,'mod-io')"><span class="mod-icon">💾</span> core/lib — IO</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Systems</div>
+    <a class="sidebar-link" data-target="mod-flag" onclick="nav(this,'mod-flag')"><span class="mod-icon">🚩</span> systems/flag</a>
+    <a class="sidebar-link" data-target="mod-nbt" onclick="nav(this,'mod-nbt')"><span class="mod-icon">🧬</span> systems/nbt</a>
+    <a class="sidebar-link" data-target="mod-math" onclick="nav(this,'mod-math')"><span class="mod-icon">🔢</span> systems/math</a>
+    <a class="sidebar-link" data-target="mod-geo" onclick="nav(this,'mod-geo')"><span class="mod-icon">📐</span> systems/geo</a>
+    <a class="sidebar-link" data-target="mod-sound" onclick="nav(this,'mod-sound')"><span class="mod-icon">🔊</span> systems/sound</a>
+    <a class="sidebar-link" data-target="mod-uuid" onclick="nav(this,'mod-uuid')"><span class="mod-icon">🔑</span> systems/uuid</a>
+    <a class="sidebar-link" data-target="mod-hook" onclick="nav(this,'mod-hook')"><span class="mod-icon">🪝</span> systems/hook</a>
+    <a class="sidebar-link" data-target="mod-log" onclick="nav(this,'mod-log')"><span class="mod-icon">📝</span> systems/log</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">API Layer</div>
+    <a class="sidebar-link" data-target="mod-events" onclick="nav(this,'mod-events')"><span class="mod-icon">📡</span> events</a>
+    <a class="sidebar-link" data-target="mod-interaction" onclick="nav(this,'mod-interaction')"><span class="mod-icon">🖱</span> api/interaction</a>
+    <a class="sidebar-link" data-target="mod-wand" onclick="nav(this,'mod-wand')"><span class="mod-icon">🪄</span> api/wand</a>
+    <a class="sidebar-link" data-target="mod-cmd" onclick="nav(this,'mod-cmd')"><span class="mod-icon">💬</span> api/cmd</a>
+    <a class="sidebar-link" data-target="mod-world" onclick="nav(this,'mod-world')"><span class="mod-icon">🌍</span> world</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero section-anchor" id="overview">
+    <div class="hero-eyebrow">runtoolkit · Advanced Macro Engine</div>
+    <h1 class="hero-title">macroEngine<br/><em>API Reference</em></h1>
+    <p class="hero-desc">
+      A high-performance scripting and macro execution framework for Minecraft Java Edition datapacks.
+      Provides fiber scheduling, modular systems, per-player cooldowns, custom events, and multi-version overlay support out of the box.
+    </p>
+    <div class="hero-chips">
+      <span class="chip green">Namespace: macro</span>
+      <span class="chip green">Storage: macro:engine · macro:input · macro:output</span>
+      <span class="chip">Minecraft 1.21.11</span>
+      <span class="chip">pack_format 94</span>
+      <span class="chip">Java Edition only</span>
+    </div>
+  </section>
+
+  <!-- CONVENTION -->
+  <section class="section-anchor" id="convention">
+    <div class="module-header" style="border-top:none;margin-top:0;padding-top:0">
+      <div class="module-icon-box">🗄</div>
+      <div class="module-meta">
+        <div class="module-name">Storage Convention</div>
+        <div class="module-desc">Three canonical namespaces. Never write directly to <code style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--green)">macro:engine</code> — it is internal state.</div>
+      </div>
+    </div>
+    <div class="conv-grid">
+      <div class="conv-card"><div class="conv-key">macro:input</div><div class="conv-val">Write call arguments here before invoking a function. Fields are read as <code style="font-family:JetBrains Mono,monospace;font-size:10px">$(field)</code> macro variables.</div></div>
+      <div class="conv-card"><div class="conv-key">macro:output</div><div class="conv-val">Return values written here by the callee. Read immediately — the next call will overwrite fields.</div></div>
+      <div class="conv-card"><div class="conv-key">macro:engine</div><div class="conv-val">Internal runtime state (schedules, fibers, cooldowns, flags, events, wand/interaction binds). <strong>Read-only</strong> for user code.</div></div>
+    </div>
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <span>Nesting rule: call <code>macro:core/lib/input_push</code> before a nested module call, <code>macro:core/lib/input_pop</code> after. Otherwise the outer call's input data is overwritten.</span>
+    </div>
+  </section>
+
+  <!-- CALLING PATTERN -->
+  <section class="section-anchor" id="calling">
+    <div class="module-header">
+      <div class="module-icon-box">⚙</div>
+      <div class="module-meta">
+        <div class="module-name">Calling Pattern</div>
+        <div class="module-desc">All AME functions use the <code style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--green)">with storage</code> macro syntax to read their inputs.</div>
+      </div>
+    </div>
+    <div class="callout callout-tip">
+      <span class="callout-icon">✔</span>
+      <div>
+        <strong>Standard call:</strong> Write fields to <code>macro:input</code>, then call with <code>with storage macro:input {}</code><br/>
+        <strong>Compound call:</strong> Some functions read from a sub-key e.g. <code>with storage macro:input sound</code><br/>
+        <strong>Inline call:</strong> Short functions accept inline NBT: <code>$function macro:systems/log/info {message:"hello"}</code>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header"><span class="code-lang">.mcfunction · standard pattern</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="cmt"># 1. Write inputs to macro:input</span>
+<span class="fn-hl">data modify</span> storage macro:input key <span class="kw">set value</span> <span class="str">"my_timer"</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:on_expire"</span>
+<span class="fn-hl">data modify</span> storage macro:input interval <span class="kw">set value</span> <span class="num">40</span>
+
+<span class="cmt"># 2. Call the function with storage — all $(fields) are injected as macro args</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:core/lib/schedule <span class="kw">with</span> storage macro:input {}
+
+<span class="cmt"># 3. Read output</span>
+<span class="fn-hl">data get</span> storage macro:output result</pre>
+    </div>
+  </section>
+
+  <!-- ── SCHEDULER ── -->
+  <section class="section-anchor" id="mod-scheduler">
+    <div class="module-header">
+      <div class="module-icon-box">⏱</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:core/lib/ — </span>Scheduler</div>
+        <div class="module-desc">Delay-based and repeating function scheduling. Backed by the internal engine queue. Supports named (key-based) schedules for cancellation and renewal.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>schedule</span>
+          <span class="fn-summary">Repeat a function every N ticks, keyed</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="param-label">Input (macro:input)</div>
+          <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>key</td><td>string</td><td>Unique name for this schedule — used to cancel or renew it</td><td class="req">required</td></tr>
+              <tr><td>func</td><td>string</td><td>Namespaced function to call e.g. <code>"mypack:tick"</code></td><td class="req">required</td></tr>
+              <tr><td>interval</td><td>int</td><td>Ticks between executions</td><td class="req">required</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>If a schedule with the same <code>key</code> already exists, it is replaced atomically.</span></div>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input key <span class="kw">set value</span> <span class="str">"boss_regen"</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:boss/regen_tick"</span>
+<span class="fn-hl">data modify</span> storage macro:input interval <span class="kw">set value</span> <span class="num">20</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:core/lib/schedule <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>schedule_cancel</span>
+          <span class="fn-summary">Stop a named schedule</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>key</td><td>string</td><td>Schedule key to remove</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>schedule_renew</span>
+          <span class="fn-summary">Reset the interval of an existing schedule</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>key</td><td>string</td><td>Schedule key</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>repeat</span>
+          <span class="fn-summary">Call a function N times in the same tick</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>func</td><td>string</td><td>Function to call</td><td class="req">required</td></tr>
+            <tr><td>count</td><td>int</td><td>Number of repetitions</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-warn"><span class="callout-icon">⚠</span><span>All iterations run in the same tick. For large counts prefer <code>macro:core/queue/push</code> to spread over multiple ticks.</span></div>
+        </div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>wait</span>
+          <span class="fn-summary">Delay a function call by N ticks (one-shot)</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span><code>wait</code> is an alias for <code>queue_add</code>. It enqueues a one-shot delayed call using the same delay-based scheduler as <code>schedule</code>, but without a persistent key.</span></div>
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>func</td><td>string</td><td>Function to call after the delay</td><td class="req">required</td></tr>
+            <tr><td>delay</td><td>int</td><td>Ticks to wait</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-card-head" onclick="toggle(this)">
+          <span class="fn-method fn">FN</span>
+          <span class="fn-path"><span class="ns-part">macro:core/lib/</span>debounce</span>
+          <span class="fn-summary">Reset timer on repeat calls — only fires once settled</span>
+          <span class="fn-toggle">▾</span>
+        </div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>key</td><td>string</td><td>Debounce identifier</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to fire after settling</td><td class="req">required</td></tr>
+            <tr><td>delay</td><td>int</td><td>Settle window in ticks</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FIBER ── -->
+  <section class="section-anchor" id="mod-fiber">
+    <div class="module-header">
+      <div class="module-icon-box">🧵</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:core/lib/fiber/ — </span>Fiber</div>
+        <div class="module-desc">Cooperative coroutine-like execution. A fiber is a named execution context that can be spawned, yielded across ticks, resumed, and killed independently of the main tick cycle.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/fiber/</span>spawn</span><span class="fn-summary">Start a named fiber</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>id</td><td>string</td><td>Unique fiber identifier — existing fiber with same id is replaced</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Entry-point function to start execution at</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input id <span class="kw">set value</span> <span class="str">"boss_intro"</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:boss/step_0"</span>
+<span class="fn-hl">function</span> macro:core/lib/fiber/spawn <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/fiber/</span>yield</span><span class="fn-summary">Pause fiber until next tick</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body"><div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Call from inside a fiber function. Execution resumes at the next step function on the following tick.</span></div></div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/fiber/</span>kill</span><span class="fn-summary">Terminate a fiber by id</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>id</td><td>string</td><td>Fiber id to terminate</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/fiber/</span>is_alive</span><span class="fn-summary">Check if a fiber is still running</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>id</td><td>string</td><td>Fiber id to check</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>result</td><td>byte</td><td><code>1b</code> if alive, <code>0b</code> if not found</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── QUEUE ── -->
+  <section class="section-anchor" id="mod-queue">
+    <div class="module-header">
+      <div class="module-icon-box">📋</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:core/</span>queue</div>
+        <div class="module-desc">Throughput-limited work queue. Different from the delay scheduler — use this to process heavy function lists without causing lag spikes. Rate is configurable via <code>queue/set_rate</code>.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/queue/</span>push</span><span class="fn-summary">Enqueue a function for rate-limited execution</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input (macro:input queue)</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>fn</td><td>string</td><td>Fully-qualified function path e.g. <code>"mypack:do_thing"</code></td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input queue.fn <span class="kw">set value</span> <span class="str">"mypack:process_player"</span>
+<span class="fn-hl">function</span> macro:core/queue/push <span class="kw">with</span> storage macro:input queue</pre>
+          </div>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span><strong>queue/push vs core/lib/wait:</strong> <code>queue/push</code> is a throughput limiter (processes N items/tick). <code>core/lib/wait</code> is a time-based delay (fires after N ticks).</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/queue/</span>flush</span><span class="fn-summary">Process all queued items immediately</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-warn"><span class="callout-icon">⚠</span><span>Bypasses the rate limit. Use only when you need immediate guaranteed execution (e.g. cleanup on server stop).</span></div></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/queue/</span>size</span><span class="fn-summary">Get the number of pending queue items</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>result</td><td>int</td><td>Number of functions currently queued</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/queue/</span>set_rate</span><span class="fn-summary">Set how many queue items run per tick</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>rate</td><td>int</td><td>Items to process per tick (default: 1)</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COOLDOWN ── -->
+  <section class="section-anchor" id="mod-cooldown">
+    <div class="module-header">
+      <div class="module-icon-box">🔒</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:core/</span>cooldown</div>
+        <div class="module-desc">Per-player, per-key cooldowns stored in <code>macro:engine cooldowns.&lt;player&gt;.&lt;key&gt;</code> as epoch-relative expiry timestamps. All times in ticks.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/cooldown/</span>set</span><span class="fn-summary">Start a cooldown for a player</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>player</td><td>string</td><td>Player name (not UUID)</td><td class="req">required</td></tr>
+            <tr><td>key</td><td>string</td><td>Cooldown identifier e.g. <code>"skill_dash"</code></td><td class="req">required</td></tr>
+            <tr><td>duration</td><td>int</td><td>Cooldown length in ticks</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input player <span class="kw">set value</span> <span class="str">"Steve"</span>
+<span class="fn-hl">data modify</span> storage macro:input key <span class="kw">set value</span> <span class="str">"skill_dash"</span>
+<span class="fn-hl">data modify</span> storage macro:input duration <span class="kw">set value</span> <span class="num">100</span>
+<span class="fn-hl">function</span> macro:core/cooldown/set <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/cooldown/</span>check</span><span class="fn-summary">Check if cooldown is over (ready)</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>player</td><td>string</td><td>Player name</td><td class="req">required</td></tr>
+            <tr><td>key</td><td>string</td><td>Cooldown identifier</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>result</td><td>byte</td><td><code>1b</code> = ready (expired or never set), <code>0b</code> = still on cooldown</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/cooldown/</span>remaining</span><span class="fn-summary">Get ticks remaining on a cooldown</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>result</td><td>int</td><td>Ticks remaining. <code>0</code> if expired or not set.</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/cooldown/</span>clear</span><span class="fn-summary">Remove a cooldown immediately</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>player</td><td>string</td><td>Player name</td><td class="req">required</td></tr><tr><td>key</td><td>string</td><td>Cooldown key to remove</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/cooldown/</span>clear_all</span><span class="fn-summary">Remove all cooldowns for a player</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>player</td><td>string</td><td>Player name</td><td class="req">required</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── IO ── -->
+  <section class="section-anchor" id="mod-io">
+    <div class="module-header">
+      <div class="module-icon-box">💾</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:core/lib/ — </span>IO Stack</div>
+        <div class="module-desc"><code>input_push</code> / <code>input_pop</code> save and restore all known <code>macro:input</code> fields to an internal stack, enabling safe nested module calls.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/</span>input_push</span><span class="fn-summary">Save current macro:input to stack</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>Saves all known input fields (<code>player</code>, <code>key</code>, <code>func</code>, <code>delay</code>, <code>x/y/z</code>, <code>tag</code>, <code>sound</code>, etc.) to <code>macro:engine _input_stack[-1]</code>. Always pair with <code>input_pop</code>.</span></div>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction · nested call</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="cmt"># outer call is in progress — save its inputs</span>
+<span class="fn-hl">function</span> macro:core/lib/input_push
+
+<span class="cmt"># now safely write new inputs and call a nested function</span>
+<span class="fn-hl">data modify</span> storage macro:input key <span class="kw">set value</span> <span class="str">"inner_flag"</span>
+<span class="fn-hl">function</span> macro:systems/flag/get <span class="kw">with</span> storage macro:input {}
+
+<span class="cmt"># restore outer inputs</span>
+<span class="fn-hl">function</span> macro:core/lib/input_pop</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:core/lib/</span>input_pop</span><span class="fn-summary">Restore macro:input from stack</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body"><div class="callout callout-warn"><span class="callout-icon">⚠</span><span>Each <code>input_push</code> must have exactly one matching <code>input_pop</code>. Mismatched calls corrupt the input stack and produce silent bugs.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FLAG ── -->
+  <section class="section-anchor" id="mod-flag">
+    <div class="module-header">
+      <div class="module-icon-box">🚩</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>flag</div>
+        <div class="module-desc">Named boolean flags stored as <code>macro:engine flags.&lt;key&gt;</code> (byte NBT). Lightweight on/off state without scoreboard overhead.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/flag/</span>set</span><span class="fn-summary">Set a flag to 1b</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>key</td><td>string</td><td>Flag name — stored at <code>macro:engine flags.&lt;key&gt;</code></td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input key <span class="kw">set value</span> <span class="str">"boss_phase2_active"</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:systems/flag/set <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/flag/</span>unset</span><span class="fn-summary">Remove a flag (set to 0 / delete)</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>key</td><td>string</td><td>Flag name to remove</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/flag/</span>get</span><span class="fn-summary">Read a flag value</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>key</td><td>string</td><td>Flag name</td><td class="req">required</td></tr></tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>byte</td><td><code>1b</code> if set, <code>0b</code> if not found</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/flag/</span>toggle</span><span class="fn-summary">Flip a flag between set and unset</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>byte</td><td>New value after toggle (<code>1b</code> or <code>0b</code>)</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/flag/</span>set_if</span><span class="fn-summary">Set flag only if it is currently unset</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>key</td><td>string</td><td>Flag name</td><td class="req">required</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── NBT ── -->
+  <section class="section-anchor" id="mod-nbt">
+    <div class="module-header">
+      <div class="module-icon-box">🧬</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>nbt</div>
+        <div class="module-desc">Storage-to-storage NBT operations with macro-injected paths. All path arguments are strings like <code>"macro:engine some.path"</code>.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>copy</span><span class="fn-summary">Deep-copy a path between storages</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>src_storage</td><td>string</td><td>Source namespace e.g. <code>"macro:engine"</code></td><td class="req">required</td></tr>
+            <tr><td>src_path</td><td>string</td><td>Source NBT path e.g. <code>"players.Steve"</code></td><td class="req">required</td></tr>
+            <tr><td>dst_storage</td><td>string</td><td>Destination namespace</td><td class="req">required</td></tr>
+            <tr><td>dst_path</td><td>string</td><td>Destination NBT path</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>append</span><span class="fn-summary">Append a value to a list path</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Appends to the end of the list at <code>dst_path</code>. Source value is read from <code>src_storage</code> / <code>src_path</code>.</span></div></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>merge</span><span class="fn-summary">Merge a compound into a storage path</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>src_storage / src_path</td><td>string</td><td>Source compound</td><td class="req">required</td></tr><tr><td>dst_storage / dst_path</td><td>string</td><td>Merge target</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>exists</span><span class="fn-summary">Check if a path has data</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Output</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>byte</td><td><code>1b</code> if path exists and is non-empty</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>pop</span><span class="fn-summary">Remove and return the last list element</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Output</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>any</td><td>Popped element written to <code>macro:output result</code></td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/nbt/</span>swap</span><span class="fn-summary">Swap two storage paths atomically</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-tip"><span class="callout-icon">✔</span><span>Uses a temp buffer to perform a 3-step swap without data loss.</span></div></div></div>
+    </div>
+  </section>
+
+  <!-- ── MATH ── -->
+  <section class="section-anchor" id="mod-math">
+    <div class="module-header">
+      <div class="module-icon-box">🔢</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>math</div>
+        <div class="module-desc">Fixed-point integer math via scoreboard. All values are integers unless noted. Trigonometric functions use lookup tables. Results written to <code>macro:output result</code>.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/math/</span>clamp</span><span class="fn-summary">Clamp value between min and max</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>value</td><td>int</td><td>Value to clamp</td><td class="req">required</td></tr>
+            <tr><td>min</td><td>int</td><td>Lower bound</td><td class="req">required</td></tr>
+            <tr><td>max</td><td>int</td><td>Upper bound</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>int</td><td>Clamped value</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/math/</span>lerp</span><span class="fn-summary">Linear interpolation between a and b</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>a</td><td>int</td><td>Start value</td><td class="req">required</td></tr>
+            <tr><td>b</td><td>int</td><td>End value</td><td class="req">required</td></tr>
+            <tr><td>t</td><td>int</td><td>Factor as integer <code>0–100</code> (represents 0.0–1.0)</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>int</td><td>Interpolated value: <code>a + (b-a)*t/100</code></td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/math/</span>distance3d</span><span class="fn-summary">Euclidean distance between two integer points</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>x1, y1, z1</td><td>int</td><td>Point A</td><td class="req">required</td></tr>
+            <tr><td>x2, y2, z2</td><td>int</td><td>Point B</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>int</td><td>Integer Euclidean distance. Overflow-protected at 26754 per axis.</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/math/</span>random</span><span class="fn-summary">Pseudo-random integer in [min, max]</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>min</td><td>int</td><td>Inclusive lower bound</td><td class="req">required</td></tr>
+            <tr><td>max</td><td>int</td><td>Inclusive upper bound</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>int</td><td>LCG-generated random number, seeded from tick counter + epoch</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/math/</span>…</span><span class="fn-summary">Other math functions</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Additional functions available in <code>macro:systems/math/</code>: <code>abs</code>, <code>min</code>, <code>max</code>, <code>minmax</code>, <code>sqrt</code>, <code>pow</code>, <code>mod</code>, <code>divmod</code>, <code>sign</code>, <code>sin</code>, <code>cos</code>, <code>atan2</code>, <code>log2</code>, <code>gcd</code>, <code>lcm</code>, <code>average</code>, <code>sum3</code>, <code>ceil_div</code>, <code>mul_div</code>, <code>factorial</code>, <code>wrap</code>, <code>map</code>, <code>weighted_random</code>, <code>is_between</code>, <code>round</code>. All read from <code>macro:input</code> and write to <code>macro:output result</code>.</span></div>
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>Vector operations: <code>macro:systems/math/vec/add</code>, <code>sub</code>, <code>dot</code>, <code>cross</code>, <code>normalize</code>, <code>angle_between</code>.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GEO ── -->
+  <section class="section-anchor" id="mod-geo">
+    <div class="module-header">
+      <div class="module-icon-box">📐</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>geo</div>
+        <div class="module-desc">Spatial queries: AABB region checks, sphere checks, nearby-player dispatch, and region watching with enter/leave callbacks.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/geo/</span>in_region</span><span class="fn-summary">AABB point-in-box test</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>x, y, z</td><td>int</td><td>Point to test</td><td class="req">required</td></tr>
+            <tr><td>x1, y1, z1</td><td>int</td><td>Corner A of the box (auto-normalized)</td><td class="req">required</td></tr>
+            <tr><td>x2, y2, z2</td><td>int</td><td>Corner B of the box (auto-normalized)</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>byte</td><td><code>1b</code> inside, <code>0b</code> outside. Corners are sorted automatically — no need to order them.</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/geo/</span>in_sphere</span><span class="fn-summary">Point-in-sphere test</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>x, y, z</td><td>int</td><td>Point to test</td><td class="req">required</td></tr>
+            <tr><td>cx, cy, cz</td><td>int</td><td>Sphere center</td><td class="req">required</td></tr>
+            <tr><td>r</td><td>int</td><td>Sphere radius</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>result</td><td>byte</td><td><code>1b</code> inside, <code>0b</code> outside</td></tr>
+            <tr><td>dist_sq</td><td>int</td><td>Squared distance from center (useful for proximity sorting)</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/geo/region_watch/</span>register</span><span class="fn-summary">Watch a region for player enter/leave events</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>key</td><td>string</td><td>Region identifier</td><td class="req">required</td></tr>
+            <tr><td>x1,y1,z1,x2,y2,z2</td><td>int</td><td>AABB corners</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to fire on enter</td><td class="opt">optional</td></tr>
+            <tr><td>cmd</td><td>string</td><td>Command to run on enter</td><td class="opt">optional</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>On leave, the engine fires <code>func</code> (or <code>cmd</code>) with an additional <code>macro:output leave</code> flag set to <code>1b</code>.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOUND ── -->
+  <section class="section-anchor" id="mod-sound">
+    <div class="module-header">
+      <div class="module-icon-box">🔊</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>sound</div>
+        <div class="module-desc">Sound playback wrappers. <code>play</code> uses entity-relative position (run inside <code>execute as &lt;target&gt; at @s</code>). <code>play_at</code> uses absolute coordinates.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/sound/</span>play</span><span class="fn-summary">Play sound at executor's position</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Input is read from the <code>sound</code> sub-key of <code>macro:input</code>. Call: <code>function macro:systems/sound/play with storage macro:input sound</code></span></div>
+          <div class="param-label">Input (macro:input sound — compound)</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>sound</td><td>string</td><td>Sound event e.g. <code>"minecraft:entity.player.levelup"</code></td><td class="req">required</td></tr>
+            <tr><td>category</td><td>string</td><td><code>master</code> <code>music</code> <code>record</code> <code>weather</code> <code>block</code> <code>hostile</code> <code>neutral</code> <code>player</code> <code>ambient</code> <code>voice</code></td><td class="req">required</td></tr>
+            <tr><td>target</td><td>string</td><td>Player selector e.g. <code>"@a"</code></td><td class="req">required</td></tr>
+            <tr><td>volume</td><td>float</td><td>Volume multiplier (default <code>1.0f</code>)</td><td class="opt">optional</td></tr>
+            <tr><td>pitch</td><td>float</td><td>Pitch 0.0–2.0 (default <code>1.0f</code>)</td><td class="opt">optional</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input sound <span class="kw">set value</span> {sound:<span class="str">"minecraft:entity.player.levelup"</span>,category:<span class="str">"player"</span>,target:<span class="str">"@a"</span>,volume:<span class="num">1.0</span>f,pitch:<span class="num">1.0</span>f}
+<span class="fn-hl">function</span> macro:systems/sound/play <span class="kw">with</span> storage macro:input sound</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/sound/</span>play_at</span><span class="fn-summary">Play sound at absolute XYZ coordinates</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-tip"><span class="callout-icon">✔</span><span>Same compound structure as <code>play</code>, but also requires <code>x</code>, <code>y</code>, <code>z</code> float fields in the compound.</span></div></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/sound/</span>stop</span><span class="fn-summary">Stop a sound for players</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input (macro:input sound)</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>target</td><td>string</td><td>Player selector</td><td class="req">required</td></tr><tr><td>category</td><td>string</td><td>Channel to stop (omit to stop all)</td><td class="opt">optional</td></tr><tr><td>sound</td><td>string</td><td>Specific sound to stop</td><td class="opt">optional</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── UUID ── -->
+  <section class="section-anchor" id="mod-uuid">
+    <div class="module-header">
+      <div class="module-icon-box">🔑</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>uuid</div>
+        <div class="module-desc">UUID extraction and string conversion. Converts entity int[4] UUIDs to hyphenated hex strings and maintains a player-name→UUID cache.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/uuid/</span>from_entity</span><span class="fn-summary">Convert @s UUID to hex string</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>Run as the entity with <code>execute as &lt;entity&gt; run function macro:systems/uuid/from_entity</code>. No input needed.</span></div>
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>macro:input value</td><td>string</td><td>UUID as <code>"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</code>. Note: written to <code>macro:input value</code> (AME convention for UUID results).</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/uuid/</span>from_array</span><span class="fn-summary">Convert int[4] UUID to hex string</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>uuid</td><td>int[]</td><td>4-element int array from entity NBT</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/uuid/</span>store</span><span class="fn-summary">Cache UUID → player name mapping</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>uuid</td><td>string</td><td>Hex UUID string</td><td class="req">required</td></tr><tr><td>name</td><td>string</td><td>Player name to associate</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/uuid/</span>recall</span><span class="fn-summary">Look up player name by UUID</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>uuid</td><td>string</td><td>Hex UUID string</td><td class="req">required</td></tr></tbody></table><div class="param-label">Output</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>result</td><td>string</td><td>Player name, or absent if not cached</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── HOOK ── -->
+  <section class="section-anchor" id="mod-hook">
+    <div class="module-header">
+      <div class="module-icon-box">🪝</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>hook</div>
+        <div class="module-desc">Bind functions or commands to built-in Minecraft player events. Multiple binds per event are supported. Executed as the triggering player.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/hook/</span>bind</span><span class="fn-summary">Bind a function to a player event</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>event</td><td>string</td><td>Event name (see list below)</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to run as the triggering player</td><td class="opt">one of</td></tr>
+            <tr><td>cmd</td><td>string</td><td>Command to run (used if func absent)</td><td class="opt">one of</td></tr>
+          </tbody></table>
+          <div class="param-label">Available Events</div>
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><div>
+            <code>player_join</code> · <code>player_death</code> · <code>player_respawn</code> · <code>level_up</code> ·
+            <code>block_place</code> · <code>block_break</code> · <code>item_use</code> · <code>on_drop</code> ·
+            <code>on_eat</code> · <code>on_jump</code> · <code>on_fish_caught</code> · <code>on_entity_kill</code> ·
+            <code>on_trade</code> · <code>on_enchant</code> · <code>on_open_chest</code> · <code>on_target_hit</code> ·
+            <code>elytra_start</code> · <code>elytra_stop</code> · <code>sneak_start</code> · <code>sneak_stop</code> ·
+            <code>sprint_start</code> · <code>sprint_stop</code> · <code>dimension_change</code> · <code>interact_anvil</code> ·
+            <code>interact_shulker_box</code> · <code>killed_by_arrow</code> · <code>hero_of_the_village</code>
+          </div></div>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input event <span class="kw">set value</span> <span class="str">"player_death"</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:on_death"</span>
+<span class="fn-hl">function</span> macro:systems/hook/bind <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/hook/</span>unbind</span><span class="fn-summary">Remove a specific bind from an event</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>event</td><td>string</td><td>Event name</td><td class="req">required</td></tr><tr><td>func</td><td>string</td><td>Function to remove (matches by value)</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/hook/raycast/</span>start</span><span class="fn-summary">Cast a ray from executor's eye position</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Steps along the ray 0.1 blocks/step. On hit, calls <code>raycast/found</code>. Override <code>raycast/found</code> in your pack to handle the result. Executor must be a player.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── LOG ── -->
+  <section class="section-anchor" id="mod-log">
+    <div class="module-header">
+      <div class="module-icon-box">📝</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:systems/</span>log</div>
+        <div class="module-desc">Structured logging to the <code>macro.debug</code> tag audience. Log level is controlled by the <code>#ame.log_level ame.log_level</code> scoreboard fake-player.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:systems/log/</span>info · warn · error · debug</span><span class="fn-summary">Log a message at the given level</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>Use inline macro syntax for brevity:</span></div>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="mac">$</span><span class="fn-hl">function</span> macro:systems/log/info {message:<span class="str">"[MyPack] Player joined"</span>}
+<span class="mac">$</span><span class="fn-hl">function</span> macro:systems/log/warn {message:<span class="str">"[MyPack] Cooldown expired early"</span>}
+<span class="mac">$</span><span class="fn-hl">function</span> macro:systems/log/error {message:<span class="str">"[MyPack] Missing storage key"</span>}</pre>
+          </div>
+          <div class="param-label">Log Level Thresholds</div>
+          <table class="param-table"><thead><tr><th>Level</th><th>Threshold</th><th>Color</th></tr></thead><tbody>
+            <tr><td>debug</td><td>≥ 4</td><td>gray</td></tr>
+            <tr><td>info</td><td>≥ 3</td><td>gray</td></tr>
+            <tr><td>warn</td><td>≥ 2</td><td>yellow</td></tr>
+            <tr><td>error</td><td>≥ 1</td><td>red</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Only players with the <code>macro.debug</code> tag see log output. Add with: <code>/tag @s add macro.debug</code></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EVENTS ── -->
+  <section class="section-anchor" id="mod-events">
+    <div class="module-header">
+      <div class="module-icon-box">📡</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:</span>events</div>
+        <div class="module-desc">Custom named event system. Register multiple handlers per event, fire by name. Handlers are stored in <code>macro:engine events.&lt;event&gt;</code> as a list of compounds.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:events/</span>register</span><span class="fn-summary">Register a handler for a named event</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>event</td><td>string</td><td>Event name (arbitrary string)</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to call when event fires</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input event <span class="kw">set value</span> <span class="str">"boss_defeated"</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:on_boss_defeated"</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:events/register <span class="kw">with</span> storage macro:input {}
+
+<span class="cmt"># Fire the event later:</span>
+<span class="fn-hl">data modify</span> storage macro:input event <span class="kw">set value</span> <span class="str">"boss_defeated"</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:events/fire <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:events/</span>fire</span><span class="fn-summary">Fire all handlers for an event</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>event</td><td>string</td><td>Event name to fire</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>If no handlers are registered, the call returns immediately (no-op). Debug players see a SKIP message.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:events/</span>fire_queued</span><span class="fn-summary">Fire event via the rate-limited queue</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-tip"><span class="callout-icon">✔</span><span>Use when the event fires many times per tick and you want to spread handler execution.</span></div></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:events/</span>unregister</span><span class="fn-summary">Remove all handlers for an event</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>event</td><td>string</td><td>Event name to clear</td><td class="req">required</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── INTERACTION ── -->
+  <section class="section-anchor" id="mod-interaction">
+    <div class="module-header">
+      <div class="module-icon-box">🖱</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:api/</span>interaction</div>
+        <div class="module-desc">Spawns and manages <code>minecraft:interaction</code> hitbox entities. Bind left-click (attack) and right-click (use) callbacks by entity tag.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/interaction/</span>spawn</span><span class="fn-summary">Summon an interaction entity at executor's position</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>tag</td><td>string</td><td>Entity tag — used to route callbacks and remove later</td><td class="req">required</td></tr>
+            <tr><td>width</td><td>double</td><td>Hitbox width</td><td class="req">required</td></tr>
+            <tr><td>height</td><td>double</td><td>Hitbox height</td><td class="req">required</td></tr>
+            <tr><td>response</td><td>bool</td><td><code>1b</code> to show attack animation, <code>0b</code> for silent</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">data modify</span> storage macro:input tag <span class="kw">set value</span> <span class="str">"my_button"</span>
+<span class="fn-hl">data modify</span> storage macro:input width <span class="kw">set value</span> <span class="num">1.0</span>d
+<span class="fn-hl">data modify</span> storage macro:input height <span class="kw">set value</span> <span class="num">1.0</span>d
+<span class="fn-hl">data modify</span> storage macro:input response <span class="kw">set value</span> <span class="num">0</span>b
+<span class="mac">$</span><span class="fn-hl">function</span> macro:api/interaction/spawn <span class="kw">with</span> storage macro:input {}
+
+<span class="cmt"># Bind left-click callback</span>
+<span class="fn-hl">data modify</span> storage macro:input func <span class="kw">set value</span> <span class="str">"mypack:on_button_click"</span>
+<span class="mac">$</span><span class="fn-hl">function</span> macro:api/interaction/bind_attack <span class="kw">with</span> storage macro:input {}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/interaction/</span>bind_attack</span><span class="fn-summary">Bind left-click handler to an entity tag</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>tag</td><td>string</td><td>Entity tag to match (must match the spawned entity)</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to run as the attacking player</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Bind record is stored in <code>macro:engine interaction_binds.attack</code>. The engine scans these each tick against recent attack events.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/interaction/</span>bind_use</span><span class="fn-summary">Bind right-click handler to an entity tag</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>tag</td><td>string</td><td>Entity tag</td><td class="req">required</td></tr><tr><td>func</td><td>string</td><td>Function to run as the interacting player</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/interaction/</span>remove</span><span class="fn-summary">Kill all interaction entities with a tag</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>tag</td><td>string</td><td>Entity tag — kills all <code>@e[type=minecraft:interaction,tag=&lt;tag&gt;]</code></td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/interaction/</span>unbind_attack / unbind_use</span><span class="fn-summary">Remove a click binding by tag</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>tag</td><td>string</td><td>Entity tag whose binding to remove</td><td class="req">required</td></tr></tbody></table></div></div>
+    </div>
+  </section>
+
+  <!-- ── WAND ── -->
+  <section class="section-anchor" id="mod-wand">
+    <div class="module-header">
+      <div class="module-icon-box">🪄</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:api/</span>wand</div>
+        <div class="module-desc">Item-based wand system using <code>minecraft:custom_data</code> tags. Registers carrot-on-a-stick items as named wands and dispatches right-click callbacks by tag.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/wand/</span>register</span><span class="fn-summary">Register a wand tag with a callback</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>tag</td><td>string</td><td>Custom data tag name e.g. <code>"fire_wand"</code></td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to run on right-click use</td><td class="opt">one of</td></tr>
+            <tr><td>cmd</td><td>string</td><td>Command to run on use (if no func)</td><td class="opt">one of</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Bind is stored in <code>macro:engine wand_binds</code>. The engine ticks <code>api/wand/internal/tick_scan</code> to detect item use events each tick.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/wand/</span>give</span><span class="fn-summary">Give a wand item to a player</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>player</td><td>string</td><td>Player name (matched with <code>@a[name=…]</code>)</td><td class="req">required</td></tr>
+            <tr><td>tag</td><td>string</td><td>Wand tag written into <code>minecraft:custom_data {wand:"tag"}</code></td><td class="req">required</td></tr>
+            <tr><td>name</td><td>string</td><td>Display name string (written as <code>minecraft:item_name</code>)</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><span>Gives a <code>minecraft:carrot_on_a_stick</code> with enchantment glint, custom_data wand tag, and the provided name. Use <code>wand/give_lore</code> to add lore lines.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/wand/</span>unregister</span><span class="fn-summary">Remove a wand bind by tag</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="param-label">Input</div><table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody><tr><td>tag</td><td>string</td><td>Wand tag to unregister</td><td class="req">required</td></tr></tbody></table></div></div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/wand/</span>cooldown_set / cooldown_check</span><span class="fn-summary">Per-wand use cooldown helpers</span><span class="fn-toggle">▾</span></div><div class="fn-card-body"><div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Thin wrappers around <code>macro:core/cooldown</code> pre-keyed by wand tag. Input: <code>tag</code>, <code>player</code>, <code>duration</code>.</span></div></div></div>
+    </div>
+  </section>
+
+  <!-- ── API/CMD ── -->
+  <section class="section-anchor" id="mod-cmd">
+    <div class="module-header">
+      <div class="module-icon-box">💬</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:api/</span>cmd</div>
+        <div class="module-desc">Macro-injected wrappers for common Minecraft commands. All inputs passed as <code>$(field)</code> variables — no string concatenation needed. Sandbox-guarded on servers with <code>macro:engine sandbox=1b</code>.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/cmd/</span>summon</span><span class="fn-summary">Summon an entity with macro-injected NBT</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>entity</td><td>string</td><td>Entity type e.g. <code>"minecraft:zombie"</code></td><td class="req">required</td></tr>
+            <tr><td>x, y, z</td><td>double</td><td>Position (use <code>~</code> for relative via <code>execute at @s</code>)</td><td class="req">required</td></tr>
+            <tr><td>nbt</td><td>string</td><td>NBT compound string e.g. <code>"{NoAI:1b}"</code></td><td class="opt">optional</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/cmd/</span>particle</span><span class="fn-summary">Spawn particles with macro args</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>name</td><td>string</td><td>Particle type e.g. <code>"minecraft:flame"</code></td><td class="req">required</td></tr>
+            <tr><td>x, y, z</td><td>double</td><td>Center position</td><td class="req">required</td></tr>
+            <tr><td>dx, dy, dz</td><td>double</td><td>Spread</td><td class="req">required</td></tr>
+            <tr><td>speed</td><td>double</td><td>Particle speed</td><td class="req">required</td></tr>
+            <tr><td>count</td><td>int</td><td>Particle count</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-warn"><span class="callout-icon">⚠</span><span>Runs <code>check_all</code> (debug/load guard) before executing. High counts in tight loops can cause client-side lag.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/cmd/</span>sound</span><span class="fn-summary">Play sound to a named player</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>player</td><td>string</td><td>Player name (<code>@a[name=…]</code> match)</td><td class="req">required</td></tr>
+            <tr><td>sound</td><td>string</td><td>Sound event ID</td><td class="req">required</td></tr>
+            <tr><td>volume</td><td>double</td><td>Volume</td><td class="req">required</td></tr>
+            <tr><td>pitch</td><td>double</td><td>Pitch</td><td class="req">required</td></tr>
+          </tbody></table>
+          <div class="callout callout-info"><span class="callout-icon">ℹ</span><span>Executed <code>as @a[name=player] at @s</code> — sound plays from the player's position. For all-player broadcast use <code>macro:systems/sound/play</code> with <code>target:"@a"</code>.</span></div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:api/cmd/</span>… (other wrappers)</span><span class="fn-summary">Full list of command wrappers</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><div>All in <code>macro:api/cmd/</code>: <code>tp</code> <code>tp_to_coords</code> <code>tp_to_entity</code> <code>tp_to_player</code> <code>tp_facing</code> · <code>give</code> <code>give_one</code> <code>clear</code> <code>clear_item</code> · <code>effect_give</code> <code>effect_clear</code> <code>effect_give_all</code> · <code>gamemode</code> <code>kill</code> <code>damage</code> <code>damage_typed</code> · <code>title</code> <code>title_bold</code> <code>title_sub</code> <code>title_times</code> <code>title_clear</code> <code>subtitle</code> <code>actionbar</code> · <code>setblock</code> <code>fill</code> <code>clone</code> <code>clone_masked</code> · <code>gamerule</code> <code>difficulty</code> <code>weather</code> <code>time_set</code> <code>time_add</code> · <code>scoreboard_get</code> <code>scoreboard_set</code> <code>scoreboard_add</code> · <code>attribute_get</code> <code>attribute_set</code> <code>attribute_add_modifier</code> <code>attribute_remove_modifier</code> · <code>enchant</code> <code>xp_add</code> <code>xp_set</code> <code>xp_get</code> · <code>ride</code> <code>ride_dismount</code> <code>heal</code> <code>spectate</code> <code>spreadplayers</code> · <code>forceload_add</code> <code>forceload_remove</code> · <code>bossbar_add</code> <code>bossbar_remove</code> <code>bossbar_set_value</code> <code>bossbar_set_max</code> <code>bossbar_set_players</code></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WORLD ── -->
+  <section class="section-anchor" id="mod-world">
+    <div class="module-header">
+      <div class="module-icon-box">🌍</div>
+      <div class="module-meta">
+        <div class="module-name"><span class="ns">macro:</span>world</div>
+        <div class="module-desc">World state queries and entity management utilities.</div>
+      </div>
+    </div>
+    <div class="fn-list">
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:world/</span>get_time</span><span class="fn-summary">Read current world time</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Output</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+            <tr><td>daytime</td><td>int</td><td>Ticks within the current day (<code>0–23999</code>)</td></tr>
+            <tr><td>total</td><td>int</td><td>Total world age in ticks (never resets)</td></tr>
+            <tr><td>day</td><td>int</td><td>Current in-game day number</td></tr>
+          </tbody></table>
+          <div class="code-block"><div class="code-block-header"><span class="code-lang">.mcfunction</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+<pre><span class="fn-hl">function</span> macro:world/get_time
+<span class="fn-hl">data get</span> storage macro:output daytime</pre>
+          </div>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:world/entity/</span>nearest</span><span class="fn-summary">Run function as the nearest entity of a type</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="param-label">Input</div>
+          <table class="param-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th><th></th></tr></thead><tbody>
+            <tr><td>player</td><td>string</td><td>Player name — origin of the search</td><td class="req">required</td></tr>
+            <tr><td>type</td><td>string</td><td>Entity type e.g. <code>"minecraft:zombie"</code></td><td class="req">required</td></tr>
+            <tr><td>radius</td><td>int</td><td>Search radius in blocks</td><td class="req">required</td></tr>
+            <tr><td>func</td><td>string</td><td>Function to run as the found entity</td><td class="req">required</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="fn-card"><div class="fn-card-head" onclick="toggle(this)"><span class="fn-method fn">FN</span><span class="fn-path"><span class="ns-part">macro:world/entity/</span>… (other entity functions)</span><span class="fn-summary">Entity utilities</span><span class="fn-toggle">▾</span></div>
+        <div class="fn-card-body">
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><div>Available in <code>macro:world/entity/</code>: <code>count</code> <code>for_each</code> <code>for_each_in_radius</code> <code>summon_at_player</code> <code>kill_tagged</code> <code>tag_add</code> <code>tag_remove</code> <code>tp_to</code> <code>nearest</code> <code>give_effect</code> <code>clear_effects</code> <code>damage</code> <code>set_health</code></div></div>
+          <div class="callout callout-tip"><span class="callout-icon">✔</span><div>World fill/block: <code>macro:world/fill_hollow</code> <code>fill_keep</code> <code>fill_outline</code> <code>fill_replace</code> <code>setblock_if</code> <code>block_if</code> <code>block_unless</code> <code>clone_to</code> <code>time_phase</code></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer class="page-footer">
+  macroEngine (AME) · runtoolkit · Minecraft Java Edition · pack_format 94 · 1.21.11
+</footer>
+
+<script>
+  function toggle(head) {
+    head.closest('.fn-card').classList.toggle('open');
+  }
+  function nav(el, id) {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+    const t = document.getElementById(id);
+    if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  const sections = document.querySelectorAll('.section-anchor');
+  const links = document.querySelectorAll('.sidebar-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.toggle('active', l.dataset.target === id));
+      }
+    });
+  }, {rootMargin:'-56px 0px -60% 0px', threshold:0});
+  sections.forEach(s => obs.observe(s));
+
+  function copyCode(btn) {
+    const text = btn.closest('.code-block').querySelector('pre').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    if (!q) {
+      document.querySelectorAll('.fn-card, .section-anchor').forEach(el => el.classList.remove('hidden'));
+      return;
+    }
+    document.querySelectorAll('.section-anchor').forEach(section => {
+      const cards = section.querySelectorAll('.fn-card');
+      if (cards.length) {
+        let any = false;
+        cards.forEach(card => {
+          const match = card.textContent.toLowerCase().includes(q);
+          card.classList.toggle('hidden', !match);
+          if (match) any = true;
+        });
+        const headerMatch = section.querySelector('.module-header')?.textContent.toLowerCase().includes(q);
+        section.classList.toggle('hidden', !any && !headerMatch);
+      } else {
+        section.classList.toggle('hidden', !section.textContent.toLowerCase().includes(q));
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "dpgen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "archiver": "^6.0.2",
+    "js-yaml": "^5.2.2"
+  }
+}

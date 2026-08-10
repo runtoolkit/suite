@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "datalib",
+  "version": "6.0.0",
+  "name": "dataLib",
+  "description": "Optimized and modern continuation of the dataLib library engine for runtoolkit.",
+  "license": "MIT",
+  "icon": "pack.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "net.datalib.Main"
+    ]
+  },
+  "depends": {
+    "minecraft": "26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "criteria": {
+    "used_any_item": {
+      "trigger": "minecraft:using_item"
+    }
+  },
+  "rewards": {
+    "function": "macro:systems/hook/on_item_use"
+  },
+  "parent": "macro:hidden/root"
+}

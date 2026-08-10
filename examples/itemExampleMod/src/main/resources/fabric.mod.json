@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "customcmd",
+  "version": "${version}",
+  "name": "Custom Command Example",
+  "description": "Argüman örneği: /mycommand <oyuncu> <miktar>",
+  "authors": ["example"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.example.customcmd.CustomCmdMod"],
+    "client": ["com.example.customcmd.CustomCmdModClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "fabric-api": "*",
+    "minecraft": "~26.1.2"
+  }
+}

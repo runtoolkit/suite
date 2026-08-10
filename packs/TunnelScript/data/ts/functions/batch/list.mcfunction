@@ -1,0 +1,11 @@
+# Print all fixed batch slots. Empty slots show blank values.
+tellraw @s {"text":"[TunnelScript] batch slots","color":"aqua","bold":true}
+tellraw @s [{"text":"1: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s1.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s1.commands","color":"gray"}]
+tellraw @s [{"text":"2: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s2.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s2.commands","color":"gray"}]
+tellraw @s [{"text":"3: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s3.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s3.commands","color":"gray"}]
+tellraw @s [{"text":"4: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s4.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s4.commands","color":"gray"}]
+tellraw @s [{"text":"5: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s5.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s5.commands","color":"gray"}]
+tellraw @s [{"text":"6: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s6.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s6.commands","color":"gray"}]
+tellraw @s [{"text":"7: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s7.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s7.commands","color":"gray"}]
+tellraw @s [{"text":"8: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s8.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s8.commands","color":"gray"}]
+tellraw @s [{"text":"9: ","color":"gray"},{"storage":"tunnelscript:batch","nbt":"slots.s9.name","color":"white"},{"text":"  commands=","color":"dark_gray"},{"storage":"tunnelscript:batch","nbt":"slots.s9.commands","color":"gray"}]

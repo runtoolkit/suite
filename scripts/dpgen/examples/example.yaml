@@ -1,0 +1,37 @@
+pack:
+  name: "test-pack"
+  description: "dpgen test datapack"
+  min_format: 105
+  max_format: 110
+
+namespaces:
+  - id: testns
+    functions:
+      - path: main
+        tick: true
+        commands:
+          - "say tick running"
+      - path: init
+        load: true
+        commands:
+          - "say datapack loaded"
+      - path: greet
+        macro: true
+    advancements:
+      - path: root
+        title: "Test Root"
+        description: "Hidden root advancement"
+        icon: "minecraft:stick"
+        hidden: true
+        reward_function: "testns:init"
+    recipes:
+      - path: test_item
+        type: shapeless
+        result: "minecraft:emerald"
+        count: 1
+        ingredients: ["minecraft:diamond"]
+    loot_tables:
+      - path: test_chest
+        kind: chest
+        item: "minecraft:gold_ingot"
+        count: 3

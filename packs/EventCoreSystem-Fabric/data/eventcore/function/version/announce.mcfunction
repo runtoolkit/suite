@@ -1,0 +1,1 @@
+tellraw @a [{"text":"","extra":[{"text":"[","color":"dark_gray"},{"text":"EventCore","color":"aqua","bold":true},{"text":"]","color":"dark_gray"},{"text":" v","color":"gray"},{"storage":"eventcore:config","nbt":"version","color":"green","bold":true},{"text":" yüklendi.","color":"gray"}]}]

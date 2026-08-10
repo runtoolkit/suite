@@ -1,0 +1,30 @@
+# Gradle / Java
+.gradle/
+build/
+out/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+hs_err_pid*
+replay_pid*
+
+# Minecraft run directories
+run/
+run-*/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+!gradle/wrapper/gradle-wrapper.jar
+!datapack/
+!rtwrapper-fabric/gradle/wrapper/gradle-wrapper.jar

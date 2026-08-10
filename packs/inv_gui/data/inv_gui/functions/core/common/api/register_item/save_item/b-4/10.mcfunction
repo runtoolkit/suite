@@ -1,0 +1,5 @@
+#> inv_gui:core/common/api/register_item/save_item/b-4/10
+# @within function inv_gui:core/common/api/register_item/save_item/b-3/7
+
+execute if score $TargetSlot inv_gui matches 24 run item replace block ~ ~ ~ container.24 from block 10000 0 10000 container.0
+execute if score $TargetSlot inv_gui matches 25 run item replace block ~ ~ ~ container.25 from block 10000 0 10000 container.0

@@ -1,0 +1,12 @@
+{
+  "pack": {
+    "pack_format": 41,
+    "description": "LeftClickDetection 1.0.1",
+    "supported_formats": [
+      26,
+      101
+    ],
+    "min_format": 26,
+    "max_format": 101
+  }
+}

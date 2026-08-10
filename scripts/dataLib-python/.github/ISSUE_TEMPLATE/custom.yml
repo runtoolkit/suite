@@ -1,0 +1,11 @@
+name: Custom Issue
+description: Open a custom issue
+labels: []
+body:
+  - type: textarea
+    id: content
+    attributes:
+      label: Content
+      description: Write anything here
+    validations:
+      required: true

@@ -1,0 +1,75 @@
+{
+  "pack": {
+    "description": {
+      "text": "Command Tunnel System",
+      "color": "green",
+      "font": "minecraft:default",
+      "bold": false,
+      "italic": true,
+      "underlined": false,
+      "strikethrough": false,
+      "obfuscated": false
+    },
+    "pack_format": 12
+  },
+  "filter": {
+    "block": [
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.sh"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.js"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.js"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.bat"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.html"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.txt"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.ps1"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.jar"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.exe"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.c"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.htm"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.txt"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.cmd"
+      },
+      {
+        "namespace": "cmd_tunnel_sys",
+        "path": "functions/*.zip"
+      }
+    ]
+  }
+}

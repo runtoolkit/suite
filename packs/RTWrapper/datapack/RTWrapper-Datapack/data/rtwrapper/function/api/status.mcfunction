@@ -1,0 +1,1 @@
+tellraw @s [{"text":"[RTWrapper] processed=","color":"gold"},{"score":{"name":"#processed","objective":"rtw.status"},"color":"yellow"},{"text":" errors=","color":"gold"},{"score":{"name":"#errors","objective":"rtw.status"},"color":"red"}]

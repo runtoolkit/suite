@@ -1,0 +1,120 @@
+name: Release
+
+"on":
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versiyon (örn: 2.4.3)"
+        required: true
+        type: string
+      prerelease:
+        description: "Pre-release mi?"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  validate:
+    name: Doğrulama
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        run: |
+          git clone ${{ github.server_url }}/${{ github.repository }} .
+          git checkout ${{ github.sha }}
+
+      - name: CRLF Kontrolü
+        run: |
+          echo "=== CRLF kontrolü ==="
+          FILES=$(grep -rlP '\r' data/ --include="*.mcfunction" 2>/dev/null || true)
+          if [ -n "$FILES" ]; then
+            echo "HATA: Aşağıdaki dosyalarda CRLF satır sonu tespit edildi:"
+            echo "$FILES"
+            exit 1
+          fi
+          echo "OK: CRLF bulunamadı."
+
+      - name: UTF-8 Encoding Kontrolü
+        run: |
+          echo "=== UTF-8 kontrolü ==="
+          FAILED=0
+          while IFS= read -r -d '' f; do
+            if ! iconv -f UTF-8 -t UTF-8 "$f" > /dev/null 2>&1; then
+              echo "HATA: $f geçersiz UTF-8 içeriyor"
+              FAILED=1
+            fi
+          done < <(find data/ -name "*.mcfunction" -print0)
+          if [ "$FAILED" -eq 1 ]; then exit 1; fi
+          echo "OK: Tüm dosyalar geçerli UTF-8."
+
+      - name: Versiyon Tutarlılık Kontrolü
+        run: |
+          echo "=== Versiyon kontrolü ==="
+          INPUT_VER="${{ github.event.inputs.version }}"
+          MCMETA_VER=$(python3 -c "
+          import json, sys
+          d = json.load(open('pack.mcmeta'))
+          desc = d['pack']['description']
+          import re
+          m = re.search(r'v(\d+\.\d+\.\d+)', desc)
+          print(m.group(1) if m else '')
+          ")
+          CONFIG_VER=$(grep -oP 'set value "\K[0-9]+\.[0-9]+\.[0-9]+(?=")' \
+            data/eventcore/function/config/load.mcfunction | head -1)
+          echo "Girdi          : $INPUT_VER"
+          echo "pack.mcmeta    : $MCMETA_VER"
+          echo "config/load    : $CONFIG_VER"
+          FAIL=0
+          if [ "$MCMETA_VER" != "$INPUT_VER" ]; then
+            echo "HATA: pack.mcmeta versiyonu ($MCMETA_VER) girdi ile eşleşmiyor ($INPUT_VER)"
+            FAIL=1
+          fi
+          if [ "$CONFIG_VER" != "$INPUT_VER" ]; then
+            echo "HATA: config/load versiyonu ($CONFIG_VER) girdi ile eşleşmiyor ($INPUT_VER)"
+            FAIL=1
+          fi
+          if [ "$FAIL" -eq 1 ]; then exit 1; fi
+          echo "OK: Tüm versiyon referansları tutarlı."
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        run: |
+          git clone ${{ github.server_url }}/${{ github.repository }} .
+          git checkout ${{ github.sha }}
+
+      - name: ZIP Oluştur
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          ZIP_NAME="EventCoreSystem-Datapack-v${VERSION}.zip"
+          zip -r "$ZIP_NAME" . \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "*.zip"
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "ZIP oluşturuldu: $ZIP_NAME"
+          unzip -l "$ZIP_NAME" | tail -5
+
+      - name: Release Oluştur
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ github.event.inputs.version }}" \
+            "${{ env.ZIP_NAME }}" \
+            --title "EventCore v${{ github.event.inputs.version }}" \
+            --notes "## EventCore v${{ github.event.inputs.version }}
+
+          ### Kurulum
+          1. ZIP dosyasını \`world/datapacks/\` klasörüne çıkart
+          2. \`/reload\` komutunu çalıştır
+          3. Sohbette \`[EventCore] v${{ github.event.inputs.version }} yüklendi.\` mesajını gör
+
+          ### Gereksinimler
+          - Minecraft Java Edition 1.21.6+
+          - Pack Format 94" \
+            ${{ github.event.inputs.prerelease == 'true' && '--prerelease' || '' }}

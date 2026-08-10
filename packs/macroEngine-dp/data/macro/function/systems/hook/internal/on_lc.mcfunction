@@ -1,0 +1,1 @@
+function #macro:events/on_lc

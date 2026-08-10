@@ -1,0 +1,69 @@
+name: Datapack Lint
+on:
+  push:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Validate JSON
+        run: |
+          echo "Checking JSON..."
+          sudo apt-get update -q
+          sudo apt-get install -y -q jq
+          find . -name "*.json" -not -path "./.git/*" -print0 | xargs -0 -n1 jq empty
+
+      - name: Lint mcfunction files (pre-check)
+        run: |
+          echo "Scanning .mcfunction files..."
+          FILES=$(find . -name "*.mcfunction" -not -path "./.git/*")
+          if [ -z "$FILES" ]; then
+            echo "No .mcfunction files found."
+            exit 0
+          fi
+          ERRORS=0
+          while IFS= read -r file; do
+            if head -c 3 "$file" | grep -qP '^\xef\xbb\xbf'; then
+              echo "BOM detected: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+            if grep -Pql '\x00' "$file"; then
+              echo "Null byte detected: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+            if file "$file" | grep -q "CRLF"; then
+              echo "CRLF line endings: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done <<< "$FILES"
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "$ERRORS issue(s) found in .mcfunction files."
+            exit 1
+          fi
+          echo "Pre-check passed."
+
+      - name: Install mecha (latest from git)
+        run: pip install git+https://github.com/mcbeet/mecha.git --break-system-packages -q
+
+      - name: Patch mecha ignore hints (oh_my_dat compat)
+        # oh_my_dat: _[-4]... — storage'da kolon sonrası boşluk içeren satırlar
+        # Minecraft'ta geçerli, mecha parser desteklemiyor; #[IGNORE] ile atla
+        run: |
+          find . -name "*.mcfunction" -not -path "./.git/*" | while read -r f; do
+            if grep -q 'oh_my_dat: _' "$f"; then
+              sed -i '/oh_my_dat: _/i #[IGNORE]' "$f"
+            fi
+          done
+
+      - name: Validate mcfunction syntax (mecha)
+        run: mecha .
+
+      - name: Validate pack.mcmeta
+        run: |
+          if [ ! -f pack.mcmeta ]; then
+            echo "pack.mcmeta is missing!"
+            exit 1
+          fi

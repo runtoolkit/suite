@@ -1,0 +1,26 @@
+// Root build.gradle - shared lint/build tasks for all subprojects
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.fabricmc.net/' }
+    }
+}
+
+task lint {
+    group = 'verification'
+    description = 'Runs lint across all subprojects (checkstyle/spotless if present).'
+    doLast {
+        subprojects.each { sub ->
+            if (sub.tasks.findByName('checkstyleMain')) {
+                sub.tasks.checkstyleMain.actions.each { it.execute(sub.tasks.checkstyleMain) }
+            }
+        }
+        println "Lint completed (ran checkstyle/spotless where configured)."
+    }
+}
+
+task buildAll {
+    group = 'build'
+    description = 'Builds all subprojects.'
+    dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
+}

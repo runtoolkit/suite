@@ -1,0 +1,83 @@
+name: Inject dataLib
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_namespace:
+        description: "Your datapack's namespace (e.g. mypack)"
+        required: true
+      datalib_ref:
+        description: "dataLib-dp ref/tag to inject"
+        default: "main"
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target datapack
+        uses: actions/checkout@v6
+        with:
+          path: target
+
+      - name: Checkout dataLib-dp
+        uses: actions/checkout@v6
+        with:
+          repository: runtoolkit/dataLib-dp
+          ref: ${{ inputs.datalib_ref }}
+          path: datalib-src
+
+      - name: Build dataLib-full.zip
+        working-directory: datalib-src
+        run: |
+          chmod +x gradlew
+          ./gradlew zipFull --no-daemon
+
+      - name: Assemble injected copy (scratch dir, source untouched)
+        env:
+          NS: ${{ inputs.target_namespace }}
+        run: |
+          set -euo pipefail
+          mkdir -p out/injected
+          cp -r target/. out/injected/
+          mkdir -p tmp_datalib
+          unzip -q datalib-src/build/dist/dataLib-full.zip -d tmp_datalib
+          cp -r tmp_datalib/data/datalib out/injected/data/
+          cp -r tmp_datalib/data/dl_load out/injected/data/
+          cp -r tmp_datalib/data/stringlib out/injected/data/
+          cp -r tmp_datalib/data/datalib.main out/injected/data/
+          cp -r tmp_datalib/data/stringlib out/injected/data/
+
+          LOAD_FILE="out/injected/data/${NS}/function/load.mcfunction"
+          mkdir -p "$(dirname "$LOAD_FILE")"
+          if ! grep -q "loaded_datalib" "$LOAD_FILE" 2>/dev/null; then
+            cat <<EOF >> "$LOAD_FILE"
+
+          execute unless data storage datalib:engine {global:{loaded:1b}} run function ${NS}:load_datalib
+          EOF
+          fi
+
+          cat <<EOF > "out/injected/data/${NS}/function/load_datalib.mcfunction"
+          execute if data storage ${NS}:engine {loaded_datalib:1b} run return 0
+
+          function dl_load:load/yes
+          function dl_load:load/fork_no
+          tag @s add datalib.admin
+          scoreboard players set @s[tag=datalib.admin,type=minecraft:player] dl.perm_level 4
+
+          data modify storage ${NS}:engine loaded_datalib set value 1b
+          EOF
+
+      - name: Zip injected pack
+        run: cd out/injected && zip -qr ../../${{ inputs.target_namespace }}-injected.zip .
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dataLib-full
+          path: datalib-src/build/dist/dataLib-full.zip
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.target_namespace }}-injected
+          path: ${{ inputs.target_namespace }}-injected.zip
+          if-no-files-found: error

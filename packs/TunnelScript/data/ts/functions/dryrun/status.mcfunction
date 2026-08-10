@@ -1,0 +1,3 @@
+# Show whether preview mode is active and how many commands it has caught.
+execute if score #dryrun tunnelscript.vars matches 1.. run tellraw @s [{"text":"[TunnelScript] dry-run is ","color":"aqua"},{"text":"ON","color":"gold"},{"text":"  previewed=","color":"gray"},{"score":{"name":"#dryrun_count","objective":"tunnelscript.vars"},"color":"white"}]
+execute unless score #dryrun tunnelscript.vars matches 1.. run tellraw @s [{"text":"[TunnelScript] dry-run is ","color":"aqua"},{"text":"OFF","color":"green"},{"text":"  previewed=","color":"gray"},{"score":{"name":"#dryrun_count","objective":"tunnelscript.vars"},"color":"white"}]

@@ -1,0 +1,7 @@
+# macro:api/cmd/internal/sandbox_blocked [1.20.5 overlay]
+# Called by cmd/ files when sandbox:1b is active AND command is NOT in allowlist.
+# Reads macro:engine _sandbox_cmd (set by caller), logs, notifies, and kicks.
+#
+# NOTE (v5.1.0): Primary enforcement path now goes through sandbox_gate.
+# This function is retained for direct callers and backwards compatibility.
+function macro:api/cmd/internal/sandbox_blocked_macro with storage macro:engine {}

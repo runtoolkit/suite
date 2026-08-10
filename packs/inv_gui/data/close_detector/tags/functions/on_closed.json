@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "inv_gui:core/emitter/check_container_close/chest_minecart",
+        "inv_gui:core/emitter/check_container_close/ender_chest"
+    ]
+}

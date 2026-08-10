@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "datalib-log",
+  "version": "${version}",
+  "name": "DataLib Log",
+  "description": "Server log bridge for DataLib.",
+  "entrypoints": {
+    "main": [
+      "runtoolkit.datalib.log.DataLibLog"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "~1.21.1",
+    "fabric-api": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": "datalib-fabricmod"
+    }
+  }
+}

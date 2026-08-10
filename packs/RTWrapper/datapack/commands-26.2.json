@@ -1,0 +1,637 @@
+{
+  "name": "RTWrapper",
+  "id": "rtwrapper",
+  "target": "Java Edition 26.2",
+  "pack_format": 107,
+  "namespace": "rtwrapper",
+  "links": ["https://github.com/runtoolkit/RTWrapper"],
+  "variant_dispatch": true,
+  "version": "v1.0.0",
+  "command_params": {
+    "advancement": [
+      "action",
+      "targets",
+      "range",
+      "advancement"
+    ],
+    "attribute": [
+      "target",
+      "attribute",
+      "action",
+      "value",
+      "modifier_id",
+      "modifier_value",
+      "modifier_operation"
+    ],
+    "ban": [
+      "target",
+      "reason"
+    ],
+    "ban-ip": [
+      "target",
+      "reason"
+    ],
+    "banlist": [
+      "filter"
+    ],
+    "bossbar": [
+      "action",
+      "id",
+      "name",
+      "property",
+      "value",
+      "players"
+    ],
+    "clear": [
+      "targets",
+      "item",
+      "max_count"
+    ],
+    "clone": [
+      "begin",
+      "end",
+      "destination",
+      "mask_mode",
+      "clone_mode",
+      "filter"
+    ],
+    "damage": [
+      "target",
+      "amount",
+      "damage_type",
+      "location_or_by",
+      "source",
+      "cause"
+    ],
+    "data": [
+      "action",
+      "target_kind",
+      "target",
+      "path",
+      "operation",
+      "source_kind",
+      "source",
+      "source_path",
+      "value"
+    ],
+    "datapack": [
+      "action",
+      "name",
+      "position",
+      "anchor"
+    ],
+    "debug": [
+      "action",
+      "target"
+    ],
+    "defaultgamemode": [
+      "gamemode"
+    ],
+    "deop": [
+      "targets"
+    ],
+    "dialog": [
+      "action",
+      "targets",
+      "dialog"
+    ],
+    "difficulty": [
+      "difficulty"
+    ],
+    "effect": [
+      "action",
+      "targets",
+      "effect",
+      "duration",
+      "amplifier",
+      "hide_particles"
+    ],
+    "enchant": [
+      "targets",
+      "enchantment",
+      "level"
+    ],
+    "execute": [
+      "step01",
+      "step02",
+      "step03",
+      "step04",
+      "step05",
+      "step06",
+      "step07",
+      "step08",
+      "step09",
+      "step10",
+      "step11",
+      "step12",
+      "step13",
+      "step14",
+      "step15",
+      "step16",
+      "step17",
+      "step18",
+      "step19",
+      "step20",
+      "step21",
+      "step22",
+      "step23",
+      "step24",
+      "step25",
+      "step26",
+      "step27",
+      "step28",
+      "step29",
+      "step30",
+      "step31",
+      "step32"
+    ],
+    "experience": [
+      "action",
+      "targets",
+      "amount",
+      "unit"
+    ],
+    "fetchprofile": [
+      "name"
+    ],
+    "fill": [
+      "from_pos",
+      "to_pos",
+      "block",
+      "mode",
+      "filter"
+    ],
+    "fillbiome": [
+      "from_pos",
+      "to_pos",
+      "biome",
+      "replace",
+      "filter"
+    ],
+    "forceload": [
+      "action",
+      "from_pos",
+      "to_pos"
+    ],
+    "function": [
+      "function_id",
+      "mode",
+      "source",
+      "path"
+    ],
+    "gamemode": [
+      "gamemode",
+      "target"
+    ],
+    "gamerule": [
+      "rule",
+      "value"
+    ],
+    "give": [
+      "target",
+      "item",
+      "count"
+    ],
+    "help": [
+      "command"
+    ],
+    "item": [
+      "action",
+      "target_kind",
+      "target",
+      "slot",
+      "modifier",
+      "source_kind",
+      "source",
+      "source_slot",
+      "item",
+      "count"
+    ],
+    "jfr": [
+      "action"
+    ],
+    "kick": [
+      "target",
+      "reason"
+    ],
+    "kill": [
+      "targets"
+    ],
+    "list": [
+      "uuids"
+    ],
+    "locate": [
+      "category",
+      "id"
+    ],
+    "loot": [
+      "action",
+      "target",
+      "target_slot",
+      "source_kind",
+      "source",
+      "tool"
+    ],
+    "me": [
+      "message"
+    ],
+    "msg": [
+      "target",
+      "message"
+    ],
+    "op": [
+      "targets"
+    ],
+    "pardon": [
+      "targets"
+    ],
+    "pardon-ip": [
+      "target"
+    ],
+    "particle": [
+      "particle",
+      "pos",
+      "delta",
+      "speed",
+      "count",
+      "mode",
+      "viewers"
+    ],
+    "perf": [
+      "action"
+    ],
+    "place": [
+      "type",
+      "id",
+      "pos",
+      "rotation",
+      "mirror",
+      "integrity",
+      "seed"
+    ],
+    "playsound": [
+      "sound",
+      "source",
+      "targets",
+      "pos",
+      "volume",
+      "pitch",
+      "min_volume"
+    ],
+    "publish": [
+      "allow_commands",
+      "gamemode",
+      "port"
+    ],
+    "random": [
+      "action",
+      "range",
+      "sequence"
+    ],
+    "recipe": [
+      "action",
+      "targets",
+      "recipe"
+    ],
+    "reload": [],
+    "return": [
+      "mode",
+      "value",
+      "command"
+    ],
+    "ride": [
+      "target",
+      "action",
+      "vehicle"
+    ],
+    "rotate": [
+      "target",
+      "rotation_or_facing",
+      "facing_position",
+      "facing_entity",
+      "facing_anchor"
+    ],
+    "save-all": [
+      "flush"
+    ],
+    "save-off": [],
+    "save-on": [],
+    "say": [
+      "message"
+    ],
+    "schedule": [
+      "action",
+      "function_id",
+      "time",
+      "mode"
+    ],
+    "scoreboard": [
+      "category",
+      "action",
+      "subject",
+      "objective",
+      "value",
+      "operation",
+      "source",
+      "source_objective"
+    ],
+    "seed": [],
+    "setblock": [
+      "pos",
+      "block",
+      "mode"
+    ],
+    "setidletimeout": [
+      "minutes"
+    ],
+    "setworldspawn": [
+      "pos",
+      "angle"
+    ],
+    "spawnpoint": [
+      "targets",
+      "pos",
+      "angle"
+    ],
+    "spectate": [
+      "target",
+      "player"
+    ],
+    "spreadplayers": [
+      "center",
+      "spread_distance",
+      "max_range",
+      "height_mode",
+      "respect_teams",
+      "targets"
+    ],
+    "stop": [],
+    "stopsound": [
+      "targets",
+      "source",
+      "sound"
+    ],
+    "stopwatch": [
+      "action",
+      "id"
+    ],
+    "summon": [
+      "entity",
+      "pos",
+      "nbt"
+    ],
+    "swing": [
+      "target",
+      "hand"
+    ],
+    "tag": [
+      "targets",
+      "action",
+      "name"
+    ],
+    "team": [
+      "action",
+      "team",
+      "display_name",
+      "option",
+      "value",
+      "targets"
+    ],
+    "teammsg": [
+      "message"
+    ],
+    "teleport": [
+      "target",
+      "x",
+      "y",
+      "z",
+      "rotation",
+      "facing_mode",
+      "facing_target",
+      "facing_anchor"
+    ],
+    "tell": [
+      "target",
+      "message"
+    ],
+    "tellraw": [
+      "targets",
+      "message"
+    ],
+    "test": [
+      "action",
+      "test_name",
+      "rotation",
+      "tests_per_row"
+    ],
+    "tick": [
+      "action",
+      "value"
+    ],
+    "time": [
+      "action",
+      "value"
+    ],
+    "title": [
+      "targets",
+      "action",
+      "title",
+      "fade_in",
+      "stay",
+      "fade_out"
+    ],
+    "tm": [
+      "message"
+    ],
+    "tp": [
+      "target",
+      "x",
+      "y",
+      "z",
+      "rotation",
+      "facing_mode",
+      "facing_target",
+      "facing_anchor"
+    ],
+    "transfer": [
+      "hostname",
+      "port",
+      "players"
+    ],
+    "trigger": [
+      "objective",
+      "action",
+      "value"
+    ],
+    "unpublish": [],
+    "version": [],
+    "w": [
+      "target",
+      "message"
+    ],
+    "waypoint": [
+      "action",
+      "id",
+      "property",
+      "value",
+      "targets"
+    ],
+    "weather": [
+      "weather",
+      "duration"
+    ],
+    "whitelist": [
+      "action",
+      "target"
+    ],
+    "worldborder": [
+      "action",
+      "value",
+      "time"
+    ],
+    "xp": [
+      "action",
+      "targets",
+      "amount",
+      "unit"
+    ],
+    "chase": [
+      "action",
+      "targets"
+    ],
+    "debugconfig": [
+      "action",
+      "option",
+      "value"
+    ],
+    "debugmobspawning": [
+      "action"
+    ],
+    "debugpath": [
+      "target"
+    ],
+    "raid": [
+      "action"
+    ],
+    "serverpack": [
+      "action",
+      "id",
+      "url",
+      "hash"
+    ],
+    "spawn_armor_trims": [
+      "target"
+    ],
+    "warden_spawn_tracker": [
+      "target"
+    ]
+  },
+  "wrapper_protocol": {
+    "queued_request": "storage rtwrapper:api request = {cmd:\"<wrapper file>\", params:{<meaningful_name>:\"<token/group>\", ...}} then function rtwrapper:api/run",
+    "direct_params": "storage rtwrapper:api params = {<meaningful_name>:\"<token/group>\", ...} then function rtwrapper:api/commands/<command>",
+    "parameter_rule": "provide contiguous parameters in the order listed for the command; unused empty params are not appended",
+    "convenience_params": "tp_pos/tp_pos_rot/teleport_pos/teleport_pos_rot/give_item accept named macro variables for common forms"
+  },
+  "commands": [
+    "advancement",
+    "attribute",
+    "ban",
+    "ban-ip",
+    "banlist",
+    "bossbar",
+    "clear",
+    "clone",
+    "damage",
+    "data",
+    "datapack",
+    "debug",
+    "defaultgamemode",
+    "deop",
+    "dialog",
+    "difficulty",
+    "effect",
+    "enchant",
+    "execute",
+    "experience",
+    "fetchprofile",
+    "fill",
+    "fillbiome",
+    "forceload",
+    "function",
+    "gamemode",
+    "gamerule",
+    "give",
+    "help",
+    "item",
+    "jfr",
+    "kick",
+    "kill",
+    "list",
+    "locate",
+    "loot",
+    "me",
+    "msg",
+    "op",
+    "pardon",
+    "pardon-ip",
+    "particle",
+    "perf",
+    "place",
+    "playsound",
+    "publish",
+    "random",
+    "recipe",
+    "reload",
+    "return",
+    "ride",
+    "rotate",
+    "save-all",
+    "save-off",
+    "save-on",
+    "say",
+    "schedule",
+    "scoreboard",
+    "seed",
+    "setblock",
+    "setidletimeout",
+    "setworldspawn",
+    "spawnpoint",
+    "spectate",
+    "spreadplayers",
+    "stop",
+    "stopsound",
+    "stopwatch",
+    "summon",
+    "swing",
+    "tag",
+    "team",
+    "teammsg",
+    "teleport",
+    "tell",
+    "tellraw",
+    "test",
+    "tick",
+    "time",
+    "title",
+    "tm",
+    "tp",
+    "transfer",
+    "trigger",
+    "unpublish",
+    "version",
+    "w",
+    "waypoint",
+    "weather",
+    "whitelist",
+    "worldborder",
+    "xp"
+  ],
+  "debug_commands": [],
+  "convenience_wrappers": [
+    "give_item",
+    "teleport_pos",
+    "teleport_pos_rot",
+    "tp_pos",
+    "tp_pos_rot"
+  ]
+}

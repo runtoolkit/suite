@@ -1,0 +1,187 @@
+name: Datapack Build & Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Dependency resolution mode"
+        required: true
+        default: "prod"
+        type: choice
+        options: [prod, dev, auto]
+      output:
+        description: "ZIP output mode"
+        required: true
+        default: "both"
+        type: choice
+        options: [separate, merged, both]
+
+# Cancel duplicate runs on the same ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  DEFAULT_MODE:   "prod"
+  DEFAULT_OUTPUT: "both"
+
+jobs:
+  # ─── 1. Dependency check (fast feedback on PRs, no network) ──────────────
+  dep-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # check reads .depends/ and validates constraints against the lock file.
+      # No network calls — GITHUB_TOKEN not required here.
+      - name: Check constraints against lock file
+        run: python scripts/dp-resolve.py check
+
+  # ─── 2. Build (tag push or manual trigger) ───────────────────────────────
+  build:
+    name: Build Datapacks
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    outputs:
+      pack-id:      ${{ steps.meta.outputs.pack_id }}
+      pack-version: ${{ steps.meta.outputs.pack_version }}
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # Cache key uses the lock file — cache is invalidated when deps change
+      - name: Cache .dp-cache
+        uses: actions/cache@v5
+        with:
+          path: .dp-cache
+          key: dp-cache-${{ runner.os }}-${{ hashFiles('datapack_depends.lock') }}
+          restore-keys: |
+            dp-cache-${{ runner.os }}-
+
+      - name: Resolve dependencies and build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/dp-resolve.py build \
+            --mode   ${{ github.event.inputs.mode   || env.DEFAULT_MODE }} \
+            --output ${{ github.event.inputs.output || env.DEFAULT_OUTPUT }}
+
+      # Read id and version from .depends/manifest.json
+      - name: Read pack metadata
+        id: meta
+        run: |
+          python - << 'PYEOF'
+          import json, os, pathlib, sys
+
+          root = pathlib.Path(".")
+
+          # .depends/manifest.json (primary)
+          manifest_path = root / ".depends" / "manifest.json"
+          if manifest_path.exists():
+              data = json.loads(manifest_path.read_text())
+          else:
+              # Fallback: legacy datapack_depends.json
+              legacy = root / "datapack_depends.json"
+              if not legacy.exists():
+                  print("ERROR: no manifest.json or datapack_depends.json", file=sys.stderr)
+                  sys.exit(1)
+              data = json.loads(legacy.read_text())
+
+          pack_id  = data["id"]
+          pack_ver = data["version"]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"pack_id={pack_id}\n")
+              f.write(f"pack_version={pack_ver}\n")
+
+          print(f"Pack: {pack_id} v{pack_ver}")
+          PYEOF
+
+      - name: Commit lock file (tag push only)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add datapack_depends.lock
+          git diff --cached --quiet || git commit -m "chore: update lock file [skip ci]"
+          git push origin HEAD:${{ github.event.repository.default_branch }} || true
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: datapack-dist-${{ steps.meta.outputs.pack_version }}
+          path: dist/
+          retention-days: 30
+
+  # ─── 3. Release (tag push only) ──────────────────────────────────────────
+  release:
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: datapack-dist-${{ needs.build.outputs.pack-version }}
+          path: dist/
+
+      - name: Collect ZIP paths
+        id: zips
+        run: |
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          ls dist/*.zip    >> "$GITHUB_OUTPUT"
+          echo "EOF"       >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "${{ needs.build.outputs.pack-id }} ${{ github.ref_name }}"
+          body: |
+            ## ${{ needs.build.outputs.pack-id }} ${{ github.ref_name }}
+
+            ### Installation
+
+            **Separate ZIPs (recommended):** Drop all ZIPs from `dist/` into
+            your server's `world/datapacks/` folder, then run `/reload`.
+
+            **Merged ZIP:** Use `*-merged.zip` as a single standalone datapack.
+            Namespace conflicts are resolved by the main pack taking priority —
+            check build logs for warnings.
+
+            ### Dependencies
+
+            All dependency ZIPs are included in this release.
+            No manual dependency installation required when using separate ZIPs.
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: ${{ steps.zips.outputs.files }}
+          fail_on_unmatched_files: true

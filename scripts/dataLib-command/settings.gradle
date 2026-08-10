@@ -1,0 +1,17 @@
+pluginManagement {
+    def props = new Properties()
+    file("gradle.properties").withInputStream { props.load(it) }
+    def loomVersion = props.getProperty("loom_version", "1.8.9")
+
+    plugins {
+        id 'fabric-loom' version loomVersion
+    }
+
+    repositories {
+        gradlePluginPortal()
+        maven { url = "https://maven.fabricmc.net/" }
+        mavenCentral()
+    }
+}
+
+rootProject.name = "datalib-command"

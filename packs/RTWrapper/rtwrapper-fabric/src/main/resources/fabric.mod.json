@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "rtwrapper",
+  "version": "${version}",
+  "name": "RTWrapper",
+  "description": "Queued, permission-checked native command dispatch API for other mods/datapacks. Fabric reimplementation of the runtoolkit RTWrapper datapack protocol.",
+  "authors": [
+    "runtoolkit"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/datapack/rtwrapper",
+    "issues": "https://github.com/runtoolkit/RTWrapper/issues",
+    "sources": "https://github.com/runtoolkit/RTWrapper"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "provides": [
+    "runtoolkit"
+  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.runtoolkit.rtwrapper.RTWrapper"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "update_checker": false,
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/datapack/rtwrapper"
+      }
+    }
+  }
+}

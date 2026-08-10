@@ -1,0 +1,6 @@
+{
+    "values": [
+        "macro:load",
+        "#player_action:load"
+    ]
+}

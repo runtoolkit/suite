@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "datalib-fabricmod",
+  "version": "5.1.2",
+  "name": "dataLib-FabricMod",
+  "description": "A utility library for Minecraft datapacks and Fabric mods — providing data management, player tracking, and a structured API layer.",
+  "authors": [
+    "Runtoolkit"
+  ],
+  "contact": {
+    "homepage": "https://github.com/runtoolkit",
+    "sources": "https://github.com/runtoolkit/dataLib-FabricMod"
+  },
+  "environment": "*",
+  "jars": [
+    {"file": "META-INF/jars/datalib-core-5.1.2.jar"},
+    {"file": "META-INF/jars/datalib-log-5.1.2.jar"},
+    {"file": "META-INF/jars/datalib-command-5.1.2.jar"}
+  ],
+  "depends": {
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "links": {
+        "modmenu.sources": "https://github.com/runtoolkit/dataLib-FabricMod"
+      },
+      "update_checker": false
+    }
+  }
+}

@@ -1,0 +1,246 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate JSON files
+        run: |
+          echo "Checking all JSON files..."
+          find . -name "*.json" -not -path "./.git/*" -print0 | xargs -0 -n1 jq empty
+
+      - name: Lint mcfunction files (pre-check)
+        run: |
+          echo "Scanning .mcfunction files..."
+          FILES=$(find . -name "*.mcfunction" -not -path "./.git/*")
+          if [ -z "$FILES" ]; then
+            echo "No .mcfunction files found."
+            exit 0
+          fi
+
+          ERRORS=0
+          while IFS= read -r file; do
+            if head -c 3 "$file" | grep -qP '^\xef\xbb\xbf'; then
+              echo "::error::BOM detected: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+            if grep -Pql '\x00' "$file"; then
+              echo "::error::Null byte detected: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+            if file "$file" | grep -q "CRLF"; then
+              echo "::error::CRLF line endings: $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done <<< "$FILES"
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "::error::$ERRORS issue(s) found in .mcfunction files."
+            exit 1
+          fi
+          echo "Pre-check passed."
+
+      - name: Install mecha
+        run: pip install git+https://github.com/mcbeet/mecha.git --break-system-packages -q
+
+      - name: Patch mecha compatibility
+        run: |
+          echo "Applying compatibility patches..."
+          find . -name "*.mcfunction" -not -path "./.git/*" \
+            -exec grep -lP '[\w.-]+: _' {} \; | \
+            xargs --no-run-if-empty sed -i -E 's/([a-z0-9._-]+): _/\1:_/g'
+
+          find . -name "*.mcfunction" -not -path "./.git/*" \
+            -exec grep -l 'time of ' {} \; | \
+            xargs --no-run-if-empty sed -i -E 's/time of [a-z0-9_:.-]+ /time /g'
+
+          find . -name "*.mcfunction" -not -path "./.git/*" \
+            -exec grep -l 'time query day repetition' {} \; | \
+            xargs --no-run-if-empty sed -i 's/time query day repetition/time query daytime/g'
+
+      - name: Validate mcfunction syntax (mecha)
+        run: mecha .
+
+      - name: Validate pack.mcmeta
+        run: |
+          if [ ! -f dataLib-DP/pack.mcmeta ]; then
+            echo "::error::pack.mcmeta is missing!"
+            exit 1
+          fi
+          jq empty dataLib-DP/pack.mcmeta && echo "pack.mcmeta is valid."
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Repo lock
+        run: |
+          if [ "$GITHUB_REPOSITORY" != "runtoolkit/dataLib-next" ]; then
+            echo "::error::This workflow may only run in runtoolkit/dataLib-next."
+            exit 1
+          fi
+
+      - name: Prepare build directory
+        run: |
+          mkdir -p build/dataLib-DP
+          shopt -s dotglob
+          cp -r dataLib-DP/* build/dataLib-DP/ 2>/dev/null || true
+          if [ -f pack.mcmeta ]; then
+            cp pack.mcmeta build/dataLib-DP/
+          fi
+
+      - name: Validate pack.mcmeta
+        run: |
+          jq empty build/dataLib-DP/pack.mcmeta && echo "pack.mcmeta is valid." \
+            || { echo "::error::pack.mcmeta is malformed!"; exit 1; }
+
+      - name: Package datapack
+        run: |
+          cd build
+          zip -r ../dataLib-full.zip dataLib-DP
+          echo "Archive size: $(du -sh ../dataLib-full.zip | cut -f1)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dataLib-full
+          path: dataLib-full.zip
+          retention-days: 14
+          if-no-files-found: error
+
+  build-mod:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v7
+      - name: Repo lock
+        run: |
+          if [ "$GITHUB_REPOSITORY" != "runtoolkit/dataLib-next" ]; then
+            echo "::error::This workflow may only run in runtoolkit/dataLib-next."
+            exit 1
+          fi
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Make gradlew executable
+        run: cd dataLib-MOD && chmod +x gradlew
+      - name: Build Mod
+        run: cd dataLib-MOD && ./gradlew build --stacktrace
+      - name: Upload mod artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dataLib-mod
+          path: dataLib-MOD/build/libs/*.jar
+          retention-days: 14
+          if-no-files-found: error
+
+  release:
+    needs: build-mod
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Repo lock
+        run: |
+          if [ "$GITHUB_REPOSITORY" != "runtoolkit/dataLib-next" ]; then
+            echo "::error::This workflow may only run in runtoolkit/dataLib-next."
+            exit 1
+          fi
+
+      - name: Download artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: dataLib-full
+          path: dist/
+
+      - name: Read version
+        id: ver
+        run: |
+          VERSION=$(jq -r '
+            .pack.description |
+            if type == "array" then
+              .[] | select(type == "object") |
+              .text // empty
+            else . end |
+            select(test("^\\s*\\|\\s*v[0-9]")) |
+            gsub("^\\s*\\|\\s*"; "") | ltrimstr(" ")
+          ' dataLib-DP/pack.mcmeta 2>/dev/null | head -1)
+
+          if [ -z "$VERSION" ]; then
+            VERSION=$(jq -r '.pack.description' dataLib-DP/pack.mcmeta 2>/dev/null | grep -oP 'v[\d.]+' | head -1)
+          fi
+
+          echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.ver.outputs.version }}"
+          ZIP="dist/dataLib-full.zip"
+
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+
+          gh release create "$TAG" \
+            --title "dataLib $TAG" \
+            --notes "**Full datapack build** (pack_format 101)." \
+            --latest \
+            "$ZIP#dataLib-full.zip"
+
+  # ──────────────────────────────
+  # SUMMARY JOB (Separate Job)
+  # ──────────────────────────────
+  summary:
+    runs-on: ubuntu-latest
+    needs: [lint, build, build-mod, release]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 📋 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "**Repository:** \`$GITHUB_REPOSITORY\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch/Ref:** \`$GITHUB_REF_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** \`$GITHUB_EVENT_NAME\`" >> $GITHUB_STEP_SUMMARY
+          
+          STATUS="✅ Success"
+          if [[ "${{ needs.lint.result }}" != "success" ]] || [[ "${{ needs.build.result }}" != "success" ]]; then
+            STATUS="❌ Failed"
+          elif [[ "${{ needs.release.result }}" == "failure" ]]; then
+            STATUS="⚠️ Release Failed"
+          fi
+          
+          echo "**Overall Status:** $STATUS" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.release.result }}" = "success" ]; then
+            echo "**Version:** \`${{ needs.release.outputs.version || 'latest' }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Release:** ✅ Created / Updated" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.release.result }}" = "skipped" ]; then
+            echo "**Release:** ⏭️ Skipped (only runs on main)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Artifact:** \`dataLib-full.zip\` (14 days retention)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Generated on $(date -u +"%Y-%m-%d %H:%M:%S UTC")*" >> $GITHUB_STEP_SUMMARY

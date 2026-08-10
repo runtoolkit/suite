@@ -1,0 +1,14 @@
+{
+    "function": "minecraft:copy_nbt",
+    "source": {
+        "type": "minecraft:storage",
+        "source": "inv_gui:data"
+    },
+    "ops": [
+        {
+            "op": "replace",
+            "source": "in.listener",
+            "target": "inv_gui.listener"
+        }
+    ]
+}

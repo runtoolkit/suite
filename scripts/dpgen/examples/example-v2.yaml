@@ -1,0 +1,42 @@
+pack:
+  name: "test-pack-v2"
+  description: "predicate/item_modifier/dependency test"
+  min_format: 107
+  max_format: 107
+  dependencies:
+    - id: someothernamespace
+      version: "1.0.0"
+      required: true
+    - id: optionalthing
+      required: false
+
+namespaces:
+  - id: testns
+    functions:
+      - path: main
+        tick: true
+        commands: ["say tick"]
+      - path: init
+        load: true
+    predicates:
+      - path: half_chance
+        kind: random_chance
+        chance: 0.5
+      - path: is_survival
+        kind: entity_properties
+        entity: this
+        gamemode: survival
+    item_modifiers:
+      - path: bonus_count
+        kind: set_count
+        count_min: 1
+        count_max: 3
+        predicate_ref: "testns:half_chance"
+      - path: rename_item
+        kind: set_name
+        name: "Special Item"
+    loot_tables:
+      - path: test_chest
+        kind: chest
+        item: "minecraft:gold_ingot"
+        count: 1

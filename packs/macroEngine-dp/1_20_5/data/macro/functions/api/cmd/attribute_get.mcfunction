@@ -1,0 +1,4 @@
+execute unless function macro:debug/tools/utils/check_all run return 0
+
+$execute store result storage macro:output result double 1 run attribute @a[name=$(player),limit=1] $(attribute) get
+$tellraw @a[tag=macro.debug] {"text":"","extra":[{"text":"[AME] ","color":"#00AAAA","bold":true},{"text":"cmd/attribute_get ","color":"aqua"},{"text":"$(player)","color":"white"}]}

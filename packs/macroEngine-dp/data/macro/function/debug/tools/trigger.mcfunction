@@ -1,0 +1,1 @@
+$function macro:debug/tools/trigger/execute {type:"$(type)",data:$(data)}

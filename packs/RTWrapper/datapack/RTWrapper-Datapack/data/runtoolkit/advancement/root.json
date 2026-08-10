@@ -1,0 +1,20 @@
+{
+  "display": {
+    "title": "Installed Datapacks",
+    "description": "",
+    "icon": {
+      "id": "minecraft:knowledge_book"
+    },
+    "background": "minecraft:block/gray_concrete",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "trigger": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "sends_telemetry_event": false
+}

@@ -1,0 +1,6 @@
+{
+  "alias": "day",
+  "target": "time set day",
+  "description": "Sets the time to day.",
+  "permission_level": 2
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "datalib-core",
+  "version": "${version}",
+  "name": "DataLib Core",
+  "description": "Core engine and state management for DataLib.",
+
+  "entrypoints": {
+    "main": [
+      "runtoolkit.datalib.core.DataLibCore"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "~1.21.1",
+    "fabric-api": "*"
+  }
+}

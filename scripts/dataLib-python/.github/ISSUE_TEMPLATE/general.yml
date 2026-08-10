@@ -1,0 +1,17 @@
+name: General / Question
+description: Ask a question or start a discussion
+labels: ["question"]
+body:
+  - type: textarea
+    id: topic
+    attributes:
+      label: Topic
+      description: What do you want to discuss?
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Add any relevant info

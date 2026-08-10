@@ -1,0 +1,14 @@
+rootProject.name = 'runtoolkit-suite'
+
+// Automatically include every folder under mods/ and examples/ that has a build.gradle
+def includeIfGradle = { base ->
+    file(base).eachDir { dir ->
+        if (file("${dir}/build.gradle").exists() || file("${dir}/build.gradle.kts").exists()) {
+            def path = ":${base}:${dir.name}"
+            include path
+            project(path).projectDir = dir
+        }
+    }
+}
+includeIfGradle('mods')
+includeIfGradle('examples')

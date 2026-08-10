@@ -1,0 +1,10 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "My DataLib-powered datapack.",
+
+    "id": "my-pack",
+
+    "environment": "all"
+  }
+}

@@ -1,0 +1,2 @@
+$attribute $(player) $(id) base set $(value)
+$execute unless data storage eventcore:sys config_call{silent:1} run tellraw @a [{"text":"[EC] ","color":"#55FFFF","bold":true},{"text":"player.attribute","color":"#FFAA00"},{"text":"→ ","color":"#AAAAAA"},{"text":"$(player)","color":"white"},{"text":" | ","color":"#555555"},{"text":"attr=","color":"#AAAAAA"},{"text":"$(id)","color":"white"},{"text":" | ","color":"#555555"},{"text":"val=","color":"#AAAAAA"},{"text":"$(value)","color":"white"}]

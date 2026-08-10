@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "example_pack",
+  "ingredients": [
+    { "id": "minecraft:coal_block" },
+    { "id": "minecraft:coal_block" },
+    { "id": "minecraft:coal_block" }
+  ],
+  "result": {
+    "id": "minecraft:diamond",
+    "count": 1
+  }
+}
