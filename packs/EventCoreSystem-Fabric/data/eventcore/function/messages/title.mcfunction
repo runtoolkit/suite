@@ -1,1 +1,0 @@
-$title $(target) title {"text":"$(text)","color":"$(color)"}

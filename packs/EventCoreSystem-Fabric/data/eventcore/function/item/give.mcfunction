@@ -1,3 +1,0 @@
-$execute if data storage eventcore:sys args.data.nbt run give $(target) $(item)$(nbt) $(count)
-$execute unless data storage eventcore:sys args.data.nbt run give $(target) $(item) $(count)
-$execute unless data storage eventcore:sys config_call{silent:1} run tellraw @a [{"text":"[EC] ","color":"#55FFFF","bold":true},{"text":"item.give","color":"#FFAA00"},{"text":"→ ","color":"#AAAAAA"},{"text":"$(target)","color":"white"},{"text":" | ","color":"#555555"},{"text":"item=","color":"#AAAAAA"},{"text":"$(item)","color":"white"},{"text":" | ","color":"#555555"},{"text":"x","color":"#AAAAAA"},{"text":"$(count)","color":"white"}]

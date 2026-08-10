@@ -1,3 +1,0 @@
-$execute unless data storage eventcore:sys args.data.rot run tp $(target) $(x) $(y) $(z)
-$execute if data storage eventcore:sys args.data.rot run tp $(target) $(x) $(y) $(z) $(yaw) $(pitch)
-$execute unless data storage eventcore:sys config_call{silent:1} run tellraw @a [{"text":"[EC] ","color":"#55FFFF","bold":true},{"text":"player.tp","color":"#FFAA00"},{"text":"→ ","color":"#AAAAAA"},{"text":"$(target)","color":"white"},{"text":" | ","color":"#555555"},{"text":"x=","color":"#AAAAAA"},{"text":"$(x)","color":"white"},{"text":" | ","color":"#555555"},{"text":"y=","color":"#AAAAAA"},{"text":"$(y)","color":"white"},{"text":" | ","color":"#555555"},{"text":"z=","color":"#AAAAAA"},{"text":"$(z)","color":"white"}]
