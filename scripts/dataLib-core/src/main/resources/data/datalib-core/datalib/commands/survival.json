@@ -1,6 +1,0 @@
-{
-  "alias": "survival",
-  "target": "gamemode survival @s",
-  "description": "Switches the caller to survival mode.",
-  "permission_level": 0
-}
