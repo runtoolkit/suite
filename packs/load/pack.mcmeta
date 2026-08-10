@@ -1,7 +1,0 @@
-{
-    "pack": {
-        "pack_format": 71,
-        "supported_formats": { "min_inclusive": 48, "max_inclusive": 9999 },
-        "description": "RunLoad — Datapack load-order library by runtoolkit"
-    }
-}
