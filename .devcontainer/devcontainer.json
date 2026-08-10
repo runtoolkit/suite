@@ -1,14 +1,9 @@
 {
   "name": "runtoolkit-consolidate",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "postCreateCommand": "chmod +x .devcontainer/consolidate.sh && echo 'Installation complete. To run: bash .devcontainer/consolidate.sh",
-
-  // GITHUB_TOKEN'ı Codespaces "Repository secret" olarak tanımla:
-  // github.com/settings/codespaces -> New secret -> Name: RT_CONSOLIDATE_TOKEN
-  // Bu satır o secret'ı container içine GITHUB_TOKEN olarak enjekte eder.
   "remoteEnv": {
     "GITHUB_TOKEN": "${localEnv:RT_CONSOLIDATE_TOKEN}"
   }
