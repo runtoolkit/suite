@@ -15,6 +15,10 @@ def EXCLUDED_PROJECT_DIRS = [
     'packs/datapack-fixer',    // ACTIVE project, not archived. Pinned to a broken Loom SNAPSHOT
                                 // (1.17-SNAPSHOT:20260807.132355-19) with no matching Gradle 9.4 variant.
                                 // Fix the Loom version in its build.gradle, then remove this line.
+    'packs/RTWrapper/rtwrapper-fabric', // ACTIVE project. Loom 1.10.4 classloader conflicts with
+                                // Loom 1.15.5 (examples/itemExampleMod) when configured in the same build:
+                                // ClassCastException on LoomGradleExtensionImpl_Decorated at remapJar.
+                                // Needs a composite build / separated Loom version groups to fix properly.
 ]
 
 // Recursively find every build.gradle(.kts) under mods/, packs/, examples/
