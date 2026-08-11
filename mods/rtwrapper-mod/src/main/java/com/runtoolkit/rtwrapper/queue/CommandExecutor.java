@@ -18,6 +18,19 @@ import java.util.List;
  * server.getCommandManager().executeWithPrefix, since there's no need to
  * persist extra "queue state" on the Java side; the whole chain runs
  * synchronously within a single tick.
+ *
+ * NOT: 1.21.4+ mapping'lerinde CommandManager#executeWithPrefix artık int
+ * degil void donuyor (1.20.1/1.19.2'de int'ti). Bu yuzden "kac adim
+ * gercekten basarili oldu" bilgisini eskisi gibi return-code uzerinden
+ * ayirt edemiyoruz. successCount burada sadece "exception firlatmadan
+ * calisti" anlamina gelir - komutun sessizce 0 hedef bulup basarisiz
+ * olmasi (ornegin "execute if" kosulu tutmadigi durumlar) exception
+ * atmayacagi icin successCount'a "basarili" olarak yansir. Bu, eski
+ * `result > 0` kontrolune gore GERCEK bir hassasiyet kaybidir, syntax
+ * duzeltmesi degildir. Daha dogru bir sonuc kodu istenirse
+ * CommandExecutionContext tabanli execute overload'ina gecmek gerekir
+ * (bunun icin projenin gercek minecraft/yarn_mappings versiyonu teyit
+ * edilmeli).
  */
 public class CommandExecutor {
 
@@ -46,23 +59,23 @@ public class CommandExecutor {
         }
 
         int successCount = 0;
+
         for (String rawCommand : actions) {
             String resolved = resolvePlaceholders(rawCommand, executorName);
             try {
-                int result = server.getCommandManager().executeWithPrefix(source, resolved);
-                if (result > 0) {
-                    successCount++;
-                } else {
-                    LOGGER.warn("rtwrapper: step '{}' inside '{}' returned 0",
-                            resolved, cmd.name);
-                }
+                // executeWithPrefix artik void donuyor (1.21.4+ mapping).
+                // Exception firlatmazsa "calisti" sayiyoruz; bu, komutun
+                // gercekten etkili oldugu anlamina gelmez.
+                server.getCommandManager().executeWithPrefix(source, resolved);
+                successCount++;
             } catch (Exception e) {
                 LOGGER.error("rtwrapper: step '{}' inside '{}' threw an error: {}",
                         resolved, cmd.name, e.getMessage());
             }
         }
 
-        String detail = successCount + "/" + actions.size() + " steps succeeded";
+        String detail = successCount + "/" + actions.size()
+                + " steps ran without throwing (not a true success-count, see class javadoc)";
         auditLog.logExecution(executorName, cmd.name, true, detail);
     }
 
