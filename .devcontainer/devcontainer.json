@@ -1,9 +1,20 @@
 {
-  "name": "runtoolkit-consolidate",
+  "name": "runtoolkit/suite",
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    }
   },
   "remoteEnv": {
     "GITHUB_TOKEN": "${localEnv:RT_CONSOLIDATE_TOKEN}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "eamodio.gitlens",
+        "github.copilot"
+      ]
+    }
   }
 }
