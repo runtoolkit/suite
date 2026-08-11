@@ -58,6 +58,12 @@ jobs:
       - name: Run lint task
         run: ./gradlew lint --continue
 
+      - name: Install mecha
+        run: pip install mecha
+
+      - name: Run mecha
+        run: mecha .
+
   release-packs:
     name: Publish packs to a permanent release
     needs: build
