@@ -57,7 +57,12 @@ task zipPacks {
         }
 
         packDirs.each { dir ->
-            def zipName = "${dir.name}.zip"
+            // Build a unique name from the path relative to packs/ so that
+            // same-named folders in different locations (e.g. two "dataLib"
+            // folders under different parents) don't overwrite each other.
+            def relPath = packsRoot.toPath().relativize(dir.toPath()).toString()
+            def safeName = relPath.replace(File.separator, '-').replace('/', '-')
+            def zipName = "${safeName}.zip"
             def zipFile = new File(outDir, zipName)
             println "Zipping ${dir} -> build/packs-dist/${zipName}"
 
