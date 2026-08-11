@@ -3,6 +3,7 @@
 Consolidated monorepo for the runtoolkit ecosystem.
 
 ## Structure
+
 - `mods/`      — Fabric mods
 - `packs/`     — Datapacks / resource packs
 - `scripts/`   — Helper scripts and tools
@@ -10,8 +11,43 @@ Consolidated monorepo for the runtoolkit ecosystem.
 - `archived/`  — Projects no longer developed but kept for reference
 - `other/`     — Content that doesn't fit another category
 
+## Building
+
+This repo uses Gradle to build all Fabric mod subprojects.
+
+### Requirements
+
+- JDK 25
+- Gradle Wrapper (included, no separate Gradle install needed)
+
+### Build all subprojects
+
+```bash
+./gradlew buildAll
+```
+
+This runs the build task across every subproject under `mods/` and produces mod JARs. Output JARs land in each subproject's `build/libs/` directory.
+
+### Lint all subprojects
+
+```bash
+./gradlew lintAll
+```
+
+### Build a single subproject
+
+```bash
+./gradlew :mods:<subproject-name>:build
+```
+
+### CI
+
+Pushes and pull requests trigger the `build.yml` workflow (Build & Lint), which runs `buildAll` and `lintAll` across all subprojects and uploads build artifacts. See `.github/workflows/build.yml` for the full pipeline, including the release-publishing job.
+
 ## Old repos
+
 The following repos were moved into this monorepo and are now **archived + private**:
+
 - [TunnelScript](https://github.com/runtoolkit/TunnelScript)
 - [LeftClickDetection](https://github.com/runtoolkit/LeftClickDetection)
 - [dp-depman](https://github.com/runtoolkit/dp-depman)
@@ -28,6 +64,7 @@ The following repos were moved into this monorepo and are now **archived + priva
 - [macroEngine-dp](https://github.com/runtoolkit/macroEngine-dp)
 
 ## Skipped repos (empty or inconsistent)
+
 - FunctionPP: only 2 file(s)
 - DataLibFabric: 1KB, empty/placeholder (manually confirmed)
 - .github: only 2 file(s)
