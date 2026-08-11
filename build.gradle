@@ -24,3 +24,49 @@ task buildAll {
     description = 'Builds all subprojects.'
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
 }
+
+// ---------------------------------------------------------------------------
+// zipPacks: finds every folder under packs/ containing a pack.mcmeta
+// (datapack or resource pack, data/ and/or assets/) and zips each one
+// independently into build/packs-dist/<folder-name>.zip
+// ---------------------------------------------------------------------------
+task zipPacks {
+    group = 'build'
+    description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/'
+
+    def packsRoot = file('packs')
+    def outDir = file('build/packs-dist')
+
+    doLast {
+        outDir.mkdirs()
+        if (!packsRoot.exists()) {
+            println "No packs/ directory found, skipping."
+            return
+        }
+
+        def packDirs = []
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta') {
+                packDirs << f.parentFile
+            }
+        }
+
+        if (packDirs.isEmpty()) {
+            println "No pack.mcmeta files found under packs/."
+            return
+        }
+
+        packDirs.each { dir ->
+            def zipName = "${dir.name}.zip"
+            def zipFile = new File(outDir, zipName)
+            println "Zipping ${dir} -> build/packs-dist/${zipName}"
+
+            ant.zip(destfile: zipFile.absolutePath, basedir: dir.absolutePath)
+        }
+
+        println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}"
+    }
+}
+
+// Make zipPacks run as part of the normal build
+buildAll.dependsOn zipPacks

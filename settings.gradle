@@ -8,23 +8,46 @@ pluginManagement {
 
 rootProject.name = 'runtoolkit-suite'
 
-// Automatically include every folder under mods/ and examples/ that has a build.gradle
+// Subprojects to skip entirely (kept as files, not wired into the Gradle build).
+// Reason for each is noted so future edits know why it's here.
+def EXCLUDED_PROJECT_DIRS = [
+    'packs/dataLib-dp',        // archived; requires Fabric Loom 1.18.0-alpha.9, no Gradle-9.4-compatible variant published
+    'packs/datapack-fixer',    // ACTIVE project, not archived. Pinned to a broken Loom SNAPSHOT
+                                // (1.17-SNAPSHOT:20260807.132355-19) with no matching Gradle 9.4 variant.
+                                // Fix the Loom version in its build.gradle, then remove this line.
+    'packs/RTWrapper/rtwrapper-fabric', // ACTIVE project. Loom 1.10.4 classloader conflicts with
+                                // Loom 1.15.5 (examples/itemExampleMod) when configured in the same build:
+                                // ClassCastException on LoomGradleExtensionImpl_Decorated at remapJar.
+                                // Needs a composite build / separated Loom version groups to fix properly.
+]
+
+// Recursively find every build.gradle(.kts) under mods/, packs/, examples/
+// and include it as a subproject, regardless of nesting depth.
 def includeIfGradle = { String base ->
     File baseDir = file(base)
     if (!baseDir.exists() || !baseDir.isDirectory()) {
         return
     }
-    baseDir.listFiles(new FileFilter() {
-        boolean accept(File f) { return f.isDirectory() }
-    }).each { File dir ->
-        File groovyBuild = new File(dir, 'build.gradle')
-        File kotlinBuild = new File(dir, 'build.gradle.kts')
-        if (groovyBuild.exists() || kotlinBuild.exists()) {
-            def path = ":${base}:${dir.name}"
-            include(path)
-            project(path).projectDir = dir
+    baseDir.eachFileRecurse { File f ->
+        if (f.name == 'build.gradle' || f.name == 'build.gradle.kts') {
+            File dir = f.parentFile
+            if (dir.path.contains(File.separator + 'build' + File.separator) ||
+                dir.path.contains(File.separator + '.gradle' + File.separator)) {
+                return
+            }
+            String relToRoot = rootDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, '/')
+            if (EXCLUDED_PROJECT_DIRS.any { relToRoot == it || relToRoot.startsWith(it + '/') }) {
+                return
+            }
+            String rel = baseDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, ':')
+            def path = ":${base}:${rel}"
+            if (!findProject(path)) {
+                include(path)
+                project(path).projectDir = dir
+            }
         }
     }
 }
 includeIfGradle('mods')
+includeIfGradle('packs')
 includeIfGradle('examples')
