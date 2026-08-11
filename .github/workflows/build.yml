@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Set up JDK 25
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -31,7 +31,7 @@ jobs:
         run: ./gradlew buildAll --continue
       - name: Upload build artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v6
         with:
           name: build-outputs
           path: |
@@ -57,3 +57,35 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run lint task
         run: ./gradlew lint --continue
+
+  release-packs:
+    name: Publish packs to a permanent release
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Build pack zips
+        run: ./gradlew zipPacks
+      - name: Publish to permanent 'packs-latest' release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: packs-latest
+          name: Latest packs
+          body: Automatically updated on every push to main. Always reflects the current contents of packs/.
+          files: build/packs-dist/*.zip
+          # Move the tag forward instead of creating a new release each time,
+          # so the download links below stay permanently valid.
+          make_latest: false
