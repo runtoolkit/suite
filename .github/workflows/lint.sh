@@ -9,9 +9,10 @@ echo "::endgroup::"
 IGNORE_PATHS=(
     "packs/inv_gui"
     "packs/macroEngine-dp/26_1"
-    "packs/dataLib-dp/datapacks/dataLib"
-    "packs/dataLibDatapackOnly",
-    "packs/cmdTunnel-datapack"
+    "packs/dataLibDatapackOnly/data/datalib/function/world/get_time.mcfunction"
+    "packs/dataLibDatapackOnly/data/datalib/function/world/time_phase.mcfunction"
+    "packs/dataLibDatapackOnly/data/datalib/function/world/time_phase.mcfunction"
+    "packs/cmdTunnel-datapack/data/*/functions/load.mcfunction"
 )
 
 echo "::group::🚫 Ignoring paths"
