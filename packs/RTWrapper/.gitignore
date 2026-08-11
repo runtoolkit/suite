@@ -10,9 +10,11 @@ out/
 hs_err_pid*
 replay_pid*
 
-# Minecraft run directories
-run/
-run-*/
+# Minecraft run directories (Fabric Loom runClient/runServer working dirs at repo root only —
+# NOT anchored patterns like "run/" also match datapack/.../function/core/run/, which silently
+# dropped rtwrapper:core/run/run_next and run_actions from version control)
+/run/
+/run-*/
 
 # IDE
 .idea/
