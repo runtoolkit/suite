@@ -1,167 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>runtoolkit/suite</title>
-<meta property="og:title" content="runtoolkit/suite">
-<meta property="og:description" content="Consolidated Fabric mods, datapacks & tools">
-<meta property="og:image" content="https://runtoolkit.github.io/suite/banner.png">
-<style>
-  :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --accent: #3fb950;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-  }
-  .banner { width: 100%; max-width: 1200px; display: block; margin: 0 auto; }
-  main { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
-  h2 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-top: 48px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 8px;
-  }
-  p.lead { color: var(--muted); font-size: 16px; }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-  }
-  .card h3 {
-    margin: 0 0 6px;
-    font-size: 15px;
-    font-weight: 600;
-    word-break: break-word;
-  }
-  .card p {
-    margin: 0 0 12px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .btn {
-    display: inline-block;
-    background: var(--accent);
-    color: #0d1117;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 6px;
-  }
-  .btn:hover { opacity: 0.85; }
-  footer {
-    text-align: center;
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 64px;
-  }
-  footer a { color: var(--accent); }
-  code {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 13px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>runtoolkit/suite</title>
+
+  <meta property="og:title" content="runtoolkit/suite">
+  <meta property="og:description" content="Consolidated Fabric mods, datapacks & tools">
+  <meta property="og:image" content="https://runtoolkit.github.io/suite/banner.png">
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #3fb950;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Helvetica,
+        Arial,
+        sans-serif;
+      line-height: 1.6;
+    }
+
+    .banner {
+      width: 100%;
+      max-width: 1200px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    p.lead {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(240px, 1fr)
+      );
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .card p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #0d1117;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 64px;
+    }
+
+    footer a {
+      color: var(--accent);
+    }
+
+    code {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 13px;
+    }
+  </style>
 </head>
+
 <body>
 
-<img class="banner" src="banner.png" alt="runtoolkit/suite">
+  <img
+    class="banner"
+    src="banner.png"
+    alt="runtoolkit/suite"
+  >
 
-<main>
-  <p class="lead">
-    A consolidated monorepo for the runtoolkit ecosystem: Fabric mods,
-    datapacks, and helper scripts, all in one place.
-  </p>
+  <main>
 
-  <h2>Datapacks &amp; resource packs</h2>
-  <p class="lead" style="font-size:13px;">
-    The packs below are automatically rebuilt on every push to <code>main</code>
-    and published to the <code>packs-latest</code> release. Links are permanent.
-  </p>
-  <div class="grid" id="packs-grid">
-    <!-- This list is maintained by hand based on the pack folders seen in CI output.
-         When a new pack is added, add a matching <div class="card"> here. -->
-  </div>
+    <p class="lead">
+      A consolidated monorepo for the runtoolkit ecosystem:
+      Fabric mods, datapacks, and helper scripts, all in one place.
+    </p>
 
-  <h2>Fabric mods</h2>
-  <p class="lead" style="font-size:13px;">
-    Projects under <code>mods/</code> aren't wired into the automated build/release
-    pipeline yet. You can browse the source directly on GitHub.
-  </p>
-  <div class="grid" id="mods-grid"></div>
+    <h2>Datapacks &amp; resource packs</h2>
 
-  <footer>
-    <a href="https://github.com/runtoolkit/suite">github.com/runtoolkit/suite</a>
-  </footer>
-</main>
+    <p class="lead" style="font-size: 13px;">
+      The packs below are automatically rebuilt on every push to
+      <code>main</code> and published to the
+      <code>packs-latest</code> release. Links are permanent.
+    </p>
 
-<script>
-// Pack list is kept here; each name must match exactly the zip filename
-// produced by the zipPacks task in build.gradle / settings.gradle.
-const RELEASE_BASE = "https://github.com/runtoolkit/suite/releases/download/packs-latest/";
+    <div class="grid" id="packs-grid">
+      <!--
+        This list is maintained by hand based on the pack folders
+        seen in CI output.
 
-const packs = [
-  { name: "InteractionClickDetection", zip: "InteractionClickDetection.zip" },
-  { name: "cmdTunnel-datapack", zip: "cmdTunnel-datapack.zip" },
-  { name: "dp-depman (example-pack)", zip: "dp-depman-example-pack.zip" },
-  { name: "inv_gui (Example)", zip: "inv_gui-Example.zip" },
-  { name: "inv_gui", zip: "inv_gui.zip" },
-  { name: "macroEngine-dp", zip: "macroEngine-dp.zip" },
-  { name: "dataLib (resource pack)", zip: "dataLib-dp-resourcepacks-dataLib.zip" },
-  { name: "dataLib extensions", zip: "dataLib-dp-datapacks-datalib_extensions.zip" },
-  { name: "dataLib (datapack)", zip: "dataLib-dp-datapacks-dataLib.zip" },
-  { name: "RTWrapper Datapack", zip: "RTWrapper-datapack-RTWrapper-Datapack.zip" },
-  { name: "TunnelScript", zip: "TunnelScript.zip" },
-  { name: "LeftClickDetection", zip: "LeftClickDetection.zip" },
-];
+        When a new pack is added, add a matching object to the
+        packs array below.
+      -->
+    </div>
 
-const modsRepoBase = "https://github.com/runtoolkit/suite/tree/main/mods/";
-const mods = [
-  // Add mods/ subfolder names here, e.g.:
-  // { name: "dataLib-FabricMod", dir: "dataLib-FabricMod" },
-];
+    <h2>Fabric mods</h2>
 
-const packsGrid = document.getElementById("packs-grid");
-packs.forEach(p => {
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `<h3>${p.name}</h3><p>Datapack / resource pack</p><a class="btn" href="${RELEASE_BASE}${p.zip}">Download (.zip)</a>`;
-  packsGrid.appendChild(card);
-});
+    <p class="lead" style="font-size: 13px;">
+      Projects under <code>mods/</code> aren't wired into the
+      automated build/release pipeline yet.
+      You can browse the source directly on GitHub.
+    </p>
 
-const modsGrid = document.getElementById("mods-grid");
-if (mods.length === 0) {
-  modsGrid.innerHTML = `<p class="lead" style="font-size:13px;">No mods listed yet.</p>`;
-} else {
-  mods.forEach(m => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<h3>${m.name}</h3><p>Fabric mod (source)</p><a class="btn" href="${modsRepoBase}${m.dir}">View source</a>`;
-    modsGrid.appendChild(card);
-  });
-}
-</script>
+    <div class="grid" id="mods-grid"></div>
+
+    <footer>
+      <a
+        href="https://github.com/runtoolkit/suite"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        github.com/runtoolkit/suite
+      </a>
+    </footer>
+
+  </main>
+
+  <script>
+    // GitHub Release containing the latest automatically-built packs.
+    const RELEASE_BASE =
+      "https://github.com/runtoolkit/suite/releases/download/packs-latest/";
+
+    /*
+     * Pack list.
+     *
+     * The "zip" value MUST exactly match the ZIP filename
+     * generated by the build system.
+     */
+    const packs = [
+      {
+        name: "InteractionClickDetection",
+        zip: "InteractionClickDetection.zip"
+      },
+      {
+        name: "cmdTunnel-datapack",
+        zip: "cmdTunnel-datapack.zip"
+      },
+      {
+        name: "dp-depman (example-pack)",
+        zip: "dp-depman-example-pack.zip"
+      },
+      {
+        name: "inv_gui (Example)",
+        zip: "inv_gui-Example.zip"
+      },
+      {
+        name: "inv_gui",
+        zip: "inv_gui.zip"
+      },
+      {
+        name: "macroEngine-dp",
+        zip: "macroEngine-dp.zip"
+      },
+      {
+        name: "dataLib (resource pack)",
+        zip: "dataLib-dp-resourcepacks-dataLib.zip"
+      },
+      {
+        name: "dataLib extensions",
+        zip: "dataLib-dp-datapacks-datalib_extensions.zip"
+      },
+      {
+        name: "dataLib (datapack)",
+        zip: "dataLib-dp-datapacks-dataLib.zip"
+      },
+      {
+        name: "RTWrapper Datapack",
+        zip: "RTWrapper-datapack-RTWrapper-Datapack.zip"
+      },
+      {
+        name: "TunnelScript",
+        zip: "TunnelScript.zip"
+      },
+      {
+        name: "LeftClickDetection",
+        zip: "LeftClickDetection.zip"
+      }
+    ];
+
+    /*
+     * Fabric mods.
+     *
+     * Add entries here when mods/ projects are ready to be listed.
+     *
+     * Example:
+     *
+     * {
+     *   name: "dataLib-FabricMod",
+     *   dir: "dataLib-FabricMod"
+     * }
+     */
+    const modsRepoBase =
+      "https://github.com/runtoolkit/suite/tree/main/mods/";
+
+    const mods = [];
+
+    // -------------------------
+    // Datapacks
+    // -------------------------
+
+    const packsGrid = document.getElementById("packs-grid");
+
+    packs.forEach((pack) => {
+      const card = document.createElement("div");
+
+      card.className = "card";
+
+      card.innerHTML = `
+        <h3>${pack.name}</h3>
+        <p>Datapack / resource pack</p>
+        <a
+          class="btn"
+          href="${RELEASE_BASE}${encodeURIComponent(pack.zip)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Download (.zip)
+        </a>
+      `;
+
+      packsGrid.appendChild(card);
+    });
+
+    // -------------------------
+    // Fabric mods
+    // -------------------------
+
+    const modsGrid = document.getElementById("mods-grid");
+
+    if (mods.length === 0) {
+      modsGrid.innerHTML = `
+        <p class="lead" style="font-size: 13px;">
+          No mods listed yet.
+        </p>
+      `;
+    } else {
+      mods.forEach((mod) => {
+        const card = document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+          <h3>${mod.name}</h3>
+          <p>Fabric mod (source)</p>
+          <a
+            class="btn"
+            href="${modsRepoBase}${encodeURIComponent(mod.dir)}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View source
+          </a>
+        `;
+
+        modsGrid.appendChild(card);
+      });
+    }
+  </script>
 
 </body>
 </html>
