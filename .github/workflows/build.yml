@@ -39,12 +39,13 @@ jobs:
 
       - name: Upload build artifacts
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build-outputs
           path: |
             mods/**/build/libs/*.jar
             examples/**/build/libs/*.jar
+            build/packs-dist/*.zip
           if-no-files-found: ignore
           retention-days: 93
 
@@ -59,7 +60,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '21'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
