@@ -1,7 +1,0 @@
-{
-  "pack": {
-    "description": "example-pack — demonstrates dp-depman dependency system",
-    "min_format": 61,
-    "max_format": 88
-  }
-}
