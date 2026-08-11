@@ -12,7 +12,8 @@ IGNORE_PATHS=(
     "packs/dataLibDatapackOnly/data/datalib/function/world/get_time.mcfunction"
     "packs/dataLibDatapackOnly/data/datalib/function/world/time_phase.mcfunction"
     "packs/dataLibDatapackOnly/data/datalib/function/world/time_phase.mcfunction"
-    "packs/cmdTunnel-datapack/data/*/functions/load.mcfunction"
+    "packs/dataLibDatapackOnly/data/datalib/function/world/get_time.mcfunction"
+    "packs/cmdTunnel-datapack/data/*/functions/init.mcfunction"
 )
 
 echo "::group::🚫 Ignoring paths"
