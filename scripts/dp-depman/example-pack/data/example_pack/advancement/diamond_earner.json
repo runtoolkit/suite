@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": { "id": "minecraft:diamond" },
+    "title": { "text": "Diamond Earner" },
+    "description": { "text": "Played for 1 hour and earned your first reward diamond." },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "minecraft:story/mine_diamond",
+  "criteria": {
+    "has_diamond": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          { "items": "minecraft:diamond" }
+        ]
+      }
+    }
+  }
+}
