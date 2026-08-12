@@ -142,6 +142,170 @@ tasks.register('printPackList') {
 }
 
 // ---------------------------------------------------------------------------
+// mergeDatapacks: reads packs/merge-manifest.json and merges the listed
+// pack folders under packs/ into a single output datapack at
+// build/merged-datapack/. Non-JSON files are copied straight through.
+// Colliding files are handled explicitly, never silently overwritten:
+//   - data/minecraft/tags/function(s)/{load,tick}.json (and any other
+//     tags/function(s)/*.json) are merged by unioning their "values"
+//     arrays, since every pack's load/tick hook lives there and a plain
+//     copy would let the last pack processed clobber every other pack's
+//     hook (verified collision: 6 of 7 packs in this repo write to
+//     minecraft:load/minecraft:tick).
+//   - any other file path that appears in more than one included pack
+//     fails the build loudly, since there's no generically safe way to
+//     merge two different function/loot_table/etc. files.
+// pack_format mismatches across included packs also fail the build
+// unless the manifest sets "allowMismatchedFormats": true, because
+// packs in this repo span pack_format 10-101 (roughly MC 1.16-1.21.9+)
+// and silently merging across that range produces a broken pack.
+// ---------------------------------------------------------------------------
+tasks.register('mergeDatapacks') {
+    group = 'build'
+    description = 'Merges the packs listed in packs/merge-manifest.json into build/merged-datapack/.'
+    def packsRoot = file('packs')
+    def manifestFile = file('packs/merge-manifest.json')
+    def outDir = file('build/merged-datapack')
+    doLast {
+        if (!manifestFile.exists()) {
+            throw new GradleException("mergeDatapacks failed: packs/merge-manifest.json not found. Create it with { \"output\": {...}, \"include\": [...] }.")
+        }
+        def slurper = new groovy.json.JsonSlurper()
+        def manifest
+        try {
+            manifest = slurper.parse(manifestFile)
+        } catch (Exception e) {
+            throw new GradleException("mergeDatapacks failed: packs/merge-manifest.json is not valid JSON - ${e.message}")
+        }
+
+        def include = manifest.include ?: []
+        def exclude = (manifest.exclude ?: []) as Set
+        def output = manifest.output ?: [:]
+        def allowMismatchedFormats = manifest.allowMismatchedFormats == true
+
+        if (include.isEmpty()) {
+            throw new GradleException("mergeDatapacks failed: manifest 'include' list is empty. Nothing to merge.")
+        }
+
+        def packDirs = [:]
+        include.each { packName ->
+            if (exclude.contains(packName)) {
+                println "Skipping ${packName}: listed in manifest 'exclude'."
+                return
+            }
+            def dir = new File(packsRoot, packName)
+            if (!dir.exists() || !new File(dir, 'pack.mcmeta').exists()) {
+                throw new GradleException("mergeDatapacks failed: packs/${packName} not found or has no pack.mcmeta.")
+            }
+            packDirs[packName] = dir
+        }
+
+        if (packDirs.isEmpty()) {
+            throw new GradleException("mergeDatapacks failed: every entry in 'include' was excluded or missing.")
+        }
+
+        // Validate pack_format compatibility before touching any files.
+        def formats = [:]
+        packDirs.each { packName, dir ->
+            def meta = slurper.parse(new File(dir, 'pack.mcmeta'))
+            def pack = meta?.pack
+            def fmt = pack?.pack_format != null ? "pack_format=${pack.pack_format}" : "min=${pack?.min_format} max=${pack?.max_format}"
+            formats[packName] = fmt
+        }
+        def distinctFormats = formats.values().toSet()
+        if (distinctFormats.size() > 1 && !allowMismatchedFormats) {
+            def details = formats.collect { k, v -> "  - ${k}: ${v}" }.join('\n')
+            throw new GradleException(
+                "mergeDatapacks failed: included packs declare different pack_format values, merging them " +
+                "produces a datapack that is broken for at least one of them:\n${details}\n" +
+                "Set \"allowMismatchedFormats\": true in the manifest to merge anyway (not recommended)."
+            )
+        }
+
+        if (outDir.exists()) {
+            outDir.deleteDir()
+        }
+        outDir.mkdirs()
+
+        // Collect every relative file path across all included packs so we
+        // can detect collisions before writing anything.
+        def relPathToSources = [:]
+        packDirs.each { packName, dir ->
+            dir.eachFileRecurse { f ->
+                if (f.isFile()) {
+                    def rel = dir.toPath().relativize(f.toPath()).toString().replace(File.separator, '/')
+                    // pack.mcmeta, README, LICENSE, etc. at pack root are per-pack
+                    // metadata, not merged content - skip them explicitly.
+                    if (!rel.contains('/')) {
+                        return
+                    }
+                    relPathToSources.computeIfAbsent(rel) { [] } << [pack: packName, file: f]
+                }
+            }
+        }
+
+        // Paths where a tags/function(s)/*.json union-merge applies.
+        def isFunctionTagFile = { String rel ->
+            (rel ==~ /data\/[^\/]+\/tags\/function\/.+\.json/) ||
+            (rel ==~ /data\/[^\/]+\/tags\/functions\/.+\.json/)
+        }
+
+        def hardCollisions = []
+        relPathToSources.each { rel, sources ->
+            if (sources.size() > 1 && !isFunctionTagFile(rel)) {
+                hardCollisions << "${rel} (in: ${sources.collect { it.pack }.join(', ')})"
+            }
+        }
+        if (hardCollisions) {
+            throw new GradleException(
+                "mergeDatapacks failed: the following files exist in more than one included pack " +
+                "and cannot be safely merged automatically:\n" +
+                hardCollisions.collect { "  - ${it}" }.join('\n') +
+                "\nResolve the conflict manually (rename/remove in one pack) and re-run."
+            )
+        }
+
+        // Write everything out.
+        relPathToSources.each { rel, sources ->
+            def outFile = new File(outDir, rel)
+            outFile.parentFile.mkdirs()
+            if (sources.size() == 1) {
+                outFile.bytes = sources[0].file.bytes
+            } else {
+                // Union-merge tags/function(s) files by combining "values".
+                def mergedValues = [] as LinkedHashSet
+                def replaceFlag = false
+                sources.each { src ->
+                    def parsed = slurper.parse(src.file)
+                    (parsed.values ?: []).each { mergedValues << it }
+                    if (parsed.replace == true) {
+                        replaceFlag = true
+                    }
+                }
+                def mergedJson = groovy.json.JsonOutput.toJson([
+                    replace: replaceFlag,
+                    values : mergedValues.toList()
+                ])
+                outFile.text = groovy.json.JsonOutput.prettyPrint(mergedJson)
+                println "Merged ${rel} <- ${sources.collect { it.pack }.join(', ')} (${mergedValues.size()} value(s))"
+            }
+        }
+
+        // Write the merged pack.mcmeta from the manifest's "output" block.
+        def outMeta = [
+            pack: [
+                pack_format : output.pack_format,
+                description : output.description ?: "Merged datapack (${packDirs.keySet().join(', ')})"
+            ]
+        ]
+        new File(outDir, 'pack.mcmeta').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(outMeta))
+
+        println "mergeDatapacks OK: merged ${packDirs.size()} pack(s) -> ${outDir}"
+        println "Included: ${packDirs.keySet().join(', ')}"
+    }
+}
+
+// ---------------------------------------------------------------------------
 // NEW 3: extend the clean task so it also removes the packs-dist output.
 // (The default 'clean' already deletes build/, but this makes sure the
 // packs-dist cleanup happens explicitly regardless of how the project
