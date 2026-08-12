@@ -3,7 +3,7 @@
   "id": "rtwrapper",
   "version": "${version}",
   "name": "RTWrapper",
-  "description": "A custom-command wrapper/queue mod with a gated permission system, audit log, and Chest GUI. Rewritten from scratch in Java, inspired by the command-queueing idea of the original RTWrapper datapack.",
+  "description": "A custom-command wrapper/queue mod with a gated permission system, audit log, cooldowns, confirmation gates, run history, and a paginated Chest GUI. Rewritten from scratch in Java, inspired by the command-queueing idea of the original RTWrapper datapack.",
   "authors": ["Legends11"],
   "contact": {
     "sources": "https://github.com/runtoolkit"
