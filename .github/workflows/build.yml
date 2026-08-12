@@ -137,18 +137,23 @@ jobs:
           cd build/merged-datapack
           zip -r ../merged-datapack.zip .
       - name: Push to Modrinth
-        uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          files: build/merged-datapack.zip
-          # FIX: name/version previously used github.sha (a 40-char commit
-          # hash). Modrinth's version_number field rejected it with a
-          # "length" validation error. Switched to a short, unique
-          # identifier: 26.2 (the merged pack's min_format/max_format, 107)
-          # plus the run number, which is short and increments every run so
-          # Modrinth never sees a duplicate version_number.
-          name: Merged datapack (26.2, run ${{ github.run_number }})
-          version: 26.2-${{ github.run_number }}
-          version-type: release
-          loaders: datapack
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ secrets.MODRINTH_PROJECT_ID }}
+        run: |
+          VERSION_NUMBER="26.2-${{ github.run_number }}"
+          for i in 1 2 3; do
+            if curl -sS -f -X POST "https://api.modrinth.com/v2/version" \
+              -H "Authorization: ${MODRINTH_TOKEN}" \
+              -F "data={\"name\":\"Merged datapack (26.2, run ${{ github.run_number }})\",\"version_number\":\"${VERSION_NUMBER}\",\"changelog\":\"Automated merge build.\",\"dependencies\":[],\"game_versions\":[\"26.2\"],\"version_type\":\"release\",\"loaders\":[\"datapack\"],\"featured\":false,\"project_id\":\"${MODRINTH_PROJECT_ID}\",\"file_parts\":[\"file\"]};type=application/json" \
+              -F "file=@build/merged-datapack.zip;type=application/zip"; then
+              echo "Modrinth upload succeeded on attempt ${i}."
+              exit 0
+            fi
+            echo "Attempt ${i} failed."
+            if [ "$i" -lt 3 ]; then
+              sleep 10
+            fi
+          done
+          echo "Modrinth upload failed after 3 attempts."
+          exit 1
