@@ -75,7 +75,7 @@ tasks.named('buildAll') { dependsOn 'zipPacks' }
 // ---------------------------------------------------------------------------
 tasks.register('checkPacks') {
     group = 'verification'
-    description = 'Validates that every pack.mcmeta under packs/ is valid JSON and has a pack_format.'
+    description = 'Validates that every pack.mcmeta under packs/ is valid JSON and declares a format (pack_format, or min_format/max_format for 1.21.9+).'
     def packsRoot = file('packs')
     doLast {
         if (!packsRoot.exists()) {
@@ -88,8 +88,15 @@ tasks.register('checkPacks') {
             if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
                 try {
                     def parsed = slurper.parse(f)
-                    if (parsed?.pack?.pack_format == null) {
-                        errors << "${f}: 'pack.pack_format' eksik"
+                    def pack = parsed?.pack
+                    // DÜZELTME: 1.21.9+ pack.mcmeta'da pack_format yerine
+                    // min_format/max_format kullanır (bkz. minecraft-versions notu).
+                    // 26.x hedeflendiği için ikisinden biri kabul edilmeli, yoksa
+                    // güncel dataLib-dp paketleri yanlış pozitif olarak işaretlenir.
+                    def hasLegacyFormat = pack?.pack_format != null
+                    def hasNewFormat = pack?.min_format != null && pack?.max_format != null
+                    if (!hasLegacyFormat && !hasNewFormat) {
+                        errors << "${f}: ne 'pack.pack_format' ne de 'pack.min_format'+'max_format' var"
                     }
                 } catch (Exception e) {
                     errors << "${f}: geçersiz JSON — ${e.message}"
