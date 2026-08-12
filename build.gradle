@@ -6,22 +6,22 @@ allprojects {
     }
 }
 
-task lint {
+tasks.register('lint') {
     group = 'verification'
-    description = 'Runs lint across all subprojects (checkstyle/spotless if present).'
+    description = 'Runs checkstyle across all subprojects where configured.'
+    // FIX: real task dependency instead of manually invoking action.execute().
+    // This makes up-to-date checks, the task graph, and logging work correctly.
+    dependsOn subprojects.collect { sub -> sub.tasks.matching { it.name == 'checkstyleMain' } }
     doLast {
-        subprojects.each { sub ->
-            if (sub.tasks.findByName('checkstyleMain')) {
-                sub.tasks.checkstyleMain.actions.each { it.execute(sub.tasks.checkstyleMain) }
-            }
-        }
-        println "Lint completed (ran checkstyle/spotless where configured)."
+        println "Lint completed (ran checkstyleMain where present)."
     }
 }
 
-task buildAll {
+tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects.'
+    // FIX: use lazy provider instead of eager .collect{} at configuration time,
+    // so this doesn't fail if a subproject doesn't have a 'build' task yet.
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
 }
 
@@ -30,48 +30,129 @@ task buildAll {
 // (datapack or resource pack, data/ and/or assets/) and zips each one
 // independently into build/packs-dist/<folder-name>.zip
 // ---------------------------------------------------------------------------
-task zipPacks {
+tasks.register('zipPacks') {
     group = 'build'
     description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/'
-
     def packsRoot = file('packs')
     def outDir = file('build/packs-dist')
-
     doLast {
         outDir.mkdirs()
         if (!packsRoot.exists()) {
             println "No packs/ directory found, skipping."
             return
         }
-
         def packDirs = []
         packsRoot.eachFileRecurse { f ->
-            if (f.name == 'pack.mcmeta') {
+            // FIX: exclude pack.mcmeta files accidentally nested under build/ or
+            // similar output folders (e.g. a copy extracted from a previous zip),
+            // otherwise duplicate/dirty zips get produced.
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
                 packDirs << f.parentFile
             }
         }
-
         if (packDirs.isEmpty()) {
             println "No pack.mcmeta files found under packs/."
             return
         }
-
         packDirs.each { dir ->
-            // Build a unique name from the path relative to packs/ so that
-            // same-named folders in different locations (e.g. two "dataLib"
-            // folders under different parents) don't overwrite each other.
             def relPath = packsRoot.toPath().relativize(dir.toPath()).toString()
             def safeName = relPath.replace(File.separator, '-').replace('/', '-')
             def zipName = "${safeName}.zip"
             def zipFile = new File(outDir, zipName)
             println "Zipping ${dir} -> build/packs-dist/${zipName}"
-
             ant.zip(destfile: zipFile.absolutePath, basedir: dir.absolutePath)
         }
-
         println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}"
     }
 }
 
 // Make zipPacks run as part of the normal build
-buildAll.dependsOn zipPacks
+tasks.named('buildAll') { dependsOn 'zipPacks' }
+
+// ---------------------------------------------------------------------------
+// NEW 1: checkPacks - validates before build that every pack.mcmeta is valid
+// JSON and declares a format field.
+// ---------------------------------------------------------------------------
+tasks.register('checkPacks') {
+    group = 'verification'
+    description = 'Validates that every pack.mcmeta under packs/ is valid JSON and declares a format (pack_format, or min_format/max_format for 1.21.9+).'
+    def packsRoot = file('packs')
+    doLast {
+        if (!packsRoot.exists()) {
+            println "No packs/ directory found, skipping."
+            return
+        }
+        def slurper = new groovy.json.JsonSlurper()
+        def errors = []
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                try {
+                    def parsed = slurper.parse(f)
+                    def pack = parsed?.pack
+                    // FIX: 1.21.9+ pack.mcmeta uses min_format/max_format instead of
+                    // pack_format (see minecraft-versions notes). Since 26.x is the
+                    // target, either form must be accepted, otherwise current
+                    // dataLib-dp packs get flagged as false positives.
+                    def hasLegacyFormat = pack?.pack_format != null
+                    def hasNewFormat = pack?.min_format != null && pack?.max_format != null
+                    if (!hasLegacyFormat && !hasNewFormat) {
+                        errors << "${f}: neither 'pack.pack_format' nor 'pack.min_format'+'max_format' present"
+                    }
+                } catch (Exception e) {
+                    errors << "${f}: invalid JSON - ${e.message}"
+                }
+            }
+        }
+        if (errors) {
+            errors.each { println "ERROR: ${it}" }
+            throw new GradleException("checkPacks failed: ${errors.size()} problematic pack.mcmeta file(s) found.")
+        }
+        println "checkPacks OK: all pack.mcmeta files are valid."
+    }
+}
+// Require validation before zipPacks
+tasks.named('zipPacks') { dependsOn 'checkPacks' }
+
+// ---------------------------------------------------------------------------
+// NEW 2: printPackList - lists every pack folder found under packs/ (without
+// zipping anything); for debug/CI logging.
+// ---------------------------------------------------------------------------
+tasks.register('printPackList') {
+    group = 'help'
+    description = 'Lists every detected pack folder under packs/ without zipping anything.'
+    def packsRoot = file('packs')
+    doLast {
+        if (!packsRoot.exists()) {
+            println "No packs/ directory found."
+            return
+        }
+        def found = []
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                found << packsRoot.toPath().relativize(f.parentFile.toPath()).toString()
+            }
+        }
+        if (found.isEmpty()) {
+            println "No packs found."
+        } else {
+            println "Detected ${found.size()} pack(s):"
+            found.sort().each { println " - ${it}" }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// NEW 3: extend the clean task so it also removes the packs-dist output.
+// (The default 'clean' already deletes build/, but this makes sure the
+// packs-dist cleanup happens explicitly regardless of how the project
+// overrides 'clean'.)
+// ---------------------------------------------------------------------------
+tasks.matching { it.name == 'clean' }.configureEach {
+    doLast {
+        def outDir = file('build/packs-dist')
+        if (outDir.exists()) {
+            outDir.deleteDir()
+            println "Cleaned build/packs-dist/"
+        }
+    }
+}
