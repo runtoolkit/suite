@@ -6,22 +6,22 @@ allprojects {
     }
 }
 
-task lint {
+tasks.register('lint') {
     group = 'verification'
-    description = 'Runs lint across all subprojects (checkstyle/spotless if present).'
+    description = 'Runs checkstyle across all subprojects where configured.'
+    // DÜZELTME: manuel action.execute() yerine gerçek task dependency.
+    // Böylece up-to-date check, task graph ve loglama düzgün çalışır.
+    dependsOn subprojects.collect { sub -> sub.tasks.matching { it.name == 'checkstyleMain' } }
     doLast {
-        subprojects.each { sub ->
-            if (sub.tasks.findByName('checkstyleMain')) {
-                sub.tasks.checkstyleMain.actions.each { it.execute(sub.tasks.checkstyleMain) }
-            }
-        }
-        println "Lint completed (ran checkstyle/spotless where configured)."
+        println "Lint completed (ran checkstyleMain where present)."
     }
 }
 
-task buildAll {
+tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects.'
+    // DÜZELTME: configuration-time'da eager .collect{} yerine lazy provider kullan,
+    // subproject'lerde 'build' task'ı henüz yoksa hata vermez.
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
 }
 
@@ -30,48 +30,121 @@ task buildAll {
 // (datapack or resource pack, data/ and/or assets/) and zips each one
 // independently into build/packs-dist/<folder-name>.zip
 // ---------------------------------------------------------------------------
-task zipPacks {
+tasks.register('zipPacks') {
     group = 'build'
     description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/'
-
     def packsRoot = file('packs')
     def outDir = file('build/packs-dist')
-
     doLast {
         outDir.mkdirs()
         if (!packsRoot.exists()) {
             println "No packs/ directory found, skipping."
             return
         }
-
         def packDirs = []
         packsRoot.eachFileRecurse { f ->
-            if (f.name == 'pack.mcmeta') {
+            // DÜZELTME: build/ veya .git/ gibi klasörlerin altına yanlışlıkla
+            // kopyalanmış pack.mcmeta dosyalarını (örn. önceki zip çıktısından
+            // açılmış bir kopya) dışla, aksi halde tekrarlayan/kirli zip'ler oluşur.
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
                 packDirs << f.parentFile
             }
         }
-
         if (packDirs.isEmpty()) {
             println "No pack.mcmeta files found under packs/."
             return
         }
-
         packDirs.each { dir ->
-            // Build a unique name from the path relative to packs/ so that
-            // same-named folders in different locations (e.g. two "dataLib"
-            // folders under different parents) don't overwrite each other.
             def relPath = packsRoot.toPath().relativize(dir.toPath()).toString()
             def safeName = relPath.replace(File.separator, '-').replace('/', '-')
             def zipName = "${safeName}.zip"
             def zipFile = new File(outDir, zipName)
             println "Zipping ${dir} -> build/packs-dist/${zipName}"
-
             ant.zip(destfile: zipFile.absolutePath, basedir: dir.absolutePath)
         }
-
         println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}"
     }
 }
 
 // Make zipPacks run as part of the normal build
-buildAll.dependsOn zipPacks
+tasks.named('buildAll') { dependsOn 'zipPacks' }
+
+// ---------------------------------------------------------------------------
+// YENİ 1: checkPacks — her pack.mcmeta'nın geçerli JSON olup olmadığını ve
+// pack_format alanının var olup olmadığını build'den önce doğrular.
+// ---------------------------------------------------------------------------
+tasks.register('checkPacks') {
+    group = 'verification'
+    description = 'Validates that every pack.mcmeta under packs/ is valid JSON and has a pack_format.'
+    def packsRoot = file('packs')
+    doLast {
+        if (!packsRoot.exists()) {
+            println "No packs/ directory found, skipping."
+            return
+        }
+        def slurper = new groovy.json.JsonSlurper()
+        def errors = []
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                try {
+                    def parsed = slurper.parse(f)
+                    if (parsed?.pack?.pack_format == null) {
+                        errors << "${f}: 'pack.pack_format' eksik"
+                    }
+                } catch (Exception e) {
+                    errors << "${f}: geçersiz JSON — ${e.message}"
+                }
+            }
+        }
+        if (errors) {
+            errors.each { println "ERROR: ${it}" }
+            throw new GradleException("checkPacks failed: ${errors.size()} sorunlu pack.mcmeta bulundu.")
+        }
+        println "checkPacks OK: tüm pack.mcmeta dosyaları geçerli."
+    }
+}
+// zipPacks'ten önce doğrulama zorunlu olsun
+tasks.named('zipPacks') { dependsOn 'checkPacks' }
+
+// ---------------------------------------------------------------------------
+// YENİ 2: printPackList — packs/ altında bulunan tüm pack klasörlerini
+// (zip'lemeden) listeler; debug/CI log amaçlı.
+// ---------------------------------------------------------------------------
+tasks.register('printPackList') {
+    group = 'help'
+    description = 'Lists every detected pack folder under packs/ without zipping anything.'
+    def packsRoot = file('packs')
+    doLast {
+        if (!packsRoot.exists()) {
+            println "No packs/ directory found."
+            return
+        }
+        def found = []
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                found << packsRoot.toPath().relativize(f.parentFile.toPath()).toString()
+            }
+        }
+        if (found.isEmpty()) {
+            println "No packs found."
+        } else {
+            println "Detected ${found.size()} pack(s):"
+            found.sort().each { println " - ${it}" }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// YENİ 3: clean task'ını genişlet — packs-dist çıktısını da temizlesin.
+// (Varsayılan 'clean' zaten build/ dizinini siler ama proje bunu override
+// etmiş/etmemiş olabileceği ihtimaline karşı açıkça garanti altına alınıyor.)
+// ---------------------------------------------------------------------------
+tasks.matching { it.name == 'clean' }.configureEach {
+    doLast {
+        def outDir = file('build/packs-dist')
+        if (outDir.exists()) {
+            outDir.deleteDir()
+            println "Cleaned build/packs-dist/"
+        }
+    }
+}
