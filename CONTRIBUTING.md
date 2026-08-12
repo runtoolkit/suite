@@ -2,6 +2,13 @@
 
 Thanks for your interest in contributing to this project.
 
+**Read [NOTICE.md](NOTICE.md) before opening a PR.** It covers the
+Gradle/datapack split in this monorepo (what's built by `buildAll` and what
+isn't), what a PR should contain, and what will get a PR closed
+(obfuscated code, undisclosed behavior, misuse of the macro/command
+tooling for griefing or exploit purposes). This guide assumes you've
+already read it.
+
 ## Getting started
 
 1. Fork or clone the repository.
@@ -30,7 +37,8 @@ Keep commit messages short and descriptive. Reference related issues or PRs wher
 
 - Open a PR against the `main` branch.
 - Make sure `Build all subprojects` and `Lint all subprojects` pass in CI before requesting review.
-- Describe what changed and why in the PR description.
+- Describe what changed and why in the PR description — and whether the change touches `mods/`, `packs/`, or both, since only the former is covered by `buildAll`.
+- Run through the checklist at the bottom of [NOTICE.md](NOTICE.md) before requesting review.
 
 ## Security
 
