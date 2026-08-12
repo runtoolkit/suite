@@ -211,6 +211,11 @@ tasks.register('mergeDatapacks') {
         // Normalize to the actual numeric format(s) so a pack declaring
         // pack_format=107 and a pack declaring min_format=107/max_format=107
         // are recognized as the same format instead of compared as strings.
+        def normalizeFormat = { f ->
+            if (f == null) return null
+            if (f instanceof List) return f[0]
+            return f
+        }
         def formats = [:]
         def normFormats = [:]
         packDirs.each { packName, dir ->
@@ -220,7 +225,7 @@ tasks.register('mergeDatapacks') {
             formats[packName] = fmt
             def minF = pack?.min_format != null ? pack.min_format : pack?.pack_format
             def maxF = pack?.max_format != null ? pack.max_format : pack?.pack_format
-            normFormats[packName] = [minF, maxF]
+            normFormats[packName] = [normalizeFormat(minF), normalizeFormat(maxF)]
         }
         def distinctFormats = normFormats.values().toSet()
         if (distinctFormats.size() > 1 && !allowMismatchedFormats) {
