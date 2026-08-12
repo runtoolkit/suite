@@ -3,12 +3,16 @@
   "id": "rtwpanel",
   "version": "${version}",
   "name": "RTWrapper Panel",
-  "description": "RTWrapper icin oyun ici GUI panel: storage islemleri ve rtwrapper: fonksiyon cagrisi.",
-  "authors": ["Legends11"],
+  "description": "In-game GUI panel for RTWrapper: storage operations and RTWrapper function call.",
+  "authors": [
+    "Runtoolkit"
+  ],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": ["com.runtoolkit.rtwpanel.client.RTWPanelClient"]
+    "client": [
+      "com.runtoolkit.rtwpanel.client.RTWPanelClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.17",
