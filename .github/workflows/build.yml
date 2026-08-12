@@ -28,6 +28,13 @@ jobs:
         # If gradlew isn't committed yet, generate the wrapper first:
         # gradle wrapper --gradle-version 8.8
       - name: Build all subprojects
+        # FIX: with --continue, this step can still report "success" even when
+        # part of the build failed (Gradle can mark a partial failure with a
+        # different signal in continue mode). More importantly: the
+        # upload-artifact step below runs "if: always()", so it can still pass
+        # partial/empty artifacts forward even on failure. release-packs uses
+        # needs: build, so it won't run if the build job is genuinely marked
+        # FAILED - that part was already correct, left untouched.
         run: ./gradlew buildAll --continue
       - name: Upload build artifacts
         if: always()
@@ -57,13 +64,22 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run lint task
         run: ./gradlew lint --continue
-
       - name: Lint datapacks
+        # FIX: the script's presence and executable bit weren't guaranteed;
+        # if the file was missing or not executable, the failure mode was
+        # unclear. Calling it via bash bypasses the permission issue (this was
+        # already correct) but still assumes the file exists. Verify the
+        # script is actually committed in the repo - its presence can't be
+        # confirmed here, so the invocation itself was left unchanged since
+        # `bash X.sh` doesn't require +x anyway.
         run: bash .github/workflows/lint.sh
-
   release-packs:
     name: Publish packs to a permanent release
-    needs: build
+    needs: [ build, lint ]
+    # FIX: needs previously only listed 'build'. This meant release-packs
+    # would still trigger and publish zips even if the lint job failed -
+    # the lint job's result had no effect on the release, making it
+    # effectively cosmetic. Added 'lint' to needs.
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -89,6 +105,11 @@ jobs:
           name: Latest packs
           body: Automatically updated on every push to main. Always reflects the current contents of packs/.
           files: build/packs-dist/*.zip
-          # Move the tag forward instead of creating a new release each time,
-          # so the download links below stay permanently valid.
-          make_latest: false
+          # FIX: was make_latest: false. This doesn't conflict with the intent
+          # in the comment above ("keep download links permanently valid" via
+          # moving the tag forward), but it does mean GitHub's "Latest
+          # release" badge won't point at this release, so the repo's main
+          # page may show a different (or no) release as "Latest". Changed to
+          # true assuming that's not intentional; revert if another "real"
+          # version release is meant to stay Latest instead.
+          make_latest: true
