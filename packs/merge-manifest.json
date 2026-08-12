@@ -1,0 +1,22 @@
+{
+  "output": {
+    "name": "merged-datapack",
+    "description": "Merged runtoolkit datapack",
+    "_comment": "min_format/max_format required for format 82+ (25w31a+); pack_format optional/legacy-only.",
+    "min_format": 107,
+    "max_format": 107
+  },
+  "include": [
+    "dataLib-dp/datapacks/dataLib",
+    "RTWrapper/datapack/RTWrapper-Datapack"
+  ],
+  "exclude": [
+    "InteractionClickDetection",
+    "LeftClickDetection",
+    "RTWrapper-1.21.1",
+    "TunnelScript",
+    "cmdTunnel-datapack",
+    "inv_gui",
+    "macroEngine-dp"
+  ]
+}
