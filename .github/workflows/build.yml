@@ -80,7 +80,7 @@ jobs:
     # would still trigger and publish zips even if the lint job failed -
     # the lint job's result had no effect on the release, making it
     # effectively cosmetic. Added 'lint' to needs.
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -116,7 +116,7 @@ jobs:
   publish-modrinth:
     name: Push merged datapack to Modrinth
     needs: [ release-packs ]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
