@@ -22,7 +22,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p archive
-          # Proje dosyalarını .git hariç kopyala
           rsync -a \
             --exclude=archive \
             --exclude=.github \
