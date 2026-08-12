@@ -9,8 +9,8 @@ allprojects {
 tasks.register('lint') {
     group = 'verification'
     description = 'Runs checkstyle across all subprojects where configured.'
-    // DÜZELTME: manuel action.execute() yerine gerçek task dependency.
-    // Böylece up-to-date check, task graph ve loglama düzgün çalışır.
+    // FIX: real task dependency instead of manually invoking action.execute().
+    // This makes up-to-date checks, the task graph, and logging work correctly.
     dependsOn subprojects.collect { sub -> sub.tasks.matching { it.name == 'checkstyleMain' } }
     doLast {
         println "Lint completed (ran checkstyleMain where present)."
@@ -20,8 +20,8 @@ tasks.register('lint') {
 tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects.'
-    // DÜZELTME: configuration-time'da eager .collect{} yerine lazy provider kullan,
-    // subproject'lerde 'build' task'ı henüz yoksa hata vermez.
+    // FIX: use lazy provider instead of eager .collect{} at configuration time,
+    // so this doesn't fail if a subproject doesn't have a 'build' task yet.
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
 }
 
@@ -43,9 +43,9 @@ tasks.register('zipPacks') {
         }
         def packDirs = []
         packsRoot.eachFileRecurse { f ->
-            // DÜZELTME: build/ veya .git/ gibi klasörlerin altına yanlışlıkla
-            // kopyalanmış pack.mcmeta dosyalarını (örn. önceki zip çıktısından
-            // açılmış bir kopya) dışla, aksi halde tekrarlayan/kirli zip'ler oluşur.
+            // FIX: exclude pack.mcmeta files accidentally nested under build/ or
+            // similar output folders (e.g. a copy extracted from a previous zip),
+            // otherwise duplicate/dirty zips get produced.
             if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
                 packDirs << f.parentFile
             }
@@ -70,8 +70,8 @@ tasks.register('zipPacks') {
 tasks.named('buildAll') { dependsOn 'zipPacks' }
 
 // ---------------------------------------------------------------------------
-// YENİ 1: checkPacks — her pack.mcmeta'nın geçerli JSON olup olmadığını ve
-// pack_format alanının var olup olmadığını build'den önce doğrular.
+// NEW 1: checkPacks - validates before build that every pack.mcmeta is valid
+// JSON and declares a format field.
 // ---------------------------------------------------------------------------
 tasks.register('checkPacks') {
     group = 'verification'
@@ -89,33 +89,33 @@ tasks.register('checkPacks') {
                 try {
                     def parsed = slurper.parse(f)
                     def pack = parsed?.pack
-                    // DÜZELTME: 1.21.9+ pack.mcmeta'da pack_format yerine
-                    // min_format/max_format kullanır (bkz. minecraft-versions notu).
-                    // 26.x hedeflendiği için ikisinden biri kabul edilmeli, yoksa
-                    // güncel dataLib-dp paketleri yanlış pozitif olarak işaretlenir.
+                    // FIX: 1.21.9+ pack.mcmeta uses min_format/max_format instead of
+                    // pack_format (see minecraft-versions notes). Since 26.x is the
+                    // target, either form must be accepted, otherwise current
+                    // dataLib-dp packs get flagged as false positives.
                     def hasLegacyFormat = pack?.pack_format != null
                     def hasNewFormat = pack?.min_format != null && pack?.max_format != null
                     if (!hasLegacyFormat && !hasNewFormat) {
-                        errors << "${f}: ne 'pack.pack_format' ne de 'pack.min_format'+'max_format' var"
+                        errors << "${f}: neither 'pack.pack_format' nor 'pack.min_format'+'max_format' present"
                     }
                 } catch (Exception e) {
-                    errors << "${f}: geçersiz JSON — ${e.message}"
+                    errors << "${f}: invalid JSON - ${e.message}"
                 }
             }
         }
         if (errors) {
             errors.each { println "ERROR: ${it}" }
-            throw new GradleException("checkPacks failed: ${errors.size()} sorunlu pack.mcmeta bulundu.")
+            throw new GradleException("checkPacks failed: ${errors.size()} problematic pack.mcmeta file(s) found.")
         }
-        println "checkPacks OK: tüm pack.mcmeta dosyaları geçerli."
+        println "checkPacks OK: all pack.mcmeta files are valid."
     }
 }
-// zipPacks'ten önce doğrulama zorunlu olsun
+// Require validation before zipPacks
 tasks.named('zipPacks') { dependsOn 'checkPacks' }
 
 // ---------------------------------------------------------------------------
-// YENİ 2: printPackList — packs/ altında bulunan tüm pack klasörlerini
-// (zip'lemeden) listeler; debug/CI log amaçlı.
+// NEW 2: printPackList - lists every pack folder found under packs/ (without
+// zipping anything); for debug/CI logging.
 // ---------------------------------------------------------------------------
 tasks.register('printPackList') {
     group = 'help'
@@ -142,9 +142,10 @@ tasks.register('printPackList') {
 }
 
 // ---------------------------------------------------------------------------
-// YENİ 3: clean task'ını genişlet — packs-dist çıktısını da temizlesin.
-// (Varsayılan 'clean' zaten build/ dizinini siler ama proje bunu override
-// etmiş/etmemiş olabileceği ihtimaline karşı açıkça garanti altına alınıyor.)
+// NEW 3: extend the clean task so it also removes the packs-dist output.
+// (The default 'clean' already deletes build/, but this makes sure the
+// packs-dist cleanup happens explicitly regardless of how the project
+// overrides 'clean'.)
 // ---------------------------------------------------------------------------
 tasks.matching { it.name == 'clean' }.configureEach {
     doLast {
