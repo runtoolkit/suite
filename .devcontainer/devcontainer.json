@@ -9,6 +9,8 @@
   "remoteEnv": {
     "GITHUB_TOKEN": "${localEnv:RT_CONSOLIDATE_TOKEN}"
   },
+  "postCreateCommand": "bash setup.sh",
+  "postStartCommand": "bash start.sh",
   "customizations": {
     "vscode": {
       "extensions": [
