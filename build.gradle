@@ -292,12 +292,24 @@ tasks.register('mergeDatapacks') {
         }
 
         // Write the merged pack.mcmeta from the manifest's "output" block.
-        def outMeta = [
-            pack: [
-                pack_format : output.pack_format,
-                description : output.description ?: "Merged datapack (${packDirs.keySet().join(', ')})"
-            ]
-        ]
+        // pack_format is optional as of 25w31a (data pack format 82+ / resource
+        // pack 65+); min_format+max_format are the required pair for that range.
+        // Support whichever the manifest provides; fail if neither is given.
+        def outPack = [description: output.description ?: "Merged datapack (${packDirs.keySet().join(', ')})"]
+        if (output.pack_format != null) {
+            outPack.pack_format = output.pack_format
+        }
+        if (output.min_format != null && output.max_format != null) {
+            outPack.min_format = output.min_format
+            outPack.max_format = output.max_format
+        }
+        if (output.pack_format == null && (output.min_format == null || output.max_format == null)) {
+            throw new GradleException(
+                "mergeDatapacks failed: manifest 'output' must declare either 'pack_format' " +
+                "(pre-82/legacy) or both 'min_format' and 'max_format' (required for 82+)."
+            )
+        }
+        def outMeta = [pack: outPack]
         new File(outDir, 'pack.mcmeta').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(outMeta))
 
         println "mergeDatapacks OK: merged ${packDirs.size()} pack(s) -> ${outDir}"
