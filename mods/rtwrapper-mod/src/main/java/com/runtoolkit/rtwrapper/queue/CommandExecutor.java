@@ -7,7 +7,13 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runs the vanilla commands listed in RegisteredCommand.actions in sequence.
@@ -36,10 +42,47 @@ public class CommandExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("rtwrapper/queue");
 
+    /** Max number of entries kept in the in-memory run history (feature: /rtwrapper history). */
+    private static final int HISTORY_LIMIT = 50;
+
     private final AuditLog auditLog;
+
+    /**
+     * NEW FEATURE: per-command cooldown tracking.
+     * Key: commandName + "|" + executorName, value: epoch millis of last run.
+     * In-memory only (resets on server restart) - intentional, since a
+     * cooldown is a short-lived rate-limit, not persistent state.
+     */
+    private final Map<String, Long> lastRunMillis = new HashMap<>();
+
+    /**
+     * NEW FEATURE: run history ring buffer for /rtwrapper history.
+     * Bounded deque - oldest entry is dropped once HISTORY_LIMIT is exceeded.
+     */
+    private final Deque<String> history = new ArrayDeque<>();
 
     public CommandExecutor(AuditLog auditLog) {
         this.auditLog = auditLog;
+    }
+
+    /**
+     * Checks whether executorName may run cmd right now, given its
+     * configured cooldownSeconds. Returns 0 if allowed, or the number of
+     * remaining seconds if still on cooldown. Does NOT record a run; call
+     * runQueue afterward to actually execute and record the timestamp.
+     */
+    public int remainingCooldownSeconds(String executorName, RegisteredCommand cmd) {
+        if (cmd.cooldownSeconds <= 0) return 0;
+        Long last = lastRunMillis.get(cooldownKey(cmd.name, executorName));
+        if (last == null) return 0;
+        long elapsedMs = System.currentTimeMillis() - last;
+        long remainingMs = (cmd.cooldownSeconds * 1000L) - elapsedMs;
+        if (remainingMs <= 0) return 0;
+        return (int) Math.ceil(remainingMs / 1000.0);
+    }
+
+    private static String cooldownKey(String commandName, String executorName) {
+        return commandName + "|" + executorName;
     }
 
     /**
@@ -48,6 +91,10 @@ public class CommandExecutor {
      * does not stop the chain (consistent with the original RTWrapper
      * behavior, where every variant silently handled its own failure via
      * `return fail`), but a failure is still recorded in the audit log.
+     *
+     * Callers are expected to have already checked remainingCooldownSeconds()
+     * before calling this - runQueue itself does not re-check or enforce the
+     * cooldown, it only stamps the last-run time once execution completes.
      */
     public void runQueue(ServerCommandSource source, String executorName, RegisteredCommand cmd) {
         MinecraftServer server = source.getServer();
@@ -55,6 +102,7 @@ public class CommandExecutor {
 
         if (actions.isEmpty()) {
             auditLog.logExecution(executorName, cmd.name, true, "empty queue - no-op");
+            recordHistory(executorName, cmd.name, "0/0 steps (empty)");
             return;
         }
 
@@ -74,9 +122,33 @@ public class CommandExecutor {
             }
         }
 
+        // Stamp cooldown only after a real (non-empty) run completes.
+        if (cmd.cooldownSeconds > 0) {
+            lastRunMillis.put(cooldownKey(cmd.name, executorName), System.currentTimeMillis());
+        }
+
         String detail = successCount + "/" + actions.size()
                 + " steps ran without throwing (not a true success-count, see class javadoc)";
         auditLog.logExecution(executorName, cmd.name, true, detail);
+        recordHistory(executorName, cmd.name, successCount + "/" + actions.size());
+    }
+
+    /** NEW FEATURE: records a run into the bounded in-memory history buffer. */
+    private synchronized void recordHistory(String executorName, String commandName, String outcome) {
+        String ts = DateTimeFormatter.ISO_LOCAL_TIME.format(java.time.LocalTime.now().withNano(0));
+        history.addLast("[" + ts + "] " + executorName + " -> " + commandName + " (" + outcome + ")");
+        while (history.size() > HISTORY_LIMIT) {
+            history.removeFirst();
+        }
+    }
+
+    /**
+     * NEW FEATURE: returns the most recent run history entries, newest last,
+     * for /rtwrapper history. This is in-memory only and resets on restart;
+     * config/rtwrapper/audit.log remains the persistent source of truth.
+     */
+    public synchronized List<String> getHistory() {
+        return Collections.unmodifiableList(List.copyOf(history));
     }
 
     /**

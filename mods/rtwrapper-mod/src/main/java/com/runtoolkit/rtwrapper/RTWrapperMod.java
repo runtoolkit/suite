@@ -1,6 +1,6 @@
 package com.runtoolkit.rtwrapper;
 
-import com.runtoolkit.rtwrapper.command.CmdNameCommand;
+import com.runtoolkit.rtwrapper.command.RTWrapperCommand;
 import com.runtoolkit.rtwrapper.command.RTWrapperCommands;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -16,9 +16,12 @@ import org.slf4j.LoggerFactory;
  * the additional features requested by the user:
  *   - OP-level gate (configurable per command, 0-4)
  *   - Audit log to both the console and config/rtwrapper/audit.log
- *   - Chest GUI (/cmdname menu) - lists registered commands and runs them on click
- *   - /cmdname subcommand tree (register/unregister/list/run/menu/reload)
+ *   - Chest GUI (/rtwrapper menu) - lists registered commands and runs them on click
+ *   - /rtwrapper subcommand tree (register/unregister/list/info/run/menu/history/reload)
  *     instead of /trigger
+ *   - Per-command cooldowns and an optional "confirm" step before running
+ *     sensitive registered commands
+ *   - In-memory run history (/rtwrapper history) on top of the persistent audit log
  *
  * The 400+ mcfunction variants in the datapack
  * (data/rtwrapper/function/core/wrappers/internal/variants/) were not ported
@@ -52,7 +55,7 @@ public class RTWrapperMod implements ModInitializer {
         // is registered once; each body resolves its state at execution time via
         // source.getServer().
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                CmdNameCommand.register(dispatcher, registryAccess));
+                RTWrapperCommand.register(dispatcher, registryAccess));
 
         LOGGER.info("RTWrapper loaded.");
     }
