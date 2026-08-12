@@ -142,7 +142,13 @@ jobs:
           modrinth-id: ${{ secrets.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           files: build/merged-datapack.zip
-          name: Merged datapack (${{ github.sha }})
-          version: ${{ github.sha }}
+          # FIX: name/version previously used github.sha (a 40-char commit
+          # hash). Modrinth's version_number field rejected it with a
+          # "length" validation error. Switched to a short, unique
+          # identifier: 26.2 (the merged pack's min_format/max_format, 107)
+          # plus the run number, which is short and increments every run so
+          # Modrinth never sees a duplicate version_number.
+          name: Merged datapack (26.2, run ${{ github.run_number }})
+          version: 26.2-${{ github.run_number }}
           version-type: release
           loaders: datapack
