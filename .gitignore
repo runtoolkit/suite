@@ -1,7 +1,7 @@
 .idea/
 *.iml
 .vscode/
-gradle.properties
+.minecraft/
 local.properties
 /run/
 /logs/
@@ -9,3 +9,6 @@ local.properties
 .env
 *.env
 *.pem
+.gradle/
+build/
+out/
