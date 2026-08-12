@@ -56,7 +56,7 @@ public class RTWMainMenuScreen extends Screen {
         );
         graphics.drawCenteredString(
             this.font,
-            "Storage islemleri ve rtwrapper: fonksiyon cagrisi.",
+            "Storage operations and rtwrapper: function call.",
             this.width / 2,
             this.height / 2 - 52,
             0xAAAAAA
