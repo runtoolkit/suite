@@ -193,6 +193,9 @@ tasks.register('mergeDatapacks') {
                 println "Skipping ${packName}: listed in manifest 'exclude'."
                 return
             }
+            // 'include' entries may be a top-level packs/<name> dir, or a
+            // relative sub-path like 'dataLib-dp/datapacks/dataLib' for
+            // datapacks nested inside a mod/tooling repo folder.
             def dir = new File(packsRoot, packName)
             if (!dir.exists() || !new File(dir, 'pack.mcmeta').exists()) {
                 throw new GradleException("mergeDatapacks failed: packs/${packName} not found or has no pack.mcmeta.")
@@ -205,14 +208,21 @@ tasks.register('mergeDatapacks') {
         }
 
         // Validate pack_format compatibility before touching any files.
+        // Normalize to the actual numeric format(s) so a pack declaring
+        // pack_format=107 and a pack declaring min_format=107/max_format=107
+        // are recognized as the same format instead of compared as strings.
         def formats = [:]
+        def normFormats = [:]
         packDirs.each { packName, dir ->
             def meta = slurper.parse(new File(dir, 'pack.mcmeta'))
             def pack = meta?.pack
             def fmt = pack?.pack_format != null ? "pack_format=${pack.pack_format}" : "min=${pack?.min_format} max=${pack?.max_format}"
             formats[packName] = fmt
+            def minF = pack?.min_format != null ? pack.min_format : pack?.pack_format
+            def maxF = pack?.max_format != null ? pack.max_format : pack?.pack_format
+            normFormats[packName] = [minF, maxF]
         }
-        def distinctFormats = formats.values().toSet()
+        def distinctFormats = normFormats.values().toSet()
         if (distinctFormats.size() > 1 && !allowMismatchedFormats) {
             def details = formats.collect { k, v -> "  - ${k}: ${v}" }.join('\n')
             throw new GradleException(
