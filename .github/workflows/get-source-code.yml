@@ -1,0 +1,40 @@
+name: Source Code (with Git History)
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Create source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p archive
+          # Proje dosyalarını .git hariç kopyala
+          rsync -a \
+            --exclude=archive \
+            --exclude=.github \
+            --exclude=.git \
+            ./ archive/
+          cp -a .git archive/
+      - name: Create ZIP
+        run: |
+          cd archive
+          zip -r ../source-with-history.zip .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: source-code
+          path: source-with-history.zip
