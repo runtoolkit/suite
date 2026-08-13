@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Definition of a custom command registered under /rtwrapper.
+ * Definition of a custom command registered under /cmdname.
  * The Java counterpart of the `rtwrapper:triggers registry` entry in the
  * original RTWrapper datapack - except here it's registered directly as a
  * Brigadier subcommand instead of a trigger/scoreboard.
  */
 public class RegisteredCommand {
 
-    /** Subcommand name: /rtwrapper run <name> */
+    /** Subcommand name: /cmdname <name> */
     public String name;
 
     /** Minimum OP permission level required to run this command (0-4). */
@@ -27,24 +27,6 @@ public class RegisteredCommand {
 
     /** Whether this command should appear in the Chest GUI menu. */
     public boolean visibleInGui = true;
-
-    /**
-     * Cooldown in seconds between two runs of this command by the SAME
-     * player (0 = no cooldown). New feature: prevents spam/abuse of
-     * registered commands (e.g. a "heal" or "kit" command run repeatedly).
-     * Enforced by CommandExecutor via an in-memory per-player last-run map;
-     * this value is only the configured limit, not the current state.
-     */
-    public int cooldownSeconds = 0;
-
-    /**
-     * If true, running this command via /rtwrapper run requires an explicit
-     * trailing "confirm" argument. New feature: guards against fat-fingering
-     * a destructive or high-impact registered command (e.g. one that bans,
-     * resets, or wipes something). Independent of permissionLevel - a
-     * command can require both a high permission level AND confirmation.
-     */
-    public boolean requireConfirm = false;
 
     public RegisteredCommand() {
     }
@@ -62,8 +44,6 @@ public class RegisteredCommand {
         obj.addProperty("permissionLevel", permissionLevel);
         obj.addProperty("description", description);
         obj.addProperty("visibleInGui", visibleInGui);
-        obj.addProperty("cooldownSeconds", cooldownSeconds);
-        obj.addProperty("requireConfirm", requireConfirm);
         com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
         for (String action : actions) {
             arr.add(action);
@@ -78,8 +58,6 @@ public class RegisteredCommand {
         cmd.permissionLevel = obj.has("permissionLevel") ? obj.get("permissionLevel").getAsInt() : 2;
         cmd.description = obj.has("description") ? obj.get("description").getAsString() : "";
         cmd.visibleInGui = obj.has("visibleInGui") ? obj.get("visibleInGui").getAsBoolean() : true;
-        cmd.cooldownSeconds = obj.has("cooldownSeconds") ? obj.get("cooldownSeconds").getAsInt() : 0;
-        cmd.requireConfirm = obj.has("requireConfirm") ? obj.get("requireConfirm").getAsBoolean() : false;
         cmd.actions = new ArrayList<>();
         if (obj.has("actions")) {
             for (var el : obj.getAsJsonArray("actions")) {

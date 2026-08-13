@@ -49,7 +49,7 @@ public class AuditLog {
     public void logExecution(String executorName, String commandName, boolean allowed, String detail) {
         String ts = LocalDateTime.now().format(TS_FORMAT);
         String status = allowed ? "ALLOW" : "DENY";
-        String line = String.format("[%s] [%s] %s -> /rtwrapper %s (%s)",
+        String line = String.format("[%s] [%s] %s -> /cmdname %s (%s)",
                 ts, status, executorName, commandName, detail);
 
         if (allowed) {
