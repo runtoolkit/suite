@@ -20,9 +20,9 @@
   "dependencies": {
     "dataLib": {
       "source": "github",
-      "repo": "runtoolkit/dataLib",
-      "version": ">=v6.0.0",
-      "asset": "dataLib-full.zip"
+      "repo": "runtoolkit/suite",
+      "version": "v6.0.2",
+      "asset": "dataLib-dp-datapacks-dataLib.zip"
     }
   }
 }
