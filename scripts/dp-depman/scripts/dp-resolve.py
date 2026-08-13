@@ -48,8 +48,13 @@ def version_matches(version: str, constraint: str) -> bool:
       "1.2.x"    → wildcard patch
       "^1.2.0"   → major fixed
       "~1.2.0"   → major+minor fixed
+      "*"        → any version
     """
+    if constraint == "*":
+        return True
+
     version = version.lstrip("v")
+    constraint = constraint.lstrip("v")
     v = parse_version(version)
 
     if re.match(r"^\d+\.\d+(\.\d+)*$", constraint):

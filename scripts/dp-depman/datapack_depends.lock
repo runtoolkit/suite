@@ -2,11 +2,11 @@
   "resolved": {
     "dataLib": {
       "source": "github",
-      "repo": "runtoolkit/dataLib",
-      "version": "6.0.0",
-      "asset_name": "dataLib-full.zip",
-      "download_url": "https://github.com/runtoolkit/dataLib/releases/download/v6.0.0/dataLib.zip",
-      "sha256": "c2f5cf679ce371b943b26998f0bfc803f0f1b4ba885aca4cd012b2c12df9629a"
+      "repo": "runtoolkit/suite",
+      "version": "6.0.2",
+      "asset_name": "dataLib-dp-datapacks-dataLib.zip",
+      "download_url": "https://github.com/runtoolkit/suite/releases/download/packs-latest/dataLib-dp-datapacks-dataLib.zip",
+      "sha256": "1318baefc36b27a0b53c0459b5e8d06c0d5c06fec0134ca3b03f8c603ab84246"
     }
   }
 }

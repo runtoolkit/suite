@@ -1,18 +1,28 @@
 {
-  "id": "example-pack",
+  "id": "examplePack",
   "version": "1.0.0",
-  "description": "Demonstration datapack for dp-depman",
+  "description": "Example datapack dependency config",
 
   "build": {
-    "output": "both"
+    "output": "both",
+    "exclude": [
+      ".git",
+      ".github",
+      ".dp-cache",
+      "dist",
+      "datapack_depends.json",
+      "datapack_depends.lock",
+      "*.md",
+      "scripts/"
+    ]
   },
 
   "dependencies": {
     "dataLib": {
       "source": "github",
-      "repo": "runtoolkit/dataLib",
-      "version": ">=v6.0.0",
-      "asset": "dataLib-full.zip"
+      "repo": "runtoolkit/suite",
+      "version": ">=v6.0.2",
+      "asset": "dataLib-dp-datapacks-dataLib.zip"
     }
   }
 }

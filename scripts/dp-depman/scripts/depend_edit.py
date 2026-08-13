@@ -28,7 +28,7 @@ from _dp_common import (
 
 VALID_SOURCES = {"github", "submodule"}
 
-CONSTRAINT_RE = r"^(\d+\.\d+(\.\d+)*(\.x)?|[><=~^]+\d+\.\d+(\.\d+)*)$"
+CONSTRAINT_RE = r"^(\*|\d+\.\d+(\.\d+)*(\.x)?|[><=~^]+\d+\.\d+(\.\d+)*)$"
 
 def validate_dep(dep_id: str, dep_cfg: dict):
     import re
