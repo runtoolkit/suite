@@ -384,6 +384,30 @@ def build_separate_zips(manifest: dict, resolved: dict, root: Path, token: str |
                 zf.write(file, file.relative_to(pack_root))
     log(f"Main pack: {pack_zip_path.name}")
 
+def _is_function_tag(arc: str) -> bool:
+    parts = arc.split("/")
+    return (
+        len(parts) >= 4
+        and parts[0] == "data"
+        and parts[2] == "tags"
+        and parts[3] == "function"
+        and arc.endswith(".json")
+    )
+
+def _merge_function_tag(existing: bytes, new: bytes) -> bytes:
+    import json
+    a = json.loads(existing)
+    b = json.loads(new)
+    values = list(a.get("values", []))
+    for v in b.get("values", []):
+        if v not in values:
+            values.append(v)
+    merged = dict(a)
+    merged["values"] = values
+    if "replace" in b:
+        merged["replace"] = b["replace"]
+    return json.dumps(merged, indent=2).encode("utf-8")
+
 def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | None, deps: dict | None = None):
     out = root / OUTPUT_DIR
     out.mkdir(parents=True, exist_ok=True)
@@ -399,6 +423,10 @@ def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | No
                 if name.endswith("/"):
                     continue
                 if name in seen:
+                    if _is_function_tag(name):
+                        contents[name] = _merge_function_tag(contents[name], dz.read(name))
+                        seen[name] = f"{seen[name]}+{dep_id} (merged)"
+                        continue
                     conflicts.append(f"  CONFLICT: '{name}' ({seen[name]} -> overwritten by {dep_id})")
                 seen[name] = dep_id
                 contents[name] = dz.read(name)
@@ -408,6 +436,10 @@ def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | No
         if file.is_file() and not _should_exclude(file, pack_root):
             arc = str(file.relative_to(pack_root))
             if arc in seen:
+                if _is_function_tag(arc):
+                    contents[arc] = _merge_function_tag(contents[arc], file.read_bytes())
+                    seen[arc] = f"{seen[arc]}+{manifest['id']} (merged)"
+                    continue
                 conflicts.append(f"  CONFLICT: '{arc}' ({seen[arc]} -> overwritten by {manifest['id']} (override))")
             seen[arc] = f"{manifest['id']} (override)"
             contents[arc] = file.read_bytes()
