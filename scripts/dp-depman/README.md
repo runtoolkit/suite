@@ -63,6 +63,28 @@ Requires `GITHUB_TOKEN` for private repos or to avoid rate limits.
 
 `asset` is optional. If omitted, the first `.zip` asset in the release is used.
 
+Optionally pin an expected checksum with `sha256` (64-char hex). When set,
+every download — including cache hits from a previous run — is verified
+against it; a mismatch aborts the resolve/build instead of silently using
+the file. Without a pinned `sha256`, `resolve`/`build` still print the
+computed hash of what was downloaded, but nothing is checked against it.
+
+```json
+"dataLib": {
+  "source": "github",
+  "repo": "runtoolkit/dataLib",
+  "version": ">=26.2.0",
+  "asset": "dataLib.zip",
+  "sha256": "3b1c...64 hex chars...9e2f"
+}
+```
+
+Set or update it with `depend_edit.py`:
+
+```bash
+depend_edit.py update dataLib --sha256 <64-char-hex>
+```
+
 ### Git Submodule (`source: submodule`)
 
 Uses a local submodule. Intended for packs you develop alongside the main pack.
