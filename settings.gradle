@@ -11,7 +11,6 @@ rootProject.name = 'runtoolkit-suite'
 // Subprojects to skip entirely (kept as files, not wired into the Gradle build).
 // Reason for each is noted so future edits know why it's here.
 def EXCLUDED_PROJECT_DIRS = [
-    'packs/dataLib-dp', 
     'mods/datapack-fixer',     
     'packs/RTWrapper/rtwrapper-fabric',
 ]
