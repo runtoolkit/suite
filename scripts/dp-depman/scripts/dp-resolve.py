@@ -54,6 +54,7 @@ def version_matches(version: str, constraint: str) -> bool:
         return True
 
     version = version.lstrip("v")
+    constraint = constraint.lstrip("v")
     v = parse_version(version)
 
     if re.match(r"^\d+\.\d+(\.\d+)*$", constraint):
