@@ -54,6 +54,13 @@ def validate_dep(dep_id: str, dep_cfg: dict):
         if not dep_cfg.get("url"):
             errors.append("'url' is required for source=submodule")
 
+    sha256 = dep_cfg.get("sha256")
+    if sha256 is not None:
+        if source != "github":
+            errors.append("'sha256' is only meaningful for source=github (release asset pinning)")
+        elif not re.match(r"^[0-9a-fA-F]{64}$", sha256):
+            errors.append(f"'sha256' must be a 64-character hex string, got: {sha256!r}")
+
     if errors:
         print(f"[depend_edit] Validation failed for '{dep_id}':")
         for e in errors:
@@ -205,6 +212,9 @@ Examples:
   # Add a GitHub dependency
   depend_edit.py add dataLib --source github --repo runtoolkit/dataLib --version '>=6.0.0' --asset dataLib-full.zip
 
+  # Add a GitHub dependency with a pinned SHA-256 (verified on every download)
+  depend_edit.py add dataLib --source github --repo runtoolkit/dataLib --version '>=6.0.0' --asset dataLib-full.zip --sha256 <64-char-hex>
+
   # Add a submodule dependency
   depend_edit.py add cbplus --source submodule --url https://github.com/runtoolkit/CBPlus.git --version '>=1.0.0'
 
@@ -237,6 +247,7 @@ Examples:
     p_add.add_argument("--version", required=True)
     p_add.add_argument("--repo",    help="GitHub: owner/repo")
     p_add.add_argument("--asset",   help="GitHub: release asset filename")
+    p_add.add_argument("--sha256",  help="GitHub: pin the expected SHA-256 of the release asset")
     p_add.add_argument("--url",     help="Submodule: git URL")
     p_add.add_argument("--path",    help="Submodule: local path (default: deps/<id>)")
     p_add.add_argument("--force",   action="store_true", help="Overwrite if exists")
@@ -248,6 +259,7 @@ Examples:
     p_upd.add_argument("--version")
     p_upd.add_argument("--repo")
     p_upd.add_argument("--asset")
+    p_upd.add_argument("--sha256")
     p_upd.add_argument("--url")
     p_upd.add_argument("--path")
     p_upd.add_argument("--source", choices=list(VALID_SOURCES))
@@ -280,20 +292,21 @@ Examples:
 
     if args.command == "add":
         dep_cfg: dict = {"source": args.source, "version": args.version}
-        if args.repo:    dep_cfg["repo"]  = args.repo
-        if args.asset:   dep_cfg["asset"] = args.asset
-        if args.url:     dep_cfg["url"]   = args.url
-        if args.path:    dep_cfg["path"]  = args.path
+        if args.repo:    dep_cfg["repo"]   = args.repo
+        if args.asset:   dep_cfg["asset"]  = args.asset
+        if args.sha256:  dep_cfg["sha256"] = args.sha256
+        if args.url:     dep_cfg["url"]    = args.url
+        if args.path:    dep_cfg["path"]   = args.path
         cmd_add(root, args.dep_id, dep_cfg, args.force)
 
     elif args.command == "update":
         fields = {}
-        for key in ("version", "repo", "asset", "url", "path", "source"):
+        for key in ("version", "repo", "asset", "sha256", "url", "path", "source"):
             val = getattr(args, key, None)
             if val is not None:
                 fields[key] = val
         if not fields:
-            die("No fields specified. Pass at least one of: --version --repo --asset --url --path --source")
+            die("No fields specified. Pass at least one of: --version --repo --asset --sha256 --url --path --source")
         cmd_update(root, args.dep_id, fields)
 
     elif args.command == "set":

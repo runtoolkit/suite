@@ -137,18 +137,35 @@ def resolve_github(dep_id: str, dep_cfg: dict, token: str | None) -> dict:
         "sha256":       None,
     }
 
-def download_asset(url: str, dest: Path, token: str | None) -> str:
+def download_asset(url: str, dest: Path, token: str | None, expected_sha256: str | None = None) -> str:
     dest.parent.mkdir(parents=True, exist_ok=True)
     req = urllib.request.Request(url)
     if token:
         req.add_header("Authorization", f"Bearer {token}")
     log(f"  Downloading: {url}")
     h = hashlib.sha256()
-    with urllib.request.urlopen(req, timeout=60) as resp, open(dest, "wb") as f:
-        while chunk := resp.read(65536):
-            h.update(chunk)
-            f.write(chunk)
-    return h.hexdigest()
+    tmp_dest = dest.with_suffix(dest.suffix + ".part")
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp, open(tmp_dest, "wb") as f:
+            while chunk := resp.read(65536):
+                h.update(chunk)
+                f.write(chunk)
+        digest = h.hexdigest()
+        if expected_sha256:
+            if digest.lower() != expected_sha256.lower():
+                tmp_dest.unlink(missing_ok=True)
+                die(
+                    f"SHA-256 mismatch for {dest.name}!\n"
+                    f"  expected: {expected_sha256}\n"
+                    f"  got:      {digest}\n"
+                    f"  Refusing to use this file — possible tampering or wrong release asset."
+                )
+            log(f"  SHA-256 verified: {digest}")
+        tmp_dest.replace(dest)
+        return digest
+    except Exception:
+        tmp_dest.unlink(missing_ok=True)
+        raise
 
 # ─── Submodule resolution ─────────────────────────────────────────────────────
 
@@ -234,7 +251,7 @@ def resolve_all(deps: dict, root: Path, mode: str, token: str | None) -> dict:
 
 # ─── ZIP operations ───────────────────────────────────────────────────────────
 
-def get_dep_zip(dep_id: str, info: dict, root: Path, token: str | None) -> Path:
+def get_dep_zip(dep_id: str, info: dict, root: Path, token: str | None, dep_cfg: dict | None = None) -> Path:
     """Return the dependency ZIP (from cache or download/pack)."""
     if info["source"] == "submodule":
         src       = root / info["path"]
@@ -248,10 +265,20 @@ def get_dep_zip(dep_id: str, info: dict, root: Path, token: str | None) -> Path:
     else:
         cache_zip = CACHE_DIR / f"{dep_id}-{info['version']}-{info['asset_name']}"
         cache_zip.parent.mkdir(parents=True, exist_ok=True)
+        # Pinned hash: declared by the user in .depends/<dep_id>.json ("sha256" field).
+        expected = (dep_cfg or {}).get("sha256")
+        if cache_zip.exists() and expected:
+            # Even a cache hit must match a pinned hash — cache poisoning / stale
+            # cache from a previous run must not silently bypass verification.
+            actual = hashlib.sha256(cache_zip.read_bytes()).hexdigest()
+            if actual.lower() != expected.lower():
+                cache_zip.unlink()
+                log(f"  Cached file failed pinned SHA-256 check, re-downloading: {cache_zip.name}")
         if not cache_zip.exists():
-            sha          = download_asset(info["download_url"], cache_zip, token)
+            sha            = download_asset(info["download_url"], cache_zip, token, expected)
             info["sha256"] = sha
-            log(f"  SHA-256: {sha}")
+            if not expected:
+                log(f"  SHA-256: {sha}  (not pinned in .depends/{dep_id}.json — consider adding it)")
         else:
             log(f"  Using cached: {cache_zip.name}")
         return cache_zip
@@ -277,12 +304,12 @@ def _should_exclude(file: Path, pack_root: Path) -> bool:
     parts = file.relative_to(pack_root).parts
     return parts[0] not in {"data", "pack.mcmeta"}
 
-def build_separate_zips(manifest: dict, resolved: dict, root: Path, token: str | None):
+def build_separate_zips(manifest: dict, resolved: dict, root: Path, token: str | None, deps: dict | None = None):
     out = root / OUTPUT_DIR
     out.mkdir(parents=True, exist_ok=True)
 
     for dep_id, info in resolved.items():
-        dep_zip = get_dep_zip(dep_id, info, root, token)
+        dep_zip = get_dep_zip(dep_id, info, root, token, (deps or {}).get(dep_id))
         dest    = out / f"{dep_id}-{info['version']}.zip"
         shutil.copy2(dep_zip, dest)
         log(f"  Dep ZIP: {dest.name}")
@@ -295,7 +322,7 @@ def build_separate_zips(manifest: dict, resolved: dict, root: Path, token: str |
                 zf.write(file, file.relative_to(pack_root))
     log(f"Main pack: {pack_zip_path.name}")
 
-def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | None):
+def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | None, deps: dict | None = None):
     out = root / OUTPUT_DIR
     out.mkdir(parents=True, exist_ok=True)
 
@@ -305,7 +332,7 @@ def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | No
 
     with zipfile.ZipFile(merged_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for dep_id, info in resolved.items():
-            with zipfile.ZipFile(get_dep_zip(dep_id, info, root, token)) as dz:
+            with zipfile.ZipFile(get_dep_zip(dep_id, info, root, token, (deps or {}).get(dep_id))) as dz:
                 for name in dz.namelist():
                     if name in seen:
                         conflicts.append(f"  CONFLICT: '{name}' ({seen[name]} ↔ {dep_id})")
@@ -427,9 +454,9 @@ Examples:
     if args.command == "build":
         log(f"Output mode: {args.output}")
         if args.output in ("separate", "both"):
-            build_separate_zips(manifest, resolved, root, args.token)
+            build_separate_zips(manifest, resolved, root, args.token, deps)
         if args.output in ("merged", "both"):
-            build_merged_zip(manifest, resolved, root, args.token)
+            build_merged_zip(manifest, resolved, root, args.token, deps)
 
     log("Done.")
 

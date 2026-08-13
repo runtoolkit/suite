@@ -142,9 +142,19 @@ jobs:
           MODRINTH_PROJECT_ID: ${{ secrets.MODRINTH_PROJECT_ID }}
         run: |
           VERSION_NUMBER="26.2-${{ github.run_number }}"
+          # Token is passed via stdin to a header file, not as a command-line
+          # argument — command-line args (including -H "...${VAR}...") can be
+          # visible to other processes on the runner via `ps aux`. Reading
+          # from stdin keeps the token out of the process list entirely.
+          # The header file itself never touches disk unencrypted-at-rest
+          # concerns beyond what the runner already has for env vars, and is
+          # removed as soon as the upload loop exits.
+          HEADER_FILE="$(mktemp)"
+          trap 'rm -f "$HEADER_FILE"' EXIT
+          printf 'Authorization: %s\n' "${MODRINTH_TOKEN}" > "$HEADER_FILE"
           for i in 1 2 3; do
             if curl -sS -f -X POST "https://api.modrinth.com/v2/version" \
-              -H "Authorization: ${MODRINTH_TOKEN}" \
+              -H @"$HEADER_FILE" \
               -F "data={\"name\":\"Merged datapack (26.2, run ${{ github.run_number }})\",\"version_number\":\"${VERSION_NUMBER}\",\"changelog\":\"Automated merge build.\",\"dependencies\":[],\"game_versions\":[\"26.2\"],\"version_type\":\"release\",\"loaders\":[\"datapack\"],\"featured\":false,\"project_id\":\"${MODRINTH_PROJECT_ID}\",\"file_parts\":[\"file\"]};type=application/json" \
               -F "file=@build/merged-datapack.zip;type=application/zip"; then
               echo "Modrinth upload succeeded on attempt ${i}."
