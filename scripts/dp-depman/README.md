@@ -55,11 +55,15 @@ Requires `GITHUB_TOKEN` for private repos or to avoid rate limits.
 ```json
 "dataLib": {
   "source": "github",
-  "repo": "runtoolkit/dataLib",
-  "version": ">=26.2.0",
-  "asset": "dataLib.zip"
+  "repo": "runtoolkit/suite",
+  "version": "*",
+  "asset": "dataLib-dp-datapacks-dataLib.zip"
 }
 ```
+
+`version` is optional — omit it (or use `"*"`) to accept the latest matching
+release regardless of tag naming. Use a semver constraint (`>=1.2.0`, `1.2.x`,
+etc.) only when the source repo tags its releases with real semver versions.
 
 `asset` is optional. If omitted, the first `.zip` asset in the release is used.
 
@@ -100,12 +104,30 @@ Uses a local submodule. Intended for packs you develop alongside the main pack.
 
 Run `python scripts/dp-resolve.py init` to add all submodule deps automatically.
 
+### Modrinth (`source: modrinth`)
+
+Fetches the highest matching version file from a Modrinth project.
+
+```json
+"fabric-api": {
+  "source": "modrinth",
+  "project": "fabric-api",
+  "version": "*",
+  "asset": "fabric-api-0.100.0+1.21.jar"
+}
+```
+
+`project` is the Modrinth project slug or ID. `asset` is optional — if omitted,
+the primary file of the selected version is used. `sha256` pinning works the
+same way as for `source: github`.
+
 ---
 
 ## Version constraints
 
 | Format    | Meaning                  |
 |-----------|--------------------------|
+| `*`       | Any version (or omit `version` entirely) |
 | `1.2.3`   | Exact match              |
 | `>=1.2.0` | Minimum version          |
 | `1.2.x`   | Wildcard patch           |
