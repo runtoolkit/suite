@@ -390,27 +390,34 @@ def build_merged_zip(manifest: dict, resolved: dict, root: Path, token: str | No
 
     merged_path = out / f"{manifest['id']}-{manifest['version']}-merged.zip"
     seen: dict[str, str] = {}
+    contents: dict[str, bytes] = {}
     conflicts = []
 
-    with zipfile.ZipFile(merged_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for dep_id, info in resolved.items():
-            with zipfile.ZipFile(get_dep_zip(dep_id, info, root, token, (deps or {}).get(dep_id))) as dz:
-                for name in dz.namelist():
-                    if name in seen:
-                        conflicts.append(f"  CONFLICT: '{name}' ({seen[name]} ↔ {dep_id})")
-                    else:
-                        seen[name] = dep_id
-                    zf.writestr(name, dz.read(name))
+    for dep_id, info in resolved.items():
+        with zipfile.ZipFile(get_dep_zip(dep_id, info, root, token, (deps or {}).get(dep_id))) as dz:
+            for name in dz.namelist():
+                if name.endswith("/"):
+                    continue
+                if name in seen:
+                    conflicts.append(f"  CONFLICT: '{name}' ({seen[name]} -> overwritten by {dep_id})")
+                seen[name] = dep_id
+                contents[name] = dz.read(name)
 
-        pack_root = _get_pack_root(manifest, root)
-        for file in pack_root.rglob("*"):
-            if file.is_file() and not _should_exclude(file, pack_root):
-                arc = str(file.relative_to(pack_root))
-                seen[arc] = f"{manifest['id']} (override)"
-                zf.write(file, arc)
+    pack_root = _get_pack_root(manifest, root)
+    for file in pack_root.rglob("*"):
+        if file.is_file() and not _should_exclude(file, pack_root):
+            arc = str(file.relative_to(pack_root))
+            if arc in seen:
+                conflicts.append(f"  CONFLICT: '{arc}' ({seen[arc]} -> overwritten by {manifest['id']} (override))")
+            seen[arc] = f"{manifest['id']} (override)"
+            contents[arc] = file.read_bytes()
+
+    with zipfile.ZipFile(merged_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for arc, data in contents.items():
+            zf.writestr(arc, data)
 
     if conflicts:
-        warn("Namespace conflicts detected — main pack overrides:")
+        warn("Namespace conflicts detected — later source overrides:")
         for c in conflicts:
             warn(c)
 
