@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "RTWrapper",
   "description": "A custom-command wrapper/queue mod with a gated permission system, audit log, and Chest GUI. Rewritten from scratch in Java, inspired by the command-queueing idea of the original RTWrapper datapack.",
-  "authors": ["Legends11"],
+  "authors": ["Runtoolkit"],
   "contact": {
     "sources": "https://github.com/runtoolkit"
   },
