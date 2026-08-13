@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.18.0-alpha.9'
+    id 'net.fabricmc.fabric-loom' version '1.15.5'
     id 'java'
 }
 
