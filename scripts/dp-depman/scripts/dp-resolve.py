@@ -100,7 +100,7 @@ def fetch_github_releases(owner: str, repo: str, token: str | None) -> list[dict
 def resolve_github(dep_id: str, dep_cfg: dict, token: str | None) -> dict:
     repo         = dep_cfg["repo"]
     owner, repo_name = repo.split("/", 1)
-    constraint   = dep_cfg["version"]
+    constraint   = dep_cfg.get("version", "*")
     wanted_asset = dep_cfg.get("asset")
 
     log(f"Checking GitHub releases: {repo}")
@@ -174,6 +174,61 @@ def download_asset(url: str, dest: Path, token: str | None, expected_sha256: str
 
 # ─── Submodule resolution ─────────────────────────────────────────────────────
 
+def resolve_modrinth(dep_id: str, dep_cfg: dict, token: str | None) -> dict:
+    import json
+    project      = dep_cfg["project"]
+    constraint   = dep_cfg.get("version", "*")
+    wanted_file  = dep_cfg.get("asset")
+
+    log(f"Checking Modrinth project: {project}")
+    url = f"https://api.modrinth.com/v2/project/{project}/version"
+    req = urllib.request.Request(url)
+    req.add_header("User-Agent", "dp-depman/1.0 (runtoolkit)")
+    if token:
+        req.add_header("Authorization", token)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            versions = json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        die(f"Modrinth API error ({project}): {e.code} {e.reason}")
+    except urllib.error.URLError as e:
+        die(f"Network error ({project}): {e.reason}")
+
+    candidates = []
+    for rel in versions:
+        ver = rel.get("version_number", "").lstrip("v")
+        try:
+            if version_matches(ver, constraint):
+                candidates.append((ver, rel))
+        except ValueError as e:
+            warn(f"  {rel.get('version_number')}: {e}")
+
+    if not candidates:
+        die(f"[{dep_id}] No compatible Modrinth version found (constraint: {constraint})")
+
+    candidates.sort(key=lambda x: parse_version(x[0]), reverse=True)
+    chosen_ver, chosen_rel = candidates[0]
+    log(f"  → {project} v{chosen_ver} selected")
+
+    files = chosen_rel.get("files", [])
+    if wanted_file:
+        asset = next((f for f in files if f["filename"] == wanted_file), None)
+        if not asset:
+            die(f"[{dep_id}] File '{wanted_file}' not found in v{chosen_ver}")
+    else:
+        asset = next((f for f in files if f.get("primary")), None) or (files[0] if files else None)
+        if not asset:
+            die(f"[{dep_id}] No downloadable file found in v{chosen_ver}")
+
+    return {
+        "source":       "modrinth",
+        "project":      project,
+        "version":      chosen_ver,
+        "asset_name":   asset["filename"],
+        "download_url": asset["url"],
+        "sha256":       asset.get("hashes", {}).get("sha256"),
+    }
+
 def resolve_submodule(dep_id: str, dep_cfg: dict, root: Path) -> dict:
     rel_path = dep_cfg.get("path", str(SUBMODULE_DIR / dep_id))
     abs_path = root / rel_path
@@ -240,10 +295,12 @@ def resolve_all(deps: dict, root: Path, mode: str, token: str | None) -> dict:
 
         source         = dep_cfg.get("source", "auto")
         effective_mode = mode if mode != "auto" else (
-            source if source in ("github", "submodule") else "prod"
+            source if source in ("github", "submodule", "modrinth") else "prod"
         )
 
-        if effective_mode == "prod" or source == "github":
+        if source == "modrinth":
+            info = resolve_modrinth(dep_id, dep_cfg, token)
+        elif effective_mode == "prod" or source == "github":
             if "repo" not in dep_cfg:
                 die(f"[{dep_id}] Missing 'repo' field (required for prod/github)")
             info = resolve_github(dep_id, dep_cfg, token)
