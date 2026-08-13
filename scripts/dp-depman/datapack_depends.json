@@ -21,7 +21,7 @@
     "dataLib": {
       "source": "github",
       "repo": "runtoolkit/suite",
-      "version": "v6.0.2",
+      "version": "*",
       "asset": "dataLib-dp-datapacks-dataLib.zip"
     }
   }
