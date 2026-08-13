@@ -26,7 +26,7 @@ from _dp_common import (
 
 # ─── Validation ───────────────────────────────────────────────────────────────
 
-VALID_SOURCES = {"github", "submodule"}
+VALID_SOURCES = {"github", "submodule", "modrinth"}
 
 CONSTRAINT_RE = r"^(\*|\d+\.\d+(\.\d+)*(\.x)?|[><=~^]+\d+\.\d+(\.\d+)*)$"
 
@@ -54,10 +54,14 @@ def validate_dep(dep_id: str, dep_cfg: dict):
         if not dep_cfg.get("url"):
             errors.append("'url' is required for source=submodule")
 
+    if source == "modrinth":
+        if not dep_cfg.get("project"):
+            errors.append("'project' is required for source=modrinth (project slug or ID)")
+
     sha256 = dep_cfg.get("sha256")
     if sha256 is not None:
-        if source != "github":
-            errors.append("'sha256' is only meaningful for source=github (release asset pinning)")
+        if source not in ("github", "modrinth"):
+            errors.append("'sha256' is only meaningful for source=github or source=modrinth (release asset pinning)")
         elif not re.match(r"^[0-9a-fA-F]{64}$", sha256):
             errors.append(f"'sha256' must be a 64-character hex string, got: {sha256!r}")
 
