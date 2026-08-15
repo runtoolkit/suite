@@ -1,0 +1,37 @@
+{
+  "parent": "runtoolkit:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:command_block"
+    },
+    "title": {
+      "text": "RTWrapper",
+      "color": "aqua",
+      "bold": true
+    },
+    "description": [
+      {
+        "text": "Loaded: ",
+        "color": "gray"
+      },
+      {
+        "text": "RTWrapper v1.0.1",
+        "color": "green"
+      },
+      {
+        "text": "\nMacro command wrapper API for Runtoolkit datapacks.",
+        "color": "dark_gray"
+      }
+    ],
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "loaded": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "sends_telemetry_event": false
+}
