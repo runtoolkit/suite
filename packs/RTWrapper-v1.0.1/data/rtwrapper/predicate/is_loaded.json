@@ -1,0 +1,9 @@
+{
+    "condition": "minecraft:value_check",
+    "value": {
+        "type": "storage",
+        "storage": "rtwrapper:meta",
+        "path": "loaded"
+    },
+    "range": 1
+}
