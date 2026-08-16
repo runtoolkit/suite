@@ -62,6 +62,7 @@ The following repos were moved into this monorepo and are now **archived + priva
 - [dataLib-dp](https://github.com/runtoolkit/dataLib-dp)
 - [inv_gui](https://github.com/runtoolkit/inv_gui)
 - [macroEngine-dp](https://github.com/runtoolkit/macroEngine-dp)
+- [macroEngine](https://github.com/runtoolkit/macroEngine)
 
 ## Skipped repos (empty or inconsistent)
 
