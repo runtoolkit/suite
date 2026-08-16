@@ -1,0 +1,1 @@
+$function macroengine:debug/tools/trigger/execute {type:"$(type)",data:$(data)}

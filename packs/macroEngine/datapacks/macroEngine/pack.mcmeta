@@ -1,0 +1,74 @@
+{
+  "pack": {
+    "description": [
+      {
+        "text": "MacroEngine",
+        "color": "#00ccff",
+        "bold": true,
+        "italic": false,
+        "extra": [
+          {
+            "text": " | ",
+            "color": "#ff0000",
+            "bold": false,
+            "italic": false,
+            "underlined": false,
+            "strikethrough": false,
+            "obfuscated": false
+          },
+          {
+            "text": "by runtoolkit",
+            "color": "#00ff33",
+            "bold": false,
+            "italic": false,
+            "extra": [
+              " ",
+              {
+                "text": "| ",
+                "color": "#ff0000",
+                "bold": false,
+                "italic": false,
+                "underlined": false,
+                "strikethrough": false,
+                "obfuscated": false
+              },
+              {
+                "text": "1.20.3-1.21.1 + 26.x",
+                "color": "#e3ff57",
+                "bold": false,
+                "italic": false,
+                "underlined": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": " | v6.0.3-overlays",
+        "color": "#ffaa00",
+        "bold": false,
+        "italic": false
+      }
+    ],
+    "pack_format": 107,
+    "supported_formats": {
+      "min_inclusive": 40,
+      "max_inclusive": 107
+    },
+    "min_format": [40, 0],
+    "max_format": [107, 0]
+  },
+  "overlays": {
+    "entries": [
+      {
+        "formats": [40, 42],
+        "directory": "1_20_5"
+      }
+    ]
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
+  }
+}

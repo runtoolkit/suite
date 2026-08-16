@@ -1,0 +1,18 @@
+{
+  "pack": {
+    "description": "MacroEngine v6.0.2 — resource pack companion (fonts/textures for GUI & dialog rendering) | runtoolkit",
+    "min_format": [
+      88,
+      1
+    ],
+    "max_format": [
+      88,
+      1
+    ]
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
+  }
+}

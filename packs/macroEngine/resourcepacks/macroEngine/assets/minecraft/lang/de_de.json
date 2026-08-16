@@ -1,0 +1,26 @@
+{
+  "_comment": "MacroEngine — Deutsch (de_de) \u00dcbersetzungen",
+
+  "macroengine.msg.permission_denied":      "Zugriff verweigert.",
+  "macroengine.msg.no_perm":                "%s — Sie haben diese Berechtigung nicht.",
+  "macroengine.msg.sandbox_blocked":        "Befehl im Sandbox-Modus blockiert.",
+  "macroengine.msg.freeze":                 "eingefroren",
+  "macroengine.msg.unfreeze":               "aufgetaut",
+  "macroengine.msg.load.complete":          "geladen.",
+  "macroengine.msg.feature_requires_1215":  "Diese Funktion erfordert Minecraft 1.21.5 oder h\u00f6her.",
+  "macroengine.msg.feature_requires_1216":  "Diese Funktion erfordert Minecraft 1.21.6 oder h\u00f6her.",
+  "macroengine.msg.safe_load.cancelled":    "safe_load abgebrochen. Speicher unver\u00e4ndert.",
+  "macroengine.msg.safe_load.denied.admin": "safe_load/yes verweigert — macroengine.admin-Tag erforderlich.",
+  "macroengine.msg.safe_load.denied.perm":  "safe_load/yes verweigert — dl.perm_level \u2265 4 erforderlich.",
+  "macroengine.msg.safe_load.denied.loaded":"safe_load/yes verweigert — Engine bereits geladen.",
+  "macroengine.msg.version_conflict":       "Versionskonflikt! Erwartet v6.0.2 \u2014 gespeicherte Werte stimmen nicht \u00fcberein.",
+  "macroengine.msg.version_reload":         "\u2192 F\u00fchren Sie /reload aus, um MacroEngine neu zu initialisieren.",
+
+  "macroengine.subtitle.load_success": "MacroEngine geladen",
+  "macroengine.subtitle.confirm":      "Aktion best\u00e4tigt",
+  "macroengine.subtitle.error":        "Fehler",
+  "macroengine.subtitle.freeze":       "Spieler eingefroren",
+  "macroengine.subtitle.unfreeze":     "Spieler aufgetaut",
+  "macroengine.subtitle.perm_denied":  "Zugriff verweigert",
+  "macroengine.subtitle.perm_granted": "Berechtigung erteilt"
+}

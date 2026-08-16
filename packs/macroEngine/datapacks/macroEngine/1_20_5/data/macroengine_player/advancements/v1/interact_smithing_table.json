@@ -1,0 +1,24 @@
+{
+ "criteria": {
+ "interact_smithing_table": {
+ "trigger": "minecraft:default_block_use",
+ "conditions": {
+ "location": [
+ {
+ "predicate": {
+ "block": {
+ "blocks": [
+ "minecraft:smithing_table"
+ ]
+ }
+ },
+ "condition": "minecraft:location_check"
+ }
+ ]
+ }
+ }
+ },
+ "rewards": {
+ "function": "macroengine_player:core/internal/v1/interact_smithing_table"
+ }
+}
