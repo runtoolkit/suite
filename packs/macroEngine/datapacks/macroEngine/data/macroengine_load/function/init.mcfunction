@@ -1,0 +1,1 @@
+data modify storage runtoolkit:tmp seed set value [{name:"macroengine",load_fn:"macroengine_load:main",tick_fn:"macroengine.main:macroengine/tick",disable_fn:"macroengine:disable",version_score:"#runtoolkit.packs.macroengine.version"}]

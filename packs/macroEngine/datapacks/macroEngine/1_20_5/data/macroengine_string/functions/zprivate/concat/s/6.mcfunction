@@ -1,0 +1,13 @@
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S2 set from storage macroengine_string:temp data.StringList[-1]
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S3 set from storage macroengine_string:temp data.StringList[-1]
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S4 set from storage macroengine_string:temp data.StringList[-1]
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S5 set from storage macroengine_string:temp data.StringList[-1]
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S6 set from storage macroengine_string:temp data.StringList[-1]
+data remove storage macroengine_string:temp data.StringList[-1]
+data modify storage macroengine_string:temp data.S7 set from storage macroengine_string:temp data.StringList[-1]
+function macroengine_string:zprivate/concat/s/6c with storage macroengine_string:temp data

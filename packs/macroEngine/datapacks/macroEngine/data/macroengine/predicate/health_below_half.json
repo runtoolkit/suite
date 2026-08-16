@@ -1,0 +1,9 @@
+{
+  "entity": "this",
+  "scores": {
+    "macroengine.health": {
+      "max": 10
+    }
+  },
+  "condition": "minecraft:entity_scores"
+}

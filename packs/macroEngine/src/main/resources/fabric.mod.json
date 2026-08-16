@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "macroengine-config-bridge",
+  "version": "0.1.0",
+  "name": "MacroEngine Config Bridge",
+  "description": "A mod that bridges the macroengine config menu to a client-side GUI screen. Provides access to the macroengine datapack's macroengine:core/config/set function via a Fabric networking payload.",
+  "authors": [
+    "runtoolkit"
+  ],
+  "contact": {
+    "homepage": "https://github.com/runtoolkit/macroEngine"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.runtoolkit.macroengine.MacroEngineMod"
+    ],
+    "client": [
+      "io.runtoolkit.macroengine.client.MacroEngineModClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "26.2",
+    "fabric-api": "*"
+  }
+}

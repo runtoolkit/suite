@@ -1,0 +1,2 @@
+$data modify storage macroengine:engine players.$(to).$(key) set from storage macroengine:engine players.$(from).$(key)
+$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/copy_var ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(key)","color":"aqua"}]

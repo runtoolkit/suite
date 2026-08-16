@@ -1,0 +1,26 @@
+{
+  "_comment": "MacroEngine — English (en_us) translations",
+
+  "macroengine.msg.permission_denied":      "Permission denied.",
+  "macroengine.msg.no_perm":                "%s — you don't have this permission.",
+  "macroengine.msg.sandbox_blocked":        "Command blocked in sandbox mode.",
+  "macroengine.msg.freeze":                 "frozen",
+  "macroengine.msg.unfreeze":               "thawed",
+  "macroengine.msg.load.complete":          "loaded.",
+  "macroengine.msg.feature_requires_1215":  "This feature requires Minecraft 1.21.5 or higher.",
+  "macroengine.msg.feature_requires_1216":  "This feature requires Minecraft 1.21.6 or higher.",
+  "macroengine.msg.safe_load.cancelled":    "safe_load cancelled. Storage untouched.",
+  "macroengine.msg.safe_load.denied.admin": "safe_load/yes denied — macroengine.admin tag required.",
+  "macroengine.msg.safe_load.denied.perm":  "safe_load/yes denied — dl.perm_level \u2265 4 required.",
+  "macroengine.msg.safe_load.denied.loaded":"safe_load/yes denied — engine is already loaded.",
+  "macroengine.msg.version_conflict":       "Version conflict! Expected v6.0.2 \u2014 stored scores do not match.",
+  "macroengine.msg.version_reload":         "\u2192 Run /reload to reinitialize MacroEngine.",
+
+  "macroengine.subtitle.load_success": "macroEngine loaded",
+  "macroengine.subtitle.confirm":      "Action confirmed",
+  "macroengine.subtitle.error":        "Error",
+  "macroengine.subtitle.freeze":       "Player frozen",
+  "macroengine.subtitle.unfreeze":     "Player thawed",
+  "macroengine.subtitle.perm_denied":  "Permission denied",
+  "macroengine.subtitle.perm_granted": "Permission granted"
+}
