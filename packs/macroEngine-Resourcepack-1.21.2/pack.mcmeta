@@ -1,0 +1,11 @@
+{
+  "pack": {
+    "description": "MacroEngine v6.1.0-backport — resource pack companion (sound effects) for 1.21.2 | runtoolkit",
+    "pack_format": 42
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
+  }
+}

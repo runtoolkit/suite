@@ -1,0 +1,7 @@
+{
+  "_comment": "BACKPORT (1.21.2): tooltip_display component does not exist in 1.21.2 (added pack format 64 / 25w04a). Using the pre-existing minecraft:hide_tooltip component instead — presence of the empty compound hides the whole tooltip, same visible effect.",
+  "components": {
+    "minecraft:hide_tooltip": {}
+  },
+  "function": "minecraft:set_components"
+}

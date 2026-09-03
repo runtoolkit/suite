@@ -1,0 +1,1 @@
+data modify storage macroengine:engine _crafting_ui.recipes.example set value {ingredients:[{item:"minecraft:iron_ingot",count:2},{item:"minecraft:stick",count:1}],result:{item:"minecraft:shears",count:1}}

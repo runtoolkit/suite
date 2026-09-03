@@ -1,0 +1,2 @@
+$data modify storage macroengine:engine events.$(event) append value {func:"$(func)"}
+$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"event/register ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(func)","color":"aqua"}]
