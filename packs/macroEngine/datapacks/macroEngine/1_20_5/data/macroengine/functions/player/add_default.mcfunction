@@ -1,2 +1,0 @@
-$execute unless data storage macroengine:engine players.$(player).$(key) run data modify storage macroengine:engine players.$(player).$(key) set value $(value)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/add_default ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(key)","color":"aqua"}]

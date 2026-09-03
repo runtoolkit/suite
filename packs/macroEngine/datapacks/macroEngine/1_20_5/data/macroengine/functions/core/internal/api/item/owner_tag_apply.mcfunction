@@ -1,6 +1,0 @@
-# macroengine:core/internal/api/item/owner_tag_apply
-# Internal — do not call directly. Second pass of api/item/owner_tag.
-# Expects: {player:"...",slot:"...",macroengine:{...}}
-
-$item modify entity @a[name=$(player),limit=1] $(slot) macroengine:item_modifier/set_custom_data
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"item/owner_tag ","color":"aqua"},{"text":"$(player) ","color":"white"},{"text":"slot=$(slot)","color":"gray"}]
