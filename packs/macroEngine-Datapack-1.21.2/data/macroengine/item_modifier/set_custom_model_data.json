@@ -1,0 +1,7 @@
+{
+  "_comment": "macroengine:item_modifier/set_custom_model_data — BACKPORT (1.21.2): custom_model_data changed from a plain int to the {floats,flags,strings,colors} object format in pack format 59 (24w45a / 1.21.4). 1.21.2 is pack format 57, so this uses the old int form. Only a single numeric id is representable pre-1.21.4 — edit the number to match your resource pack's predicate override.",
+  "components": {
+    "minecraft:custom_model_data": 1
+  },
+  "function": "minecraft:set_components"
+}

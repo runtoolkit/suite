@@ -1,0 +1,15 @@
+# macroengine:config/load_cfg
+#
+# Load-gate config. Reviewed via PR + GitHub Actions (see CONTRIBUTING.md).
+# Key naming: #runtoolkit.packs.macroengine.config.load.<name>
+# Storage: macroengine.meta scoreboard.
+#
+# Idempotent — only fills a key if it is missing, never overwrites.
+
+# --- load.timeout_seconds: auto-cancel delay for the load confirmation gate (default 300 = 5 minutes) ---
+execute unless score #runtoolkit.packs.macroengine.config.load.timeout_seconds macroengine.meta matches 1.. run scoreboard players set #runtoolkit.packs.macroengine.config.load.timeout_seconds macroengine.meta 300
+
+# --- load.sandbox_enabled: 0=normal gate flow, 1=auto-confirm on load (default 0)
+# Mirrors the legacy macroengine:engine {sandbox:1b} storage flag for
+# backward compatibility — both are checked in macroengine:core/internal/load/confirm.
+execute unless score #runtoolkit.packs.macroengine.config.load.sandbox_enabled macroengine.meta matches 0..1 run scoreboard players set #runtoolkit.packs.macroengine.config.load.sandbox_enabled macroengine.meta 0

@@ -1,0 +1,60 @@
+{
+  "pack": {
+    "description": [
+      {
+        "text": "MacroEngine",
+        "color": "#00ccff",
+        "bold": true,
+        "italic": false,
+        "extra": [
+          {
+            "text": " | ",
+            "color": "#ff0000",
+            "bold": false,
+            "italic": false,
+            "underlined": false,
+            "strikethrough": false,
+            "obfuscated": false
+          },
+          {
+            "text": "by runtoolkit",
+            "color": "#00ff33",
+            "bold": false,
+            "italic": false,
+            "extra": [
+              " ",
+              {
+                "text": "| ",
+                "color": "#ff0000",
+                "bold": false,
+                "italic": false,
+                "underlined": false,
+                "strikethrough": false,
+                "obfuscated": false
+              },
+              {
+                "text": "1.21.2",
+                "color": "#e3ff57",
+                "bold": false,
+                "italic": false,
+                "underlined": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": " | v6.1.0-backport",
+        "color": "#ffaa00",
+        "bold": false,
+        "italic": false
+      }
+    ],
+    "pack_format": 57
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
+  }
+}

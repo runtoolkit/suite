@@ -1,0 +1,78 @@
+{
+  "type": "minecraft:multi_action",
+  "title": {
+    "text": "macroEngine — Setup",
+    "color": "aqua",
+    "bold": true
+  },
+  "external_title": {
+    "text": "macroEngine Setup"
+  },
+  "body": {
+    "type": "minecraft:plain_message",
+    "contents": "macroEngine v6.1.0 started.\nFrom this screen you can add or remove admins, force-reload the engine, or close this screen."
+  },
+  "can_close_with_escape": true,
+  "after_action": "close",
+  "pause": false,
+  "actions": [
+    {
+      "label": {
+        "text": "Add Admin",
+        "color": "green"
+      },
+      "tooltip": {
+        "text": "Marks yourself as an admin."
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "/function macroengine:setup/admin/add_self"
+      }
+    },
+    {
+      "label": {
+        "text": "Remove Admin",
+        "color": "red"
+      },
+      "tooltip": {
+        "text": "Removes yourself from the admin list."
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "/function macroengine:setup/admin/remove_self"
+      }
+    },
+    {
+      "label": {
+        "text": "Admin List",
+        "color": "yellow"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "/function macroengine:debug/tools/admin/list"
+      }
+    },
+    {
+      "label": {
+        "text": "Force Reload",
+        "color": "gold"
+      },
+      "tooltip": {
+        "text": "Requires confirmation — resets current session data."
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "/function macroengine:core/internal/load/force"
+      }
+    },
+    {
+      "label": {
+        "text": "Close"
+      },
+      "action": {
+        "type": "minecraft:run_command",
+        "command": "/function macroengine:setup/close_screen"
+      }
+    }
+  ]
+}
