@@ -1,3 +1,0 @@
-data modify storage macroengine:output result set value 0
-$execute if data storage macroengine:engine events.$(event) run execute store result storage macroengine:output result int 1 run data get storage macroengine:engine events.$(event)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"event/count ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(event)","color":"aqua"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

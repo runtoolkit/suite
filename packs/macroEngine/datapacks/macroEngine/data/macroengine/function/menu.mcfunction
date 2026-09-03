@@ -1,2 +1,0 @@
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"menu ","color":"aqua"},{"text":"▶ dispatching","color":"#555555"}]
-function #macroengine:admin/menu
