@@ -42,14 +42,3 @@ function macroengine:core/internal/player/init
 data modify storage runtoolkit:tmp _reg set value {name:"macroengine",version:610,load_fn:"macroengine:setup",tick_fn:"macroengine.main:macroengine/tick",disable_fn:"macroengine:disable"}
 function runtoolkit:registry/register with storage runtoolkit:tmp _reg
 data remove storage runtoolkit:tmp _reg
-
-# 5) Open the setup/management screen — NOT just a "loaded" message, but
-#    an interactive dialog with admin add/remove (macroengine.admin set/unset)
-#    and status info. The admin-add button is guarded by an op
-#    (permission_level 2+) check, see setup/admin/add_self.
-data modify storage macroengine:input cmd set value "execute if entity @s run function macroengine:setup/open_screen"
-data modify storage macroengine:input key set value "open_screen"
-function macroengine:player/get_name
-data modify storage macroengine:input player set from storage macroengine:names temp.NAME
-data modify storage macroengine:input interval set value 207
-function macroengine:core/lib/schedule_cmd_as with storage macroengine:input
