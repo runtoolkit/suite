@@ -9,5 +9,5 @@ execute unless data storage macroengine:engine flags.experimental{crafting_ui:1b
 
 tellraw @s ["",{"text":"═══════ ","color":"dark_gray"},{"text":"macroEngine — Custom Recipes","color":"aqua","bold":true},{"text":" ═══════","color":"dark_gray"}]
 tellraw @s ["",{"text":"Recipes not shown in the vanilla grid. Click to attempt a craft (consumes ingredients if you have them).","color":"gray","italic":true}]
-tellraw @s ["",{"text":"[Craft] ","color":"green","bold":true,"clickEvent":{"action":"run_command","value":"/function macroengine:experimental/crafting_ui/craft {recipe:\"example\"}"},"hoverEvent":{"action":"show_text","value":"Needs: 2x iron_ingot + 1x stick → 1x shears"}},{"text":"example — 2 iron_ingot + 1 stick → shears","color":"white"}]
+function #macroengine:cui/list_recipes
 tellraw @s ["",{"text":"═════════════════════════════════════","color":"dark_gray"}]
