@@ -1,3 +1,0 @@
-function macroengine:core/internal/events/uro_check with storage macroengine:engine _uro.src[0]
-data remove storage macroengine:engine _uro.src[0]
-execute if data storage macroengine:engine _uro.src[0] run function macroengine:core/internal/events/uro_loop

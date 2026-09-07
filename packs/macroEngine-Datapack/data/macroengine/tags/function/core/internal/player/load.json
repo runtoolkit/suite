@@ -1,6 +1,0 @@
-{
-  "values": [
-    "#macroengine:core/internal/player/enumerate",
-	"#macroengine:core/internal/player/resolve"
-  ]
-}
