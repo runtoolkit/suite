@@ -6,17 +6,7 @@
     "min_format": 107,
     "max_format": 107
   },
-  "include": [
-    "dataLib-dp/datapacks/dataLib",
-    "RTWrapper/datapack/RTWrapper-Datapack"
+  "include": []
   ],
-  "exclude": [
-    "InteractionClickDetection",
-    "LeftClickDetection",
-    "RTWrapper-1.21.1",
-    "TunnelScript",
-    "cmdTunnel-datapack",
-    "inv_gui",
-    "macroEngine-dp"
-  ]
+  "exclude": []
 }

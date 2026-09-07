@@ -5,7 +5,6 @@
 scoreboard objectives add macroengine.tmp dummy
 scoreboard objectives add macroengine.meta dummy
 scoreboard objectives add macroengine.time dummy
-scoreboard objectives add macroengine_menu trigger
 scoreboard objectives add macroengine_run trigger
 scoreboard objectives add macroengine_action trigger
 scoreboard objectives add macroengine.pre_version dummy
