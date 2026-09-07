@@ -59,9 +59,7 @@ The following repos were moved into this monorepo and are now **archived + priva
 - [cmdTunnel-datapack](https://github.com/runtoolkit/cmdTunnel-datapack)
 - [dpgen](https://github.com/runtoolkit/dpgen)
 - [TEMPLATE-MOD](https://github.com/runtoolkit/TEMPLATE-MOD)
-- [dataLib-dp](https://github.com/runtoolkit/dataLib-dp)
 - [inv_gui](https://github.com/runtoolkit/inv_gui)
-- [macroEngine-dp](https://github.com/runtoolkit/macroEngine-dp)
 - [macroEngine](https://github.com/runtoolkit/macroEngine)
 
 ## Skipped repos (empty or inconsistent)
@@ -69,4 +67,3 @@ The following repos were moved into this monorepo and are now **archived + priva
 - FunctionPP: only 2 file(s)
 - DataLibFabric: 1KB, empty/placeholder (manually confirmed)
 - .github: only 2 file(s)
-- suite: only 2 file(s)

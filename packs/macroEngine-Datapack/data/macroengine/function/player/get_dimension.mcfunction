@@ -1,3 +1,0 @@
-data remove storage macroengine:output result
-$data modify storage macroengine:output result set from entity @a[name=$(player),limit=1] Dimension
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/get_dimension ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

@@ -1,2 +1,0 @@
-kill @e[type=minecraft:minecart,tag=macroengine_input,sort=nearest,limit=1,distance=..2]
-summon minecraft:command_block_minecart ~ ~ ~ {OnGround:1b,UpdateLastExecution:1b,Command:"",Tags:["macroengine_input"],TrackOutput:1b}

@@ -1,1 +1,0 @@
-function #macro:events/on_rc
