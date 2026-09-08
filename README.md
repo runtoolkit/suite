@@ -46,7 +46,7 @@ Pushes and pull requests trigger the `build.yml` workflow (Build & Lint), which 
 
 ## Old repos
 
-The following repos were moved into this monorepo and are now **archived + private**:
+The following repos were moved into this monorepo and are now **private**:
 
 - [TunnelScript](https://github.com/runtoolkit/TunnelScript)
 - [LeftClickDetection](https://github.com/runtoolkit/LeftClickDetection)
