@@ -7,12 +7,6 @@
 #
 # config:{silent:1} → suppress debug tellraw.
 
-# Security gate — see core/internal/security/check_all.
-# No-op (always passes) unless flags.experimental.strict_gating is on.
-scoreboard players set $tte_gate macroengine.tmp 1
-execute store success score $tte_gate macroengine.tmp run function macroengine:core/internal/security/check_all {required:"admin_min_level"}
-execute if score $tte_gate macroengine.tmp matches 0 run return 0
-
 data modify storage macroengine:engine tools_trigger.data.uuid set from entity @s UUID
 
 $data modify storage macroengine:engine tools_trigger.type set value "$(type)"

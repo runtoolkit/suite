@@ -22,3 +22,4 @@ execute if data storage macroengine:input book{executed:0b} run function #macroe
 # Clear the custom_data marker so the same book cannot be resubmitted every
 # tick while the player keeps holding it — this is a one-shot capture.
 clear @s minecraft:writable_book[custom_data={macroengine:{input:1b}}]
+data remove storage macroengine:input book
