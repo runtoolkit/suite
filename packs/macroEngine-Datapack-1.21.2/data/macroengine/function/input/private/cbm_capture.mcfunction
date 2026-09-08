@@ -36,3 +36,4 @@ execute if data storage macroengine:input cbm{executed:0b} run function #macroen
 data modify entity @s Command set value ""
 
 data remove storage macroengine:input _cbm
+data remove storage macroengine:input book
