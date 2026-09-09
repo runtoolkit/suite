@@ -1,44 +1,31 @@
 # macroengine:setup
-# ============================================================================
-# Manual (re)initialization entry point.
-#
-# This function replaces the automatic load flow that used to depend on
-# the LanternMC "load" datapack's tag chain
-# (#load:_private/load -> #load:pre_load / #load:load / #load:post_load).
-# macroEngine no longer needs any 3rd-party "load" dependency: an admin
-# runs this function BY HAND ("/function macroengine:setup"), the engine
-# initializes itself and its embedded subsystems (StringLib port,
-# PlayerAction port), then opens a management screen (dialog).
-#
-# Why manual: minecraft:load / #load:* tags are REQUIRED to fire on every
-# datapack reload, and a broken function added to that tag by a pack
-# outside macroEngine could affect macroEngine's own startup too (tag
-# "required" behavior, as opposed to silent skip). A manual
-# /function macroengine:setup call reduces this external-dependency
-# surface to zero: only this pack's own files run.
-# ============================================================================
+# Manual init entry point. Call with: /function macroengine:setup
+# Replaces old LanternMC load-tag dependency. Only this pack's code runs.
+# Order: dependencies first → then pack.
 
-# 1) Start the core engine (scoreboard/storage/config/backport chain).
-#    This shortcuts the old chain that reached macroengine.main:macroengine/load
-#    (which then called macroengine:core/internal/load/main) indirectly via
-#    #load:load, and calls it directly instead.
-function macroengine:core/internal/load/main
+# Debug: start
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Starting setup...","color":"gray"}
 
-# 2) Start the embedded StringLib port (macroengine:core/internal/string/*).
-#    Note: the split / to_lowercase / to_uppercase internal helper functions
-#    are broken because they were already missing in the upstream source —
-#    see the WARNING comments in the relevant files. This preserves existing
-#    (upstream) behavior.
+# 1) Dependencies – StringLib port
+# Note: split / to_lowercase / to_uppercase helpers are broken upstream (see WARNING comments)
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Loading StringLib (dependency)...","color":"gray"}
 function macroengine:core/internal/string/zprivate/load
 
-# 3) Start the embedded PlayerAction port (macroengine:core/internal/player/*).
+# 2) Dependencies – PlayerAction port
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Loading PlayerAction (dependency)...","color":"gray"}
 function macroengine:core/internal/player/enumerate
 function macroengine:core/internal/player/resolve
 function macroengine:core/internal/player/init
 
-# 4) Announce this pack to runtoolkit's registry/list and diagnostics/status
-#    tools (METADATA ONLY — this call is not wired to minecraft:load/tick,
-#    it's purely informational).
+# 3) Pack – Core engine (scoreboard / storage / config / backport)
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Loading core (pack)...","color":"gray"}
+function macroengine:core/internal/load/main
+
+# 4) Register with runtoolkit (metadata only)
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Registering with runtoolkit...","color":"gray"}
 data modify storage runtoolkit:tmp _reg set value {name:"macroengine",version:610,load_fn:"macroengine:setup",tick_fn:"macroengine.main:macroengine/tick",disable_fn:"macroengine:disable"}
 function runtoolkit:registry/register with storage runtoolkit:tmp _reg
 data remove storage runtoolkit:tmp _reg
+
+# Debug: done
+tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Setup complete.","color":"green"}
