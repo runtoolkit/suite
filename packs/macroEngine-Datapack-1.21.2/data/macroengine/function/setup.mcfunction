@@ -21,11 +21,5 @@ function macroengine:core/internal/player/init
 tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Loading core (pack)...","color":"gray"}
 function macroengine:core/internal/load/main
 
-# 4) Register with runtoolkit (metadata only)
-tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Registering with runtoolkit...","color":"gray"}
-data modify storage runtoolkit:tmp _reg set value {name:"macroengine",version:610,load_fn:"macroengine:setup",tick_fn:"macroengine.main:macroengine/tick",disable_fn:"macroengine:disable"}
-function runtoolkit:registry/register with storage runtoolkit:tmp _reg
-data remove storage runtoolkit:tmp _reg
-
 # Debug: done
 tellraw @a[tag=macroengine.debug] {"text":"[macroengine:setup] Setup complete.","color":"green"}

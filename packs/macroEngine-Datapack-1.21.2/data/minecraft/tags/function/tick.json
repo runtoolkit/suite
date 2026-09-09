@@ -1,5 +1,5 @@
 {
     "values": [
-        "runtoolkit:tick"
+        "macroengine:core/tick"
     ]
 }

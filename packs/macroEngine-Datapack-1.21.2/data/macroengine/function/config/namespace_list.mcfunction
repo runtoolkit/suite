@@ -41,7 +41,7 @@
 #
 # ======================================================================================
 
-data modify storage macroengine:output config.namespace_allowlist set value ["macroengine:","macroengine.main:empty"]
+data modify storage macroengine:output config.namespace_allowlist set value ["macroengine:","macroengine:core/empty"]
 
 # --- Approved additional prefixes go below this line, one per line. ---
 # Example (DO NOT UNCOMMENT WITHOUT A REVIEWED PR):
