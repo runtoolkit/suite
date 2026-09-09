@@ -10,4 +10,4 @@ tellraw @a ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"
 # 20t delay: this final.mcfunction already runs at t+16 (main->all->final
 # chain), +4 ticks leaves extra margin.
 tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Scheduling #macroengine:init (t+20)...","color":"gray"}]
-schedule function #macroengine:init 20t replace
+schedule function #macroengine:init 2t replace
