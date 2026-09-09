@@ -8,7 +8,6 @@ data remove storage macroengine:input func
 data remove storage macroengine:input interval
 data remove storage macroengine:input key
 
-scoreboard players enable @a[tag=macroengine.admin] macroengine_menu
 scoreboard players enable @a[tag=macroengine.admin] macroengine_run
 scoreboard players enable @a[tag=macroengine.admin] macroengine_action
 
