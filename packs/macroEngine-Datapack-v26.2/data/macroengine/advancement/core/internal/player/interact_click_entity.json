@@ -7,7 +7,7 @@
           "entity": "this",
           "predicate": {
             "nbt": "{Tags:[\"player_action.click_entity\"]}",
-            "entity_type": "minecraft:interaction"
+            "minecraft:entity_type": "minecraft:interaction"
           },
           "type": "minecraft:entity_properties"
         }
