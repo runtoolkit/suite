@@ -1,1 +1,0 @@
-function #macroengine:events/on_lc

@@ -1,8 +1,0 @@
-{
-  "values": [
-    "macroengine:input/writable_book",
-    "macroengine:input/command_block_minecart",
-    "macroengine:core/internal/api/cmd/freeze/tick",
-    "macroengine:input/private/cbm_align_tp"
-  ]
-}
