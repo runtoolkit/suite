@@ -1,9 +1,0 @@
-{
-  "entity": "this",
-  "scores": {
-    "macroengine.food": {
-      "max": 19
-    }
-  },
-  "condition": "minecraft:entity_scores"
-}
