@@ -23,4 +23,4 @@ execute if data storage macroengine:engine _mcmd_options{priority_sort:1b} run f
 execute if data storage macroengine:engine _mcmd_options.spread_ticks unless data storage macroengine:engine _mcmd_options{spread_ticks:0} run return run function macroengine:core/internal/api/cmd/other/multi_cmd/advanced/run_spread
 
 function macroengine:api/cmd/other/multi_cmd/run
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/advanced ","color":"aqua"},{"text":"✔ with options","color":"green"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/advanced ","color":"aqua"},{"text":"✔ with options","color":"green"}]

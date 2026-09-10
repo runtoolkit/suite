@@ -14,4 +14,4 @@ data remove storage macroengine:engine _rw_new
 data remove storage macroengine:engine _rw_src
 data remove storage macroengine:engine _rw_unbind_id
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/region_watch/unregister ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" removed","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/region_watch/unregister ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" removed","color":"#555555"}]

@@ -18,4 +18,4 @@
 #   function macroengine:systems/sound/play with storage macroengine:input sound
 
 $playsound $(sound) $(category) $(target) ~ ~ ~ $(volume) $(pitch)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"sound/play ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(sound)","color":"white"},{"text":" [","color":"#555555"},{"text":"$(category)","color":"green"},{"text":"]","color":"#555555"},{"text":" vol:","color":"#555555"},{"text":"$(volume)","color":"yellow"},{"text":" pitch:","color":"#555555"},{"text":"$(pitch)","color":"yellow"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"sound/play ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(sound)","color":"white"},{"text":" [","color":"#555555"},{"text":"$(category)","color":"green"},{"text":"]","color":"#555555"},{"text":" vol:","color":"#555555"},{"text":"$(volume)","color":"yellow"},{"text":" pitch:","color":"#555555"},{"text":"$(pitch)","color":"yellow"}]

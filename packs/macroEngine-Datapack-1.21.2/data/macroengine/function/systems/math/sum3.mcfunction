@@ -25,4 +25,4 @@ scoreboard players operation $s3_a macroengine.tmp += $s3_c macroengine.tmp
 execute if score $s3_a macroengine.tmp matches 2147483647.. run scoreboard players set $s3_a macroengine.tmp 2147483647
 
 execute store result storage macroengine:output result int 1 run scoreboard players get $s3_a macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/sum3 ","color":"aqua"},{"text":"($(a)+$(b)+$(c)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/sum3 ","color":"aqua"},{"text":"($(a)+$(b)+$(c)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

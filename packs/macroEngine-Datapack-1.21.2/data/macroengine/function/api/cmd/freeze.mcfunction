@@ -23,4 +23,4 @@
 # ─────────────────────────────────────────────────────────────────
 
 $execute as @a[name=$(player),tag=!macroengine.frozen,limit=1] run function macroengine:core/internal/api/cmd/freeze/apply
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd/freeze ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"translate":"macroengine.msg.freeze","color":"#00aaff","bold":true}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd/freeze ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"translate":"macroengine.msg.freeze","color":"#00aaff","bold":true}]

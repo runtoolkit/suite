@@ -39,7 +39,7 @@ function macroengine:core/internal/api/gamerule/persist with storage macroengine
 function macroengine:core/internal/api/gamerule/dispatch with storage macroengine:input {}
 
 # ── Debug log ─────────────────────────────────────────────────────────────────
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"gamerule/set ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(_gamerule_norm)","color":"white"},{"text":" = ","color":"#555555"},{"text":"$(value)","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"gamerule/set ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(_gamerule_norm)","color":"white"},{"text":" = ","color":"#555555"},{"text":"$(value)","color":"green"}]
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 data remove storage macroengine:input _gamerule_norm

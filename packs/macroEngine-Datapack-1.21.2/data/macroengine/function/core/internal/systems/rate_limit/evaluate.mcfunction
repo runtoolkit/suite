@@ -38,4 +38,4 @@ execute if score $rl_count macroengine.tmp >= $rl_limit macroengine.tmp run retu
 execute store result storage macroengine:rl_work new_hit.t int 1 run scoreboard players get $rl_now macroengine.tmp
 $data modify storage macroengine:engine rate_limit.rules.$(key).hits append from storage macroengine:rl_work new_hit
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit ","color":"aqua"},{"text":"ALLOW ","color":"#55FF55"},{"text":"$(key)","color":"white"},{"text":" (","color":"#555555"},{"score":{"name":"$rl_count","objective":"macroengine.tmp"},"color":"green"},{"text":"+1/","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":")","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit ","color":"aqua"},{"text":"ALLOW ","color":"#55FF55"},{"text":"$(key)","color":"white"},{"text":" (","color":"#555555"},{"score":{"name":"$rl_count","objective":"macroengine.tmp"},"color":"green"},{"text":"+1/","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":")","color":"#555555"}]

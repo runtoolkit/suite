@@ -7,4 +7,4 @@ function macroengine:core/internal/string/util/concat
 data modify storage macroengine:output string.result set from storage macroengine:core/internal/string/output concat
 data remove storage macroengine:core/internal/string/input concat
 data remove storage macroengine:core/internal/string/output concat
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/concat","color":"aqua"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/concat","color":"aqua"}]

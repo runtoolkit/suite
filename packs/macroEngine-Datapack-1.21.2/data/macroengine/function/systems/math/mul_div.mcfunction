@@ -41,4 +41,4 @@ scoreboard players operation $md_r macroengine.tmp /= $md_c macroengine.tmp
 scoreboard players operation $md_q macroengine.tmp += $md_r macroengine.tmp
 
 execute store result storage macroengine:output result int 1 run scoreboard players get $md_q macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/mul_div ","color":"aqua"},{"text":"($(a)*$(b)/$(c)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/mul_div ","color":"aqua"},{"text":"($(a)*$(b)/$(c)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

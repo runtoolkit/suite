@@ -16,4 +16,4 @@
 
 
 $title @a[name=$(player),limit=1] actionbar $(json)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/actionbar ","color":"aqua"},{"text":"$(player)","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/actionbar ","color":"aqua"},{"text":"$(player)","color":"white"}]

@@ -17,4 +17,4 @@
 
 $effect give @e[type=$(type),tag=$(tag)] minecraft:instant_damage 1 255 true
 $effect give @e[type=$(type),tag=$(tag)] minecraft:instant_health 1 $(amount) true
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/set_health ","color":"aqua"},{"text":" → amplifier=$(amount) on ","color":"#555555"},{"text":"$(type)","color":"aqua"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/set_health ","color":"aqua"},{"text":" → amplifier=$(amount) on ","color":"#555555"},{"text":"$(type)","color":"aqua"}]

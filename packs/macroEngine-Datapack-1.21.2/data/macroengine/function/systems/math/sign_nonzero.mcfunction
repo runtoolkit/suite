@@ -16,4 +16,4 @@
 $scoreboard players set #snz_v macroengine.tmp $(value)
 data modify storage macroengine:output result set value 1
 execute if score #snz_v macroengine.tmp matches ..-1 run data modify storage macroengine:output result set value -1
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/sign_nonzero ","color":"aqua"},{"text":"$(value) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/sign_nonzero ","color":"aqua"},{"text":"$(value) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

@@ -14,4 +14,4 @@
 
 # Store template rule — concrete player buckets inherit limit+window on first hit
 $data modify storage macroengine:engine rate_limit.player_templates.$(key) set value {limit:$(limit),window:$(window)}
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit/player/config ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"player:$(key):<player>","color":"white"},{"text":" limit=","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":" window=","color":"#555555"},{"text":"$(window)","color":"green"},{"text":"t","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit/player/config ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"player:$(key):<player>","color":"white"},{"text":" limit=","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":" window=","color":"#555555"},{"text":"$(window)","color":"green"},{"text":"t","color":"#555555"}]

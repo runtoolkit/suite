@@ -12,4 +12,4 @@
 
 data modify storage macroengine:engine security.auto_debug_tag set value 0b
 tag @a[tag=macroengine.admin] remove macroengine.debug
-tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"auto_debug_tag ","color":"white"},{"text":"disabled","color":"yellow"},{"text":" — macroengine.debug removed from all admins. Use debug_tag/grant to assign it manually.","color":"gray"}]
+# # tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"auto_debug_tag ","color":"white"},{"text":"disabled","color":"yellow"},{"text":" — macroengine.debug removed from all admins. Use debug_tag/grant to assign it manually.","color":"gray"}]

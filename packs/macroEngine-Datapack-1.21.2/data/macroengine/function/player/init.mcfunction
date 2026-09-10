@@ -6,4 +6,4 @@ $data modify storage macroengine:engine players.$(player).online set value 1b
 $execute unless data storage macroengine:engine players.$(player).first_join_tick run execute store result storage macroengine:engine players.$(player).first_join_tick int 1 run scoreboard players get $epoch macroengine.time
 $execute store result storage macroengine:engine players.$(player).last_join_tick int 1 run scoreboard players get $epoch macroengine.time
 $execute unless data storage macroengine:engine player_pids.$(player) run function macroengine:core/internal/player/assign_pid with storage macroengine:engine _pid_init_tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/init ","color":"aqua"},{"text":"$(player)","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/init ","color":"aqua"},{"text":"$(player)","color":"white"}]

@@ -22,4 +22,4 @@ execute if score $vang_dot macroengine.tmp matches -962..-903 run data modify st
 execute if score $vang_dot macroengine.tmp matches -992..-963 run data modify storage macroengine:output result set value 170
 execute if score $vang_dot macroengine.tmp matches ..-993 run data modify storage macroengine:output result set value 180
 
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/vec/angle_between ","color":"aqua"},{"text":"cos×1000=","color":"gray"},{"score":{"name":"$vang_dot","objective":"macroengine.tmp"},"color":"yellow"},{"text":" → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"yellow"},{"text":"°","color":"gray"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/vec/angle_between ","color":"aqua"},{"text":"cos×1000=","color":"gray"},{"score":{"name":"$vang_dot","objective":"macroengine.tmp"},"color":"yellow"},{"text":" → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"yellow"},{"text":"°","color":"gray"}]

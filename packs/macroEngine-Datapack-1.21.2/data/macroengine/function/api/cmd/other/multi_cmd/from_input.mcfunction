@@ -19,4 +19,4 @@ data modify storage macroengine:engine _mcmd_options set value {error_mode:"cont
 # Execute
 function macroengine:api/cmd/other/multi_cmd/run
 
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/from_input ","color":"aqua"},{"text":"▶ list → run","color":"#555555"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/from_input ","color":"aqua"},{"text":"▶ list → run","color":"#555555"}]

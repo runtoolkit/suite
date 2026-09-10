@@ -35,4 +35,4 @@ execute if score #macroengine_item_now macroengine.tmp >= #macroengine_item_expi
 execute unless score #macroengine_item_now macroengine.tmp >= #macroengine_item_expiry macroengine.tmp run scoreboard players operation #macroengine_item_remaining macroengine.tmp = #macroengine_item_expiry macroengine.tmp
 execute unless score #macroengine_item_now macroengine.tmp >= #macroengine_item_expiry macroengine.tmp run scoreboard players operation #macroengine_item_remaining macroengine.tmp -= #macroengine_item_now macroengine.tmp
 execute unless score #macroengine_item_now macroengine.tmp >= #macroengine_item_expiry macroengine.tmp store result storage macroengine:output remaining int 1 run scoreboard players get #macroengine_item_remaining macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"item/use_cooldown_check ","color":"aqua"},{"text":"$(player)","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"item/use_cooldown_check ","color":"aqua"},{"text":"$(player)","color":"white"}]

@@ -6,4 +6,4 @@ $data modify storage $(storage) $(path_a) set from storage $(storage) $(path_b)
 $data modify storage $(storage) $(path_b) set from storage macroengine:engine _nbt_swap
 data remove storage macroengine:engine _nbt_swap
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"nbt/swap ","color":"aqua"},{"text":"$(path_a)","color":"white"},{"text":" ↔ ","color":"#555555"},{"text":"$(path_b)","color":"aqua"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"nbt/swap ","color":"aqua"},{"text":"$(path_a)","color":"white"},{"text":" ↔ ","color":"#555555"},{"text":"$(path_b)","color":"aqua"}]

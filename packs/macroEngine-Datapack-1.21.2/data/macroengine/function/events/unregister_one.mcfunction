@@ -9,4 +9,4 @@ $data remove storage macroengine:engine events.$(event)
 execute if data storage macroengine:engine _uro.src[0] run function macroengine:core/internal/events/uro_loop
 
 data remove storage macroengine:engine _uro
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"event/unregister_one ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(func)","color":"aqua"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"event/unregister_one ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(func)","color":"aqua"}]

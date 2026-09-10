@@ -7,4 +7,4 @@
 
 execute if data storage macroengine:engine _mcmd_queue[0] run schedule function macroengine:core/internal/api/cmd/other/multi_cmd/advanced/run_spread_tick 1t append
 
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/run_spread ","color":"aqua"},{"text":"↷ spread scheduled","color":"gray"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/run_spread ","color":"aqua"},{"text":"↷ spread scheduled","color":"gray"}]

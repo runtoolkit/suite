@@ -31,4 +31,4 @@ execute if score #fany_b macroengine.tmp matches 1 run data modify storage macro
 scoreboard players operation #fany_a macroengine.tmp += #fany_b macroengine.tmp
 execute if score #fany_a macroengine.tmp matches 1.. run data modify storage macroengine:output result set value 1b
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"flag/any ","color":"aqua"},{"text":"$(key_a)|$(key_b) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"flag/any ","color":"aqua"},{"text":"$(key_a)|$(key_b) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

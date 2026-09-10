@@ -11,4 +11,4 @@
 #   function macroengine:core/queue/push_as with storage macroengine:input queue
 
 $data modify storage macroengine:engine work_queue append value {fn:"$(fn)",player:"$(player)"}
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/push_as ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(fn)","color":"white"},{"text":" as ","color":"#555555"},{"text":"$(player)","color":"#FFAA00"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/push_as ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(fn)","color":"white"},{"text":" as ","color":"#555555"},{"text":"$(player)","color":"#FFAA00"}]

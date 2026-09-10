@@ -4,4 +4,4 @@
 $data modify storage $(storage) $(to_path) set from storage $(storage) $(from_path)
 $data remove storage $(storage) $(from_path)
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"nbt/move ","color":"aqua"},{"text":"$(from_path)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(to_path)","color":"aqua"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"nbt/move ","color":"aqua"},{"text":"$(from_path)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(to_path)","color":"aqua"}]

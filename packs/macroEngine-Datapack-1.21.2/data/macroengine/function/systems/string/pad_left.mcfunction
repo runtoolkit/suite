@@ -26,4 +26,4 @@ execute if score $pl_pad macroengine.tmp matches 5.. run data modify storage mac
 execute if score $pl_pad macroengine.tmp matches 6.. run data modify storage macroengine:output result set value "000000"
 execute if score $pl_pad macroengine.tmp matches 7.. run data modify storage macroengine:output result set value "0000000"
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/pad_left ","color":"aqua"},{"text":"$(value) w=$(width) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"[NUM]","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/pad_left ","color":"aqua"},{"text":"$(value) w=$(width) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"[NUM]","color":"#555555"}]

@@ -7,4 +7,4 @@ $scoreboard players operation @a[name=$(player),limit=1] macroengine.pid = $next
 
 execute store result storage macroengine:engine _pid_seq int 1 run scoreboard players get $next_pid macroengine.tmp
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/internal/assign_pid ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → pid=","color":"#555555"},{"score":{"name":"$next_pid","objective":"macroengine.tmp"},"color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"player/internal/assign_pid ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → pid=","color":"#555555"},{"score":{"name":"$next_pid","objective":"macroengine.tmp"},"color":"green"}]

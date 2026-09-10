@@ -6,4 +6,4 @@ execute unless entity @s[tag=macroengine.admin] run return 0
 
 data modify storage macroengine:engine sandbox set value 1b
 data modify storage macroengine:engine config.sandbox set value 1b
-tellraw @a[tag=macroengine.admin] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Gate confirmations re-enabled.","color":"green"}]
+# # tellraw @a[tag=macroengine.admin] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Gate confirmations re-enabled.","color":"green"}]

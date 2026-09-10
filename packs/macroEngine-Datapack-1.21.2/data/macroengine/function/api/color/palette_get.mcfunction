@@ -14,4 +14,4 @@
 
 data modify storage macroengine:output result set value ""
 $execute if data storage macroengine:engine color.palette.$(key) run data modify storage macroengine:output result set from storage macroengine:engine color.palette.$(key)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/palette_get ","color":"aqua"},{"text":"$(key)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/palette_get ","color":"aqua"},{"text":"$(key)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

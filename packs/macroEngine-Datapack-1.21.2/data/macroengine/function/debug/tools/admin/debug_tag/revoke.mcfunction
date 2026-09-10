@@ -7,4 +7,4 @@
 
 
 $tag @a[name=$(target),limit=1] remove macroengine.debug
-$tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"$(target)","color":"white"},{"text":" — macroengine.debug revoked.","color":"gray"}]
+# # $tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"$(target)","color":"white"},{"text":" — macroengine.debug revoked.","color":"gray"}]

@@ -18,7 +18,7 @@ execute if data storage tunnelscript:gate pending{action:"input_reset_stats"} ru
 execute if data storage tunnelscript:gate pending{action:"input_minecart_remove"} run kill @e[type=command_block_minecart,tag=tunnelscript_input]
 execute if data storage tunnelscript:gate pending{action:"input_minecart_remove"} run tellraw @s [{"text":"[TunnelScript] All input minecarts removed.","color":"aqua"}]
 execute if data storage tunnelscript:gate pending{action:"log_clear"} run data modify storage tunnelscript:log entries set value []
-execute if data storage tunnelscript:gate pending{action:"log_clear"} run tellraw @s {"text":"[TunnelScript] command log cleared","color":"green"}
+# # execute if data storage tunnelscript:gate pending{action:"log_clear"} run tellraw @s {"text":"[TunnelScript] command log cleared","color":"green"}
 execute if data storage tunnelscript:gate pending{action:"dryrun_reset_count"} run scoreboard players set #dryrun_count tunnelscript.vars 0
 execute if data storage tunnelscript:gate pending{action:"dryrun_reset_count"} run tellraw @s {"text":"[TunnelScript] dry-run counter reset","color":"green"}
 data remove storage tunnelscript:gate pending

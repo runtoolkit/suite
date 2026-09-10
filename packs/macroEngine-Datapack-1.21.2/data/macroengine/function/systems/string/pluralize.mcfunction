@@ -23,4 +23,4 @@ $data modify storage macroengine:engine _plr_plural set value $(plural)
 data modify storage macroengine:output result set from storage macroengine:engine _plr_plural
 execute if score #plr_c macroengine.tmp matches 1 run data modify storage macroengine:output result set from storage macroengine:engine _plr_singular
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/pluralize ","color":"aqua"},{"text":"count=$(count) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/pluralize ","color":"aqua"},{"text":"count=$(count) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

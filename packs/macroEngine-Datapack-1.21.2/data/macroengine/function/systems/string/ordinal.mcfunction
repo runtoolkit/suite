@@ -46,4 +46,4 @@ execute if score $ord_d macroengine.tmp matches 3 run data modify storage macroe
 # Teen override — 11, 12, 13 must always be "th"
 execute if score $ord_h macroengine.tmp matches 11..13 run data modify storage macroengine:output suffix set value "th"
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/ordinal ","color":"aqua"},{"text":"$(n)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"suffix","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/ordinal ","color":"aqua"},{"text":"$(n)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"suffix","color":"green"}]

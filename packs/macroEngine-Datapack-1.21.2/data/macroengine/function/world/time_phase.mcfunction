@@ -36,4 +36,4 @@ execute if score $tp_t macroengine.tmp matches 12000..13799 run data modify stor
 execute if score $tp_t macroengine.tmp matches 13800..23999 run data modify storage macroengine:output phase set value "night"
 
 # Debug message (optional)
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"world/time_phase ","color":"aqua"},{"plain":true ,"storage":"macroengine:output","nbt":"phase","color":"green"},{"text":" t=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"daytime","color":"white"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"world/time_phase ","color":"aqua"},{"plain":true ,"storage":"macroengine:output","nbt":"phase","color":"green"},{"text":" t=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"daytime","color":"white"}]

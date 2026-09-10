@@ -13,4 +13,4 @@ execute store result storage macroengine:output total int 1 run time query gamet
 execute store result storage macroengine:output day int 1 run time query day
 
 # Debug (optional)
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"world/get_time ","color":"aqua"},{"text":"day=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"day","color":"green"},{"text":" daytime=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"daytime","color":"green"},{"text":" total=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"total","color":"green"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"world/get_time ","color":"aqua"},{"text":"day=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"day","color":"green"},{"text":" daytime=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"daytime","color":"green"},{"text":" total=","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"total","color":"green"}]

@@ -30,4 +30,4 @@ execute if score $sr_n macroengine.tmp matches 14 run function macroengine:core/
 execute if score $sr_n macroengine.tmp matches 15 run function macroengine:core/internal/systems/string/repeat_15 with storage macroengine:input {}
 execute if score $sr_n macroengine.tmp matches 16 run function macroengine:core/internal/systems/string/repeat_16 with storage macroengine:input {}
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/repeat ","color":"aqua"},{"text":"'$(char)'","color":"yellow"},{"text":" × $(count) → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/repeat ","color":"aqua"},{"text":"'$(char)'","color":"yellow"},{"text":" × $(count) → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"white"}]

@@ -8,4 +8,4 @@ function macroengine:core/internal/core/lib/string/to_string_dispatch with stora
 data modify storage macroengine:output string.result set from storage macroengine:core/internal/string/output to_string
 data remove storage macroengine:core/internal/string/output to_string
 data remove storage macroengine:engine _str_bridge
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/to_string","color":"aqua"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/to_string","color":"aqua"}]

@@ -12,4 +12,4 @@ data modify storage macroengine:output string.result set from storage macroengin
 data remove storage macroengine:core/internal/string/input insert
 data remove storage macroengine:core/internal/string/output insert
 data remove storage macroengine:engine _str_bridge
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/insert","color":"aqua"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/insert","color":"aqua"}]

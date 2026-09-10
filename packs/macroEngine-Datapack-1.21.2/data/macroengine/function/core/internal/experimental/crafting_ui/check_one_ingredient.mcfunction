@@ -10,4 +10,4 @@ $execute store result score $cui_have macroengine.tmp run clear @s $(item) 0
 $execute unless score $cui_have macroengine.tmp matches $(count).. run data modify storage macroengine:engine _crafting_ui.ok set value 0b
 
 # Always report the probe so the player can see why a craft failed.
-$tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"check ","color":"gray"},{"text":"$(item)","color":"aqua"},{"text":" have=","color":"gray"},{"score":{"name":"$cui_have","objective":"macroengine.tmp"},"color":"yellow"},{"text":" need=","color":"gray"},{"text":"$(count)","color":"yellow"}]
+# # $tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"check ","color":"gray"},{"text":"$(item)","color":"aqua"},{"text":" have=","color":"gray"},{"score":{"name":"$cui_have","objective":"macroengine.tmp"},"color":"yellow"},{"text":" need=","color":"gray"},{"text":"$(count)","color":"yellow"}]

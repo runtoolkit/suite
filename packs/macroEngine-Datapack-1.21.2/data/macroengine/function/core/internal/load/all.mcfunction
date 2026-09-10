@@ -1,6 +1,6 @@
 # macroengine:core/internal/load/all — full init pipeline (no fork / rt_origin / confirm gates)
 
-tellraw @a ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Starting macroEngine...","color":"gray"}]
+# # tellraw @a ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Starting macroEngine...","color":"gray"}]
 
 # forceload classic marker chunk (legacy features)
 forceload add -30000000 1600

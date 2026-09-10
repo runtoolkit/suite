@@ -32,4 +32,4 @@ scoreboard players operation #rnd_v macroengine.tmp /= #rnd_s macroengine.tmp
 scoreboard players operation #rnd_v macroengine.tmp *= #rnd_s macroengine.tmp
 
 execute store result storage macroengine:output result int 1 run scoreboard players get #rnd_v macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/round ","color":"aqua"},{"text":"$(value) step=$(step) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/round ","color":"aqua"},{"text":"$(value) step=$(step) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

@@ -36,4 +36,4 @@ scoreboard players operation $lcm_a macroengine.tmp /= $gcd_a macroengine.tmp
 scoreboard players operation $lcm_a macroengine.tmp *= $lcm_b macroengine.tmp
 
 execute store result storage macroengine:output result int 1 run scoreboard players get $lcm_a macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/lcm ","color":"aqua"},{"text":"($(a),$(b)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/lcm ","color":"aqua"},{"text":"($(a),$(b)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

@@ -8,4 +8,4 @@
 #   function macroengine:core/queue/flush
 
 execute if data storage macroengine:engine work_queue[0] run function macroengine:core/internal/core/queue/flush_loop
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/flush ","color":"aqua"},{"text":"→ done","color":"green"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/flush ","color":"aqua"},{"text":"→ done","color":"green"}]

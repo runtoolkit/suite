@@ -26,4 +26,4 @@
 data modify storage macroengine:output result set value ""
 $data modify storage macroengine:engine _color_lerp_tmp set value {gradient:"$(gradient)",step:$(step)}
 $execute if data storage macroengine:engine color.gradients.$(gradient) run function macroengine:core/internal/systems/color/lerp_exec with storage macroengine:engine _color_lerp_tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/lerp ","color":"aqua"},{"text":"$(gradient)[$(step)]","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/lerp ","color":"aqua"},{"text":"$(gradient)[$(step)]","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

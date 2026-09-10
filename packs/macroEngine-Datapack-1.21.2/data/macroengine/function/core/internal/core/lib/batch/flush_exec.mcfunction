@@ -28,4 +28,4 @@ scoreboard players reset $bfl_spread macroengine.tmp
 
 $data remove storage macroengine:engine batches.$(id)
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/batch/flush ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" — queued","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/batch/flush ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" — queued","color":"green"}]

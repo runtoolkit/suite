@@ -20,4 +20,4 @@ $execute store result score $wcc_exp macroengine.tmp run data get storage macroe
 execute store result score $wcc_now macroengine.tmp run scoreboard players get $epoch macroengine.time
 
 execute if score $wcc_now macroengine.tmp < $wcc_exp macroengine.tmp run data modify storage macroengine:output result set value 1b
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"wand/cooldown_check ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" [$(tag)] → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"wand/cooldown_check ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" [$(tag)] → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

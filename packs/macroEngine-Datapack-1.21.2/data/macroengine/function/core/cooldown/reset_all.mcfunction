@@ -10,4 +10,4 @@
 # ─────────────────────────────────────────────────────────────────
 
 $data remove storage macroengine:engine cooldowns.$(player)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cooldown/reset_all ","color":"aqua"},{"text":"$(player) all cooldowns cleared","color":"yellow"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cooldown/reset_all ","color":"aqua"},{"text":"$(player) all cooldowns cleared","color":"yellow"}]

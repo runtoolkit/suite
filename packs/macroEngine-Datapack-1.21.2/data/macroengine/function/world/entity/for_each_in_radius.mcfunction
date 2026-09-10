@@ -14,4 +14,4 @@
 
 $data modify storage macroengine:engine _dispatch.func set value "$(func)"
 $execute as @a[name=$(player),limit=1] at @s run execute as @e[type=$(type),distance=..$(radius)] at @s run function #macroengine:internal/dispatch
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/for_each_in_radius ","color":"aqua"},{"text":"$(player) r=$(radius) → ","color":"gray"},{"text":"$(type)","color":"aqua"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/for_each_in_radius ","color":"aqua"},{"text":"$(player) r=$(radius) → ","color":"gray"},{"text":"$(type)","color":"aqua"}]

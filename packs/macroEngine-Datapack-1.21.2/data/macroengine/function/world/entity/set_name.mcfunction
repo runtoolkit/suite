@@ -23,4 +23,4 @@
 # ─────────────────────────────────────────────────────────────────
 
 $execute as @e[tag=$(tag)] run data modify entity @s CustomName set from storage macroengine:input name
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/set_name ","color":"aqua"},{"text":"[$(tag)]","color":"gray"},{"text":" ← macroengine:input name","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"entity/set_name ","color":"aqua"},{"text":"[$(tag)]","color":"gray"},{"text":" ← macroengine:input name","color":"#555555"}]

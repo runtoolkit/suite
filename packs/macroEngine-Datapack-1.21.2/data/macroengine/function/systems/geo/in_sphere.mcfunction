@@ -33,4 +33,4 @@ $scoreboard players set $sph_r macroengine.tmp $(r)
 scoreboard players operation $sph_r macroengine.tmp *= $sph_r macroengine.tmp
 
 execute if score $sph_dsq macroengine.tmp <= $sph_r macroengine.tmp run data modify storage macroengine:output result set value 1b
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/in_sphere ","color":"aqua"},{"text":"r=$(r) dsq=","color":"gray"},{"score":{"name":"$sph_dsq","objective":"macroengine.tmp"},"color":"yellow"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/in_sphere ","color":"aqua"},{"text":"r=$(r) dsq=","color":"gray"},{"score":{"name":"$sph_dsq","objective":"macroengine.tmp"},"color":"yellow"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

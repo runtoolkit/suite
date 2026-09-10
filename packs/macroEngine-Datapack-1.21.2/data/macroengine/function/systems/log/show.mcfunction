@@ -1,4 +1,4 @@
-execute unless data storage macroengine:engine log_display[0] run tellraw @s {"text":"[Log] No entries.","color":"gray","italic":false}
+# # execute unless data storage macroengine:engine log_display[0] run tellraw @s {"text":"[Log] No entries.","color":"gray","italic":false}
 execute unless data storage macroengine:engine log_display[0] run return 0
 
 function macroengine:core/lib/input_push

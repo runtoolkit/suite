@@ -41,4 +41,4 @@ execute if score $fact_n macroengine.tmp matches 10 run data modify storage macr
 execute if score $fact_n macroengine.tmp matches 11 run data modify storage macroengine:output result set value 39916800
 execute if score $fact_n macroengine.tmp matches 12 run data modify storage macroengine:output result set value 479001600
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/factorial ","color":"aqua"},{"text":"$(n)! = ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/factorial ","color":"aqua"},{"text":"$(n)! = ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

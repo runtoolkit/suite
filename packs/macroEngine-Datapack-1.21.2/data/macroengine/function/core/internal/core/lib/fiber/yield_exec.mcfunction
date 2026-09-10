@@ -24,4 +24,4 @@ $data modify storage macroengine:engine fibers.$(id).resume set value "$(resume)
 # resume_dispatch — no shared list to desynchronize.
 $data modify storage macroengine:engine queue append value {func:"macroengine:core/internal/core/lib/fiber/resume_dispatch", delay:$(delay), id:"$(id)", resume:"$(resume)"}
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/fiber/yield ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(resume)","color":"aqua"},{"text":" in $(delay)t","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/fiber/yield ","color":"aqua"},{"text":"$(id)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(resume)","color":"aqua"},{"text":" in $(delay)t","color":"#555555"}]

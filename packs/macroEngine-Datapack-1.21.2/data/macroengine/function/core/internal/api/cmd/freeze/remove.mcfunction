@@ -19,4 +19,4 @@ tag @s remove macroengine.frozen
 
 # Notify and play sound
 playsound macroengine:ui.unfreeze master @s ~ ~ ~ 0.7 1.3
-tellraw @s ["",{"text":"\uE000","color":"#00AAAA"},{"text":" ","color":"#00AAAA"},{"translate":"macroengine.msg.unfreeze","color":"#55ff55","bold":true}]
+# # tellraw @s ["",{"text":"\uE000","color":"#00AAAA"},{"text":" ","color":"#00AAAA"},{"translate":"macroengine.msg.unfreeze","color":"#55ff55","bold":true}]

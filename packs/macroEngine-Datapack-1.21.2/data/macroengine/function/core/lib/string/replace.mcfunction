@@ -14,4 +14,4 @@ function macroengine:core/internal/string/util/replace
 data modify storage macroengine:output string.result set from storage macroengine:core/internal/string/output replace
 data remove storage macroengine:core/internal/string/input replace
 data remove storage macroengine:core/internal/string/output replace
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/replace","color":"aqua"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/replace","color":"aqua"}]
