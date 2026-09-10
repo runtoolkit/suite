@@ -1,0 +1,69 @@
+name: "🐛 Bug Report — Mod"
+description: Report a bug in one of the Fabric mods under mods/
+labels: ["bug", "mods"]
+body:
+  - type: dropdown
+    id: subproject
+    attributes:
+      label: Affected subproject
+      description: Which subproject under mods/ is this about?
+      options:
+        - TEMPLATE-MOD
+        - datapack-fixer
+        - rtwrapper-mod
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Mod / Minecraft version
+      description: Mod version (or commit hash) and Minecraft version you're running
+      placeholder: "e.g. datapack-fixer 1.4.2 on Minecraft 1.21.5"
+    validations:
+      required: true
+
+  - type: input
+    id: loader
+    attributes:
+      label: Fabric Loader / Fabric API version
+      placeholder: "e.g. Fabric Loader 0.16.9, Fabric API 0.110.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the bug. Include exact steps to reproduce.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / crash report
+      description: Paste relevant logs, stack traces, or a link to a full log (e.g. mclo.gs). Do not paste your full latest.log unless needed — trim to the relevant section.
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I reproduced this on the latest commit on main (or the latest tagged release)
+          required: true
+        - label: This is not a server-side security concern (see SECURITY.md — those should not be filed as public issues)
+          required: true

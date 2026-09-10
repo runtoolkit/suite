@@ -1,0 +1,82 @@
+name: "🐛 Bug Report — Datapack"
+description: Report a bug in one of the datapacks/resource packs under packs/
+labels: ["bug", "packs"]
+body:
+  - type: dropdown
+    id: subproject
+    attributes:
+      label: Affected pack
+      options:
+        - InteractionClickDetection
+        - LeftClickDetection
+        - RTWrapper
+        - RTWrapper-1.21.1
+        - RTWrapper-v1.0.1
+        - TunnelScript
+        - cmdTunnel-datapack
+        - inv_gui
+        - macroEngine-Datapack-v26.3
+        - macroEngine-Resourcepack-v26.2
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: pack-version
+    attributes:
+      label: Pack version / pack_format
+      placeholder: "e.g. v26.3, pack_format 71"
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: Minecraft version and environment
+      placeholder: "e.g. vanilla server 1.21.5, or Paper 1.21.5"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Exact steps to reproduce, including any commands run or /reload done beforehand.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-packs
+    attributes:
+      label: Other datapacks/plugins loaded
+      description: Namespace collisions and cross-pack interference are a known risk area — list anything else loaded on the same server/world.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / errors
+      description: Server log output related to function errors, macro expansion failures, or load-time warnings.
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I reproduced this on a clean world/server with only this pack (and its stated dependencies) loaded
+          required: true
+        - label: This is not a server-side security concern (see SECURITY.md — those should not be filed as public issues)
+          required: true
+        - label: If this pack is archived/frozen per SECURITY.md, I understand only fixes (not feature requests) apply here
+          required: false

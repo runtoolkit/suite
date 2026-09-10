@@ -1,0 +1,54 @@
+name: "✨ Feature Request"
+description: Suggest a new feature or enhancement for a mod, pack, or script in this monorepo
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - mods/
+        - packs/
+        - scripts/
+        - examples/
+        - Other / repo-wide
+    validations:
+      required: true
+
+  - type: input
+    id: subproject
+    attributes:
+      label: Specific subproject (if applicable)
+      placeholder: "e.g. rtwrapper-mod, macroEngine-Datapack-v26.3, dp-depman"
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case or limitation you're running into.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like to see added or changed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you're currently using, or other approaches you considered.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: This isn't a request to weaken macro/command safety checks or namespace isolation for convenience (see SECURITY.md)
+          required: true
+        - label: If this touches a frozen/archived pack, I understand feature requests against frozen packs are generally not accepted (see SECURITY.md)
+          required: false
