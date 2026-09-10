@@ -1,0 +1,73 @@
+name: Publish macroEngine to Modrinth
+on:
+  push:
+    tags:
+      - 'macroengine-v26.3-*'
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: 'Modrinth version number (e.g. v26.3.1)'
+        required: true
+        default: 'v26.3'
+      version_type:
+        description: 'release | beta | alpha'
+        required: true
+        default: 'release'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  publish:
+    name: Build & publish macroEngine-Datapack-v26.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Validate pack.mcmeta
+        run: ./gradlew checkPacks
+
+      - name: Determine version metadata
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version_number=${{ inputs.version_number }}" >> "$GITHUB_OUTPUT"
+            echo "version_type=${{ inputs.version_type }}" >> "$GITHUB_OUTPUT"
+          else
+            # Tag format: macroengine-v26.3-<suffix>  ->  version number = v26.3-<suffix>
+            TAG="${GITHUB_REF#refs/tags/macroengine-}"
+            echo "version_number=${TAG}" >> "$GITHUB_OUTPUT"
+            echo "version_type=release" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_MACROENGINE_PROJECT_ID }}
+          MODRINTH_VERSION_NUMBER: ${{ steps.meta.outputs.version_number }}
+          MODRINTH_VERSION_TYPE: ${{ steps.meta.outputs.version_type }}
+          MODRINTH_CHANGELOG: ${{ github.event.head_commit.message }}
+        run: |
+          cd packs/macroEngine-Datapack-v26.3
+          ../../gradlew :packs:macroEngine-Datapack-v26.3:modrinth
+
+      - name: Upload published zip as workflow artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macroengine-v26.3-modrinth-upload
+          path: packs/macroEngine-Datapack-v26.3/build/dist/*.zip
+          if-no-files-found: warn
+          retention-days: 30
