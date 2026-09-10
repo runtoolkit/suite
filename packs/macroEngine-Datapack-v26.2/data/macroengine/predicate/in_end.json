@@ -1,0 +1,6 @@
+{
+  "predicate": {
+    "dimension": "minecraft:the_end"
+  },
+  "type": "minecraft:location_check"
+}

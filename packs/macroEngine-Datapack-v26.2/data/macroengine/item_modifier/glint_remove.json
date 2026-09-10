@@ -1,0 +1,6 @@
+{
+  "components": {
+    "minecraft:enchantment_glint_override": false
+  },
+  "type": "minecraft:set_components"
+}
