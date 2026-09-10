@@ -13,6 +13,10 @@ on:
         description: 'release | beta | alpha'
         required: true
         default: 'release'
+      game_version:
+        description: 'Modrinth game version string (e.g. 26.3-rc-1)'
+        required: true
+        default: '26.3-rc-1'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -45,11 +49,13 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "version_number=${{ inputs.version_number }}" >> "$GITHUB_OUTPUT"
             echo "version_type=${{ inputs.version_type }}" >> "$GITHUB_OUTPUT"
+            echo "game_version=${{ inputs.game_version }}" >> "$GITHUB_OUTPUT"
           else
             # Tag format: macroengine-v26.3-<suffix>  ->  version number = v26.3-<suffix>
             TAG="${GITHUB_REF#refs/tags/macroengine-}"
             echo "version_number=${TAG}" >> "$GITHUB_OUTPUT"
             echo "version_type=release" >> "$GITHUB_OUTPUT"
+            echo "game_version=26.3-rc-1" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish to Modrinth
@@ -58,6 +64,7 @@ jobs:
           MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_MACROENGINE_PROJECT_ID }}
           MODRINTH_VERSION_NUMBER: ${{ steps.meta.outputs.version_number }}
           MODRINTH_VERSION_TYPE: ${{ steps.meta.outputs.version_type }}
+          MODRINTH_GAME_VERSION: ${{ steps.meta.outputs.game_version }}
           MODRINTH_CHANGELOG: ${{ github.event.head_commit.message }}
         run: |
           cd packs/macroEngine-Datapack-v26.3
@@ -65,7 +72,7 @@ jobs:
 
       - name: Upload published zip as workflow artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v6
         with:
           name: macroengine-v26.3-modrinth-upload
           path: packs/macroEngine-Datapack-v26.3/build/dist/*.zip
