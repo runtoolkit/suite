@@ -1,62 +1,13 @@
 {
   "pack": {
-    "description": [
-      {
-        "text": "MacroEngine",
-        "color": "#00ccff",
-        "bold": true,
-        "italic": false,
-        "extra": [
-          {
-            "text": " | ",
-            "color": "#ff0000",
-            "bold": false,
-            "italic": false,
-            "underlined": false,
-            "strikethrough": false,
-            "obfuscated": false
-          },
-          {
-            "text": "by runtoolkit",
-            "color": "#00ff33",
-            "bold": false,
-            "italic": false,
-            "extra": [
-              " ",
-              {
-                "text": "| ",
-                "color": "#ff0000",
-                "bold": false,
-                "italic": false,
-                "underlined": false,
-                "strikethrough": false,
-                "obfuscated": false
-              },
-              {
-                "text": "26.3-pre3",
-                "color": "#e3ff57",
-                "bold": false,
-                "italic": false,
-                "underlined": true
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "text": " | v6.2.0-26.3pre3",
-        "color": "#ffaa00",
-        "bold": false,
-        "italic": false
-      }
+    "description": "MacroEngine 26.3 ALLFIXED | format 121.0",
+    "min_format": [
+      121,
+      0
     ],
-    "pack_format": 121,
-    "min_format": 121,
-    "max_format": 121
-  },
-  "features": {
-    "enabled": [
-      "minecraft:vanilla"
+    "max_format": [
+      121,
+      0
     ]
   }
 }

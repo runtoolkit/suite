@@ -1,0 +1,93 @@
+{
+  "type": "minecraft:any_of",
+  "terms": [
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:1}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:2}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:3}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:4}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:5}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:6}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:7}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:8}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:9}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:10}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    },
+    {
+      "type": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+        "nbt": "{TicksFrozen:11}",
+        "minecraft:entity_type": "minecraft:player"
+      }
+    }
+  ]
+}
