@@ -17,6 +17,7 @@
 
 plugins {
     id 'com.modrinth.minotaur' version '2.+'
+    id 'base'
 }
 
 import com.modrinth.minotaur.TaskModrinthUpload
