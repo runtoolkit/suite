@@ -1,0 +1,11 @@
+{
+  "entity": "this",
+  "predicate": {
+    "equipment": {
+      "offhand": {
+        "items": "minecraft:shield"
+      }
+    }
+  },
+  "type": "minecraft:entity_properties"
+}

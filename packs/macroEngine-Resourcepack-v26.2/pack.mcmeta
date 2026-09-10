@@ -1,0 +1,11 @@
+{
+  "pack": {
+    "description": "MacroEngine v6.2.0-26.3pre3 — resource pack companion (sound effects) for 26.3-pre3 | runtoolkit",
+    "pack_format": 97
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
+  }
+}

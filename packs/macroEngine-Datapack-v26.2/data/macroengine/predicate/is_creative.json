@@ -1,0 +1,8 @@
+{
+  "entity": "this",
+  "predicate": {
+    "gamemode": "creative",
+    "entity_type": "minecraft:player"
+  },
+  "type": "minecraft:entity_properties"
+}

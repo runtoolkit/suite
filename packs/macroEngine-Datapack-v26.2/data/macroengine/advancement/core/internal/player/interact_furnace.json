@@ -1,0 +1,22 @@
+{
+  "criteria": {
+    "interact_furnace": {
+      "trigger": "minecraft:default_block_use",
+      "conditions": {
+        "location": {
+          "predicate": {
+            "block": {
+              "blocks": [
+                "minecraft:furnace"
+              ]
+            }
+          },
+          "type": "minecraft:location_check"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "macroengine:core/internal/player/internal/interact_furnace"
+  }
+}

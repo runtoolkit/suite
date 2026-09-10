@@ -1,0 +1,23 @@
+{
+  "criteria": {
+    "trigger": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "title": {
+      "text": ""
+    },
+    "description": {
+      "text": ""
+    },
+    "icon": {
+      "id": "minecraft:barrier"
+    },
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "criteria": {
+    "interact_campfire": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "predicate": {
+            "block": {
+              "blocks": [
+                "minecraft:campfire",
+                "minecraft:soul_campfire"
+              ]
+            }
+          },
+          "type": "minecraft:location_check"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "macroengine:core/internal/player/internal/interact_campfire"
+  }
+}

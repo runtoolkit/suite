@@ -1,0 +1,50 @@
+{
+  "macroengine.load.success": {
+    "sounds": [
+      { "name": "macroengine:load_success", "volume": 0.6, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.load_success"
+  },
+
+  "macroengine.ui.confirm": {
+    "sounds": [
+      { "name": "macroengine:ui_confirm", "volume": 0.5, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.confirm"
+  },
+
+  "macroengine.ui.error": {
+    "sounds": [
+      { "name": "macroengine:ui_error", "volume": 0.7, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.error"
+  },
+
+  "macroengine.ui.freeze": {
+    "sounds": [
+      { "name": "macroengine:ui_freeze", "volume": 0.9, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.freeze"
+  },
+
+  "macroengine.ui.unfreeze": {
+    "sounds": [
+      { "name": "macroengine:ui_unfreeze", "volume": 0.7, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.unfreeze"
+  },
+
+  "macroengine.perm.denied": {
+    "sounds": [
+      { "name": "macroengine:perm_denied", "volume": 0.6, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.perm_denied"
+  },
+
+  "macroengine.perm.granted": {
+    "sounds": [
+      { "name": "macroengine:perm_granted", "volume": 0.5, "pitch": 1.0 }
+    ],
+    "subtitle": "macroengine.subtitle.perm_granted"
+  }
+}

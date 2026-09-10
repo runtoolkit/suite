@@ -1,0 +1,2 @@
+# Post-hook runner
+function macroengine:core/internal/api/cmd/other/multi_cmd/hook_post_exec with storage macroengine:engine _mcmd_current
