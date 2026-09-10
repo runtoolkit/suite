@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability (private reporting)
+    url: https://github.com/runtoolkit/suite/security/advisories/new
+    about: Use GitHub's private vulnerability reporting instead of a public issue — see SECURITY.md

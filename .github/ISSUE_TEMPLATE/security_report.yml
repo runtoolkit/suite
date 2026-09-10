@@ -1,0 +1,40 @@
+name: "🔒 Security Vulnerability"
+description: "Do NOT use this for real vulnerability details — see SECURITY.md"
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not include exploit details, PoCs, or affected-code specifics in a public issue.**
+
+        Please use [GitHub's private vulnerability reporting](https://github.com/runtoolkit/suite/security/advisories/new)
+        for this repo instead. See [SECURITY.md](../../SECURITY.md) for full details.
+
+        This form is only for flagging that a report exists, so a maintainer can follow up
+        privately — not for describing the vulnerability itself.
+
+  - type: input
+    id: area
+    attributes:
+      label: Affected project/path (no exploit detail)
+      placeholder: "e.g. packs/RTWrapper, mods/rtwrapper-mod"
+    validations:
+      required: true
+
+  - type: input
+    id: severity
+    attributes:
+      label: Rough severity estimate
+      placeholder: "e.g. low / medium / high, or unsure"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have NOT included exploit details, payloads, or reproduction steps in this issue
+          required: true
+        - label: I understand a maintainer will follow up to collect details privately
+          required: true
