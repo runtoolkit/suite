@@ -26,4 +26,4 @@
 data modify storage macroengine:output result set value 0b
 $data modify storage macroengine:engine _color_validate_tmp set value {color:"$(color)"}
 function macroengine:core/internal/systems/color/validate_exec with storage macroengine:engine _color_validate_tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/validate ","color":"aqua"},{"text":"$(color)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/validate ","color":"aqua"},{"text":"$(color)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

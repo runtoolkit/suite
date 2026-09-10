@@ -1,4 +1,4 @@
-execute unless data storage macroengine:engine _felist_input[0] run execute as @a[tag=macroengine.debug] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/for_each_list ","color":"aqua"},{"text":"DONE ","color":"green"},{"text":"list exhausted, loop ended","color":"#555555"}]
+# # execute unless data storage macroengine:engine _felist_input[0] run execute as @a[tag=macroengine.debug] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/for_each_list ","color":"aqua"},{"text":"DONE ","color":"green"},{"text":"list exhausted, loop ended","color":"#555555"}]
 execute unless data storage macroengine:engine _felist_input[0] run return 0
 
 data modify storage macroengine:engine _felist_current set from storage macroengine:engine _felist_input[0]

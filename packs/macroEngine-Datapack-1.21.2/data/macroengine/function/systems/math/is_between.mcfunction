@@ -20,4 +20,4 @@ data modify storage macroengine:output result set value 0b
 
 execute if score $ib_v macroengine.tmp >= $ib_lo macroengine.tmp run execute if score $ib_v macroengine.tmp <= $ib_hi macroengine.tmp run data modify storage macroengine:output result set value 1b
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/is_between ","color":"aqua"},{"text":"$(value) in [$(min),$(max)] → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/is_between ","color":"aqua"},{"text":"$(value) in [$(min),$(max)] → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

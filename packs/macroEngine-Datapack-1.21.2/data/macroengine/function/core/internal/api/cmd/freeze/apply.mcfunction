@@ -23,4 +23,4 @@ tag @s add macroengine.frozen
 
 # Notify and play sound
 playsound macroengine:ui.freeze master @s ~ ~ ~ 0.9 0.9
-tellraw @s ["",{"text":"\uE000","color":"#00AAAA"},{"text":" ","color":"#00AAAA"},{"translate":"macroengine.msg.freeze","color":"#00aaff","bold":true}]
+# # tellraw @s ["",{"text":"\uE000","color":"#00AAAA"},{"text":" ","color":"#00AAAA"},{"translate":"macroengine.msg.freeze","color":"#00aaff","bold":true}]

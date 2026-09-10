@@ -23,4 +23,4 @@
 
 execute unless data storage macroengine:engine color.gradients run data modify storage macroengine:engine color.gradients set value {}
 $data modify storage macroengine:engine color.gradients.$(name) set value $(colors)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/gradient_set ","color":"aqua"},{"text":"$(name)","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/gradient_set ","color":"aqua"},{"text":"$(name)","color":"white"}]

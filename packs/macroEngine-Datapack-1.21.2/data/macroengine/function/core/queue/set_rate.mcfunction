@@ -11,4 +11,4 @@
 #   function macroengine:core/queue/set_rate with storage macroengine:input queue
 
 $data modify storage macroengine:engine work_queue_rate set value $(rate)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/set_rate ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(rate)","color":"yellow"},{"text":" items/tick","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"queue/set_rate ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(rate)","color":"yellow"},{"text":" items/tick","color":"#555555"}]

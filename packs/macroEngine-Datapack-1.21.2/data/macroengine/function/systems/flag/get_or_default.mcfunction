@@ -14,4 +14,4 @@
 
 $data modify storage macroengine:output result set value $(default)
 $execute if data storage macroengine:engine flags.$(key) run data modify storage macroengine:output result set value 1b
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"flag/get_or_default ","color":"aqua"},{"text":"$(key) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"flag/get_or_default ","color":"aqua"},{"text":"$(key) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

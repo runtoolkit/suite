@@ -6,7 +6,7 @@
 # Usage:  function macroengine:experimental/particle_trail/toggle
 # Caller: any player (self-toggle, no admin tag needed)
 
-execute unless data storage macroengine:engine flags.experimental{particle_trail:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/particle_trail is disabled.","color":"red"}]
+# # execute unless data storage macroengine:engine flags.experimental{particle_trail:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/particle_trail is disabled.","color":"red"}]
 execute unless data storage macroengine:engine flags.experimental{particle_trail:1b} run return 0
 
 # BUGFIX (was always resolving to "on"): the old code removed the tag

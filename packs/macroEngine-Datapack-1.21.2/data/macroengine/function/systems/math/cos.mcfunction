@@ -107,4 +107,4 @@ execute if score $cos_d macroengine.tmp matches 90 run scoreboard players set $c
 
 scoreboard players operation $cos_r macroengine.tmp *= $cos_nf macroengine.tmp
 execute store result storage macroengine:output result int 1 run scoreboard players get $cos_r macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/cos ","color":"aqua"},{"text":"deg=$(deg) ","color":"gray"},{"text":"→ ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"/1000","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/cos ","color":"aqua"},{"text":"deg=$(deg) ","color":"gray"},{"text":"→ ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"/1000","color":"#555555"}]

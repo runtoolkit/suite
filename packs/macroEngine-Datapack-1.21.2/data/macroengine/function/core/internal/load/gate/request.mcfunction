@@ -27,6 +27,6 @@ $data modify storage macroengine:engine pending_gate.label set value "$(label)"
 $data modify storage macroengine:engine pending_gate.action set value "$(action)"
 $data modify storage macroengine:engine pending_gate.args set value $(args)
 
-tellraw @a[tag=macroengine.admin] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Confirmation required: ","color":"yellow"},{"nbt":"pending_gate.label","storage":"macroengine:engine","color":"white"}," ",{"text":"[Confirm]","color":"green","bold":true,"clickEvent":{"action":"run_command","value":"/function macroengine:core/internal/load/gate/yes"}}," ",{"text":"[Cancel]","color":"red","bold":true,"clickEvent":{"action":"run_command","value":"/function macroengine:core/internal/load/gate/no"}}," ",{"text":"(30s)","color":"gray"}]
+# # tellraw @a[tag=macroengine.admin] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Confirmation required: ","color":"yellow"},{"nbt":"pending_gate.label","storage":"macroengine:engine","color":"white"}," ",{"text":"[Confirm]","color":"green","bold":true,"clickEvent":{"action":"run_command","value":"/function macroengine:core/internal/load/gate/yes"}}," ",{"text":"[Cancel]","color":"red","bold":true,"clickEvent":{"action":"run_command","value":"/function macroengine:core/internal/load/gate/no"}}," ",{"text":"(30s)","color":"gray"}]
 
 schedule function macroengine:core/internal/load/gate/timeout 30s

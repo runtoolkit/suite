@@ -23,4 +23,4 @@
 $title @a times $(fade_in) $(stay) $(fade_out)
 $title @a title {"text":"$(title)","color":"$(color)"}
 $title @a subtitle {"text":"$(subtitle)","color":"$(sub_color)"}
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/broadcast ","color":"aqua"},{"text":"@a ","color":"gray"},{"text":"→ ","color":"#555555"},{"text":"$(title)","color":"$(color)"},{"text":" / ","color":"#555555"},{"text":"$(subtitle)","color":"$(sub_color)"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/broadcast ","color":"aqua"},{"text":"@a ","color":"gray"},{"text":"→ ","color":"#555555"},{"text":"$(title)","color":"$(color)"},{"text":" / ","color":"#555555"},{"text":"$(subtitle)","color":"$(sub_color)"}]

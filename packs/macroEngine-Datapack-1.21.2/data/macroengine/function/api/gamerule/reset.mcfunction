@@ -20,6 +20,6 @@ data remove storage macroengine:core/internal/string/input replace
 
 function macroengine:core/internal/api/gamerule/remove with storage macroengine:input {}
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"gamerule/reset ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(_gamerule_norm)","color":"gray","italic":true},{"text":" removed","color":"gray"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"gamerule/reset ","color":"aqua"},{"text":" → ","color":"#555555"},{"text":"$(_gamerule_norm)","color":"gray","italic":true},{"text":" removed","color":"gray"}]
 
 data remove storage macroengine:input _gamerule_norm

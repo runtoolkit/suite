@@ -27,4 +27,4 @@ execute if score $gcd_b macroengine.tmp matches 0 run return 0
 function macroengine:core/internal/systems/math/gcd_loop
 
 execute store result storage macroengine:output result int 1 run scoreboard players get $gcd_a macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/gcd ","color":"aqua"},{"text":"($(a),$(b)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/gcd ","color":"aqua"},{"text":"($(a),$(b)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

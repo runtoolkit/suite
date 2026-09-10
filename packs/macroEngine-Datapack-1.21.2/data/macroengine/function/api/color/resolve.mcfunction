@@ -27,4 +27,4 @@ $data modify storage macroengine:engine _color_resolve_tmp set value {color:"$(c
 execute if data storage macroengine:engine color.palette run function macroengine:core/internal/systems/color/resolve_exec with storage macroengine:engine _color_resolve_tmp
 data remove storage macroengine:engine _color_resolve_tmp
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/resolve ","color":"aqua"},{"text":"$(color)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/resolve ","color":"aqua"},{"text":"$(color)","color":"white"},{"text":" → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

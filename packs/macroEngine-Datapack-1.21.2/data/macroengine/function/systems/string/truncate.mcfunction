@@ -26,4 +26,4 @@ execute store result score #trunc_flag macroengine.tmp run data get storage macr
 $execute if score #trunc_flag macroengine.tmp matches 0 run title @a[name=$(player),limit=1] actionbar {"plain":true ,"storage":"macroengine:output","nbt":"text"}
 $execute if score #trunc_flag macroengine.tmp matches 1.. run title @a[name=$(player),limit=1] actionbar ["",{"plain":true ,"storage":"macroengine:output","nbt":"text"},{"text":"$(suffix)","color":"gray"}]
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/truncate ","color":"aqua"},{"text":"$(player) truncated=$(truncated)","color":"gray"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/truncate ","color":"aqua"},{"text":"$(player) truncated=$(truncated)","color":"gray"}]

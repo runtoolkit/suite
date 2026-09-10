@@ -15,4 +15,4 @@
 
 execute unless data storage macroengine:engine color.palette run data modify storage macroengine:engine color.palette set value {}
 $data modify storage macroengine:engine color.palette.$(key) set value "$(value)"
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/palette_set ","color":"aqua"},{"text":"$(key)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(value)","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"color/palette_set ","color":"aqua"},{"text":"$(key)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(value)","color":"green"}]

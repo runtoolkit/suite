@@ -18,4 +18,4 @@ $data modify storage macroengine:engine once_per_player.$(player).$(key) set val
 $data modify storage macroengine:engine _dispatch.func set value "$(func)"
 function #macroengine:internal/dispatch
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/once_per_player ","color":"aqua"},{"text":"$(player):$(key) ","color":"white"},{"text":"✔ ran for the first time","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/once_per_player ","color":"aqua"},{"text":"$(player):$(key) ","color":"white"},{"text":"✔ ran for the first time","color":"green"}]

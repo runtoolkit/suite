@@ -16,4 +16,4 @@ function macroengine:core/internal/string/util/split
 data modify storage macroengine:output string.result set from storage macroengine:core/internal/string/output split
 data remove storage macroengine:core/internal/string/input split
 data remove storage macroengine:core/internal/string/output split
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/split","color":"aqua"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/string/split","color":"aqua"}]

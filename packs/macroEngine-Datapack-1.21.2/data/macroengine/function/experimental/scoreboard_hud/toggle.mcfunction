@@ -8,7 +8,7 @@
 # Caller: macroengine.admin tag required (server-wide display, not per-player)
 
 execute unless entity @s[tag=macroengine.admin] run return 0
-execute unless data storage macroengine:engine flags.experimental{scoreboard_hud:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/scoreboard_hud is disabled.","color":"red"}]
+# # execute unless data storage macroengine:engine flags.experimental{scoreboard_hud:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/scoreboard_hud is disabled.","color":"red"}]
 execute unless data storage macroengine:engine flags.experimental{scoreboard_hud:1b} run return 0
 
 execute if score #exp_hud_on macroengine.tmp matches 1 run function macroengine:experimental/scoreboard_hud/hide

@@ -1,5 +1,5 @@
 execute store result score $rep_r macroengine.tmp run data get storage macroengine:engine _repeat.remaining
-execute if score $rep_r macroengine.tmp matches ..0 run execute as @a[tag=macroengine.debug] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/repeat ","color":"aqua"},{"text":"DONE ","color":"green"},{"text":"all iterations completed","color":"#555555"}]
+# # execute if score $rep_r macroengine.tmp matches ..0 run execute as @a[tag=macroengine.debug] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"lib/repeat ","color":"aqua"},{"text":"DONE ","color":"green"},{"text":"all iterations completed","color":"#555555"}]
 execute if score $rep_r macroengine.tmp matches ..0 run return 0
 
 function macroengine:core/internal/core/lib/repeat_call with storage macroengine:engine _repeat

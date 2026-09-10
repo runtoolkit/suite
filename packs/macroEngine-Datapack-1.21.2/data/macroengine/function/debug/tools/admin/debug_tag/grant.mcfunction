@@ -7,4 +7,4 @@
 
 
 $tag @a[name=$(target),limit=1] add macroengine.debug
-$tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"$(target)","color":"white"},{"text":" granted macroengine.debug.","color":"green"}]
+# # $tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"✔ ","color":"green"},{"text":"$(target)","color":"white"},{"text":" granted macroengine.debug.","color":"green"}]

@@ -182,4 +182,4 @@ execute if score $a2_sx macroengine.tmp matches 1 if score $a2_sy macroengine.tm
 execute if score $a2_sx macroengine.tmp matches 1 if score $a2_sy macroengine.tmp matches -1 run scoreboard players operation $a2_r macroengine.tmp = $a2_neg macroengine.tmp
 
 execute store result storage macroengine:output result int 1 run scoreboard players get $a2_r macroengine.tmp
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/atan2 ","color":"aqua"},{"text":"y=$(y) x=$(x) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"/1000°","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"math/atan2 ","color":"aqua"},{"text":"y=$(y) x=$(x) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"},{"text":"/1000°","color":"#555555"}]

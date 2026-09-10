@@ -19,4 +19,4 @@
 #   setblock    → data:{x:0, y:64, z:0, block:"minecraft:stone"}
 
 execute if data storage macroengine:input cmd run function macroengine:core/cmd/exec
-execute unless data storage macroengine:input cmd run tellraw @s [{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd: ","color":"aqua"},{"text":"macroengine:input cmd not set","color":"red"}]
+# # execute unless data storage macroengine:input cmd run tellraw @s [{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd: ","color":"aqua"},{"text":"macroengine:input cmd not set","color":"red"}]

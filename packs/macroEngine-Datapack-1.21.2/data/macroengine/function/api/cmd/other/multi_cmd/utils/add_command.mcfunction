@@ -12,4 +12,4 @@ execute if data storage macroengine:input cmd run data modify storage macroengin
 execute if data storage macroengine:input func run data modify storage macroengine:engine _mcmd_queue append value {}
 execute if data storage macroengine:input func run data modify storage macroengine:engine _mcmd_queue[-1].func set from storage macroengine:input func
 
-tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/utils/add ","color":"aqua"},{"text":"✔ added to queue","color":"green"}]
+# # tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"multi_cmd/utils/add ","color":"aqua"},{"text":"✔ added to queue","color":"green"}]

@@ -43,4 +43,4 @@ execute if score $fn_v macroengine.tmp matches 1000000000.. run scoreboard playe
 execute if score $fn_v macroengine.tmp matches 1000000000.. run scoreboard players operation $fn_v macroengine.tmp /= $fn_div macroengine.tmp
 execute if score $fn_v macroengine.tmp matches 1000000000.. run execute store result storage macroengine:output short int 1 run scoreboard players get $fn_v macroengine.tmp
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/format_number ","color":"aqua"},{"text":"$(value) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"short","color":"green"},{"plain":true ,"storage":"macroengine:output","nbt":"suffix","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"string/format_number ","color":"aqua"},{"text":"$(value) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"short","color":"green"},{"plain":true ,"storage":"macroengine:output","nbt":"suffix","color":"green"}]

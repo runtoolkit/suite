@@ -21,4 +21,4 @@
 # Listing rules: function macroengine:systems/rate_limit/list
 
 $data modify storage macroengine:engine rate_limit.rules.$(key) set value {limit:$(limit),window:$(window),hits:[]}
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit/config ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(key)","color":"white"},{"text":" limit=","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":" window=","color":"#555555"},{"text":"$(window)","color":"green"},{"text":"t","color":"#555555"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"rate_limit/config ","color":"aqua"},{"text":"→ ","color":"#555555"},{"text":"$(key)","color":"white"},{"text":" limit=","color":"#555555"},{"text":"$(limit)","color":"green"},{"text":" window=","color":"#555555"},{"text":"$(window)","color":"green"},{"text":"t","color":"#555555"}]

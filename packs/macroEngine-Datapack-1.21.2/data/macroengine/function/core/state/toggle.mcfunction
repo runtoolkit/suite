@@ -7,4 +7,4 @@ $execute if score $st_tog macroengine.tmp matches 0 run data modify storage macr
 data remove storage macroengine:output result
 $data modify storage macroengine:output result set from storage macroengine:engine states.$(player)
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"state/toggle ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" (","color":"#555555"},{"text":"$(on)","color":"gray"},{"text":"↔","color":"#555555"},{"text":"$(off)","color":"gray"},{"text":") → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"state/toggle ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" (","color":"#555555"},{"text":"$(on)","color":"gray"},{"text":"↔","color":"#555555"},{"text":"$(off)","color":"gray"},{"text":") → ","color":"#555555"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

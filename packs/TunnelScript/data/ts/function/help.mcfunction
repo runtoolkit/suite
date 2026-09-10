@@ -11,7 +11,7 @@ tellraw @s {"text":"ts:run_as         -> { selector, actions:[...] } (1.0.4)","c
 tellraw @s {"text":"ts:run_after      -> { delay, actions:[...] }  (1.0.4)","color":"gray"}
 tellraw @s {"text":"ts:config/*       -> set_cooldown, set_max_actions, get, reset","color":"gray"}
 tellraw @s {"text":"ts:menu           -> open sidebar menu  (ts:menu/close to hide)","color":"gray"}
-tellraw @s {"text":"ts:hologram/*     -> spawn, remove, set_name (in-world marker label)","color":"gray"}
+# # tellraw @s {"text":"ts:hologram/*     -> spawn, remove, set_name (in-world marker label)","color":"gray"}
 tellraw @s {"text":"ts_util:*         -> math, entity, text, data, time helpers (1.0.4)","color":"gray"}
 tellraw @s {"text":"/trigger tunnelScript.use set <n>  -> run option directly","color":"gray"}
 tellraw @s {"text":"/trigger tunnelScript.menu set <n> -> run option from the open menu","color":"gray"}

@@ -7,7 +7,7 @@ scoreboard objectives add rtw.config dummy
 scoreboard objectives add rtw.status dummy
 
 function rtwrapper:core/meta_init
-execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] meta gate checked (status/version left untouched if already present)","color":"gray"}]
+# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] meta gate checked (status/version left untouched if already present)","color":"gray"}]
 
 # Gate #2: load-once config. `matches 0..` is true for any already-initialized score (0 or
 # higher) and false only when the objective entry does not exist yet, so a value an operator
@@ -27,7 +27,7 @@ execute unless data storage rtwrapper:api params run data modify storage rtwrapp
 execute unless data storage rtwrapper:api batch run data modify storage rtwrapper:api batch set value []
 
 data modify storage rtwrapper:meta loaded set value 1b
-execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] load complete","color":"gold"}]
-execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   debug=","color":"gray"},{"score":{name:"#debug",objective:"rtw.config"},color:"white"},{"text":" silent=","color":"gray"},{"score":{name:"#silent",objective:"rtw.config"},color:"white"},{"text":" auto_tick=","color":"gray"},{"score":{name:"#auto_tick",objective:"rtw.config"},color:"white"}]
-execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   processed=","color":"gray"},{"score":{name:"#processed",objective:"rtw.status"},color:"white"},{"text":" errors=","color":"gray"},{"score":{name:"#errors",objective:"rtw.status"},color:"white"}]
-execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   meta.version=","color":"gray"},{"storage":"rtwrapper:api","nbt":"version"}]
+# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] load complete","color":"gold"}]
+# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   debug=","color":"gray"},{"score":{name:"#debug",objective:"rtw.config"},color:"white"},{"text":" silent=","color":"gray"},{"score":{name:"#silent",objective:"rtw.config"},color:"white"},{"text":" auto_tick=","color":"gray"},{"score":{name:"#auto_tick",objective:"rtw.config"},color:"white"}]
+# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   processed=","color":"gray"},{"score":{name:"#processed",objective:"rtw.status"},color:"white"},{"text":" errors=","color":"gray"},{"score":{name:"#errors",objective:"rtw.status"},color:"white"}]
+# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper]   meta.version=","color":"gray"},{"storage":"rtwrapper:api","nbt":"version"}]

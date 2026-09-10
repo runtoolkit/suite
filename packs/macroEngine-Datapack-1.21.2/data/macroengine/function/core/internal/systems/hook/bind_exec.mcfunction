@@ -9,4 +9,4 @@ $data modify storage macroengine:engine hook_binds append value {event:"$(event)
 execute if data storage macroengine:input func run data modify storage macroengine:engine hook_binds[-1].func set from storage macroengine:input func
 execute unless data storage macroengine:input func run data modify storage macroengine:engine hook_binds[-1].cmd set from storage macroengine:input cmd
 
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"hook/bind ","color":"aqua"},{"text":"$(event)","color":"yellow"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"hook/bind ","color":"aqua"},{"text":"$(event)","color":"yellow"}]

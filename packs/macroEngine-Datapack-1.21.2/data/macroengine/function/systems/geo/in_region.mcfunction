@@ -31,4 +31,4 @@ execute if score $rgn_z macroengine.tmp < $rgn_z1 macroengine.tmp run return 0
 execute if score $rgn_z macroengine.tmp > $rgn_z2 macroengine.tmp run return 0
 
 data modify storage macroengine:output result set value 1b
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/in_region ","color":"aqua"},{"text":"($(x),$(y),$(z)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"geo/in_region ","color":"aqua"},{"text":"($(x),$(y),$(z)) → ","color":"gray"},{"plain":true ,"storage":"macroengine:output","nbt":"result","color":"green"}]

@@ -19,7 +19,7 @@ execute unless data storage macroengine:engine flags.experimental{combat_tag:1b}
 # New damage dealt this tick -> (re)apply tag + reset timer to 300
 execute as @a[scores={macroengine.exp_dmg_dealt=1..}] run tag @s add macroengine.experimental.combat_tagged
 execute as @a[scores={macroengine.exp_dmg_dealt=1..}] run scoreboard players set @s macroengine.exp_combat_timer 300
-execute as @a[scores={macroengine.exp_dmg_dealt=1..},tag=!macroengine.experimental._combat_notified] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"⚔ Combat tagged — 15s","color":"red"}]
+# # execute as @a[scores={macroengine.exp_dmg_dealt=1..},tag=!macroengine.experimental._combat_notified] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"⚔ Combat tagged — 15s","color":"red"}]
 execute as @a[scores={macroengine.exp_dmg_dealt=1..}] run tag @s add macroengine.experimental._combat_notified
 scoreboard players set @a[scores={macroengine.exp_dmg_dealt=1..}] macroengine.exp_dmg_dealt 0
 
@@ -29,5 +29,5 @@ execute as @a[tag=macroengine.experimental.combat_tagged,scores={macroengine.exp
 # Expiry
 execute as @a[tag=macroengine.experimental.combat_tagged,scores={macroengine.exp_combat_timer=0}] run tag @s remove macroengine.experimental.combat_tagged
 execute as @a[tag=macroengine.experimental.combat_tagged,scores={macroengine.exp_combat_timer=0}] run tag @s remove macroengine.experimental._combat_notified
-execute as @a[tag=!macroengine.experimental.combat_tagged,tag=macroengine.experimental._combat_notified,scores={macroengine.exp_combat_timer=0}] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Combat tag expired","color":"gray"}]
+# # execute as @a[tag=!macroengine.experimental.combat_tagged,tag=macroengine.experimental._combat_notified,scores={macroengine.exp_combat_timer=0}] run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"Combat tag expired","color":"gray"}]
 execute as @a[tag=!macroengine.experimental.combat_tagged,tag=macroengine.experimental._combat_notified,scores={macroengine.exp_combat_timer=0}] run tag @s remove macroengine.experimental._combat_notified

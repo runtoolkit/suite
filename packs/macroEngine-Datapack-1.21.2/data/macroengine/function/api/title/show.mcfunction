@@ -23,4 +23,4 @@
 $title @a[name=$(player),limit=1] times $(fade_in) $(stay) $(fade_out)
 $title @a[name=$(player),limit=1] title {"text":"$(title)","color":"$(color)"}
 $title @a[name=$(player),limit=1] subtitle {"text":"$(subtitle)","color":"$(sub_color)"}
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/show ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(title)","color":"$(color)"},{"text":" / ","color":"#555555"},{"text":"$(subtitle)","color":"$(sub_color)"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"title/show ","color":"aqua"},{"text":"$(player)","color":"white"},{"text":" → ","color":"#555555"},{"text":"$(title)","color":"$(color)"},{"text":" / ","color":"#555555"},{"text":"$(subtitle)","color":"$(sub_color)"}]

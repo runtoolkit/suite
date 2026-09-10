@@ -1,4 +1,4 @@
 
 
 $op $(player)
-$tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd/op ","color":"aqua"},{"text":"$(player)","color":"white"}]
+# # $tellraw @a[tag=macroengine.debug] ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"cmd/op ","color":"aqua"},{"text":"$(player)","color":"white"}]

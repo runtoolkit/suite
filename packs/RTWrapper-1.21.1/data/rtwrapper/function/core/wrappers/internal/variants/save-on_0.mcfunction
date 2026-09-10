@@ -5,4 +5,4 @@
 # /save-on, /stop, /whitelist). It cannot be run from inside a .mcfunction file
 # or via /function, only typed directly into the server console.
 # This wrapper intentionally reports failure instead of loading a broken command.
-tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] ","color":"red"},{"text":"/save-on cannot run from a datapack function (server-console-only command).","color":"gray"}]
+# # tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] ","color":"red"},{"text":"/save-on cannot run from a datapack function (server-console-only command).","color":"gray"}]
