@@ -46,7 +46,7 @@ modrinth {
     versionName.set(System.getenv('MODRINTH_VERSION_NAME') ?: "macroEngine ${System.getenv('MODRINTH_VERSION_NUMBER') ?: 'v26.3'}")
     versionType.set(System.getenv('MODRINTH_VERSION_TYPE') ?: 'release') // release | beta | alpha
     uploadFile.set(tasks.named('zipMacroEnginePack').flatMap { it.archiveFile })
-    gameVersions.addAll(['26.3-pre'])
+    gameVersions.addAll([System.getenv('MODRINTH_GAME_VERSION') ?: '26.3-rc-1'])
     loaders.addAll(['datapack'])
     changelog.set(System.getenv('MODRINTH_CHANGELOG') ?: 'See commit history.')
     failSilently.set(false)
