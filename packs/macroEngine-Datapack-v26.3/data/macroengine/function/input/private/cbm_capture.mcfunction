@@ -31,7 +31,26 @@ data modify storage macroengine:input cbm.pos set from entity @s Pos
 data modify storage macroengine:input cbm.executed set value 0b
 execute if data storage macroengine:input cbm{executed:0b} run function #macroengine:input/command_block_minecart
 
-# Cleanup
+# Reset entity state so the minecart is reusable — this is NOT
+# the same thing as clearing the captured data. Fine to do unconditionally,
+# whether or not #macroengine:input/command_block_minecart contained anything.
 data remove storage macroengine:input _cbm
 data modify entity @s Command set value ""
-data remove storage macroengine:input cbm
+
+# BUG FIX: this used to end with 'data remove storage macroengine:input cbm'
+# right here, unconditionally. #macroengine:input/command_block_minecart is a
+# function TAG the caller populates themselves (it ships as {"values": []}).
+# If the caller's registered function never actually ran synchronously inside
+# that "execute if ... run function #tag" line above — empty tag, wrong
+# namespace registered into it, or a callback that defers work via `schedule`
+# instead of reading cbm.command immediately — the capture was wiped before
+# anything ever consumed it. Every other input method (book, name_tag,
+# lectern, sign, dialog) leaves its captured fields in macroengine:input
+# untouched after firing its tag; cbm was the only one that didn't, which is
+# why only this path could silently "collapse" a call that never fired.
+#
+# cbm.command / cbm.pos / cbm.source_uuid are now left in storage for the
+# caller to read — consistent with every other input method's contract. If
+# you want the field cleared after handling it, do that yourself, from
+# inside the function you registered on #macroengine:input/command_block_minecart:
+#   data remove storage macroengine:input cbm
