@@ -2,9 +2,8 @@
 # macroengine:input/private/cbm_capture  [INTERNAL — do not call directly]
 # ======================================================================================
 #
-# Only reached when cbm_process confirmed Command is non-empty AND this
-# minecart has no capture already pending delivery. Runs with @s still
-# bound to that minecart.
+# Only reached when cbm_process confirmed Command is non-empty. Runs with
+# @s still bound to that minecart.
 #
 # TOCTOU note: snapshot into macroengine:input BEFORE clearing Command, so a
 # later tick mutating the entity's NBT cannot change what we already
@@ -14,18 +13,6 @@
 # the minecart is reusable and is NOT killed. This also matches the
 # 'tunnelscript_input' tag Legends11 uses elsewhere (cbm_align_tp), which
 # assumes the tagged minecart persists in the world.
-#
-# CONTRACT: cbm.executed is a real consumed-flag, not decoration. The
-# function you register on #macroengine:input/command_block_minecart is
-# responsible for setting it once it has actually finished handling
-# cbm.command:
-#   data modify storage macroengine:input cbm.executed set value 1b
-# Until that happens, cbm_process treats this minecart as
-# 'macroengine.cbm_pending' and will not re-scan its Command — this is what
-# stops one un-consumed capture from being reprocessed every tick (the spam
-# bug). If your callback runs synchronously inside the "execute if ... run
-# function #tag" line below, just set executed:1b as your callback's last
-# line and the debounce clears itself before the next tick's scan.
 # ======================================================================================
 
 # Snapshot raw command string as-is — no interpretation, no execution.
@@ -42,14 +29,6 @@ data modify storage macroengine:input cbm.pos set from entity @s Pos
 # literal (not as a runnable command), use macroengine:input/validate/check:
 #   function macroengine:input/validate/check with storage <yourpath> {source:"cbm.command", type:"int"}
 data modify storage macroengine:input cbm.executed set value 0b
-
-# Mark pending BEFORE firing the callback tag: if the callback sets
-# executed:1b synchronously, cbm_process clears this on its very next scan
-# of this entity. If the callback never runs (empty tag, deferred work),
-# the tag holds this minecart out of the scan instead of letting Command
-# stay clear + storage stay stale, which is what produced repeat processing
-# before this fix.
-tag @s add macroengine.cbm_pending
 execute if data storage macroengine:input cbm{executed:0b} run function #macroengine:input/command_block_minecart
 
 # Reset entity state so the minecart is reusable — this is NOT
@@ -58,11 +37,20 @@ execute if data storage macroengine:input cbm{executed:0b} run function #macroen
 data remove storage macroengine:input _cbm
 data modify entity @s Command set value ""
 
-# cbm.command / cbm.pos / cbm.source_uuid are intentionally left in storage
-# here — cleared only once the caller sets cbm.executed:1b (see CONTRACT
-# above), matching the "leave captured data for the caller" contract every
-# other input method already follows. Do not add an unconditional
-# 'data remove storage macroengine:input cbm' here: that was the original
-# bug (data wiped before an async/never-firing callback could read it), and
-# removing the debounce tag above without gating on it would bring back the
-# spam bug this rewrite fixes.
+# BUG FIX: this used to end with 'data remove storage macroengine:input cbm'
+# right here, unconditionally. #macroengine:input/command_block_minecart is a
+# function TAG the caller populates themselves (it ships as {"values": []}).
+# If the caller's registered function never actually ran synchronously inside
+# that "execute if ... run function #tag" line above — empty tag, wrong
+# namespace registered into it, or a callback that defers work via `schedule`
+# instead of reading cbm.command immediately — the capture was wiped before
+# anything ever consumed it. Every other input method (book, name_tag,
+# lectern, sign, dialog) leaves its captured fields in macroengine:input
+# untouched after firing its tag; cbm was the only one that didn't, which is
+# why only this path could silently "collapse" a call that never fired.
+#
+# cbm.command / cbm.pos / cbm.source_uuid are now left in storage for the
+# caller to read — consistent with every other input method's contract. If
+# you want the field cleared after handling it, do that yourself, from
+# inside the function you registered on #macroengine:input/command_block_minecart:
+#   data remove storage macroengine:input cbm
