@@ -21,14 +21,7 @@ data modify storage macroengine:input name_tag.player set from entity @s UUID
 data modify storage macroengine:input name_tag.raw set value ""
 
 # Prefer plain .text field, then whole component, then stringified component
-#
-# BUG FIX: the second and third lines here used to be identical NBT-copy
-# ('set from') calls targeting the same path — the "whole component"
-# fallback never actually differed from the first attempt, so a
-# custom_name shaped as {text:"..."} with no plain .text-only match would
-# skip straight to the 'set string' fallback below, always landing on the
-# raw JSON-text-component string instead of the intended middle fallback.
-data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name".text
+data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name"
 execute unless data storage macroengine:input {name_tag:{raw:""}} run data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name"
 execute unless data storage macroengine:input {name_tag:{raw:""}} run data modify storage macroengine:input name_tag.raw set string entity @s SelectedItem.components."minecraft:custom_name"
 
