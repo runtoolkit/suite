@@ -1,7 +1,19 @@
 {
   "pack": {
-    "description": "MacroEngine v26.3 | input: dialog, book, cbm, sign, lectern, name_tag | format 121.0 | MC 26.3-pre",
-    "min_format": [121, 0],
-    "max_format": [121, 0]
+    "description": "macroEngine | 26.3-rc-1",
+    "pack_format": 121,
+    "min_format": [
+      121,
+      0
+    ],
+    "max_format": [
+      121,
+      0
+    ]
+  },
+  "features": {
+    "enabled": [
+      "minecraft:vanilla"
+    ]
   }
 }
