@@ -13,6 +13,10 @@ execute if entity @s[tag=macroengine.name_tag_captured] run return 0
 # No custom name yet (still default "Name Tag") — wait for anvil rename
 execute unless data entity @s SelectedItem.components."minecraft:custom_name" run return 0
 
+
+execute unless data entity @s {SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b}}}}} run return 0
+
+
 data modify storage macroengine:input name_tag.player set from entity @s UUID
 data modify storage macroengine:input name_tag.raw set value ""
 
