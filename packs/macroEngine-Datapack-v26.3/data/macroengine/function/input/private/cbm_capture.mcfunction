@@ -31,9 +31,7 @@ data modify storage macroengine:input cbm.pos set from entity @s Pos
 data modify storage macroengine:input cbm.executed set value 0b
 execute if data storage macroengine:input cbm{executed:0b} run function #macroengine:input/command_block_minecart
 
-# Clear Command so this same value isn't recaptured next tick — the
-# minecart itself is kept alive, not killed.
-data modify entity @s Command set value ""
-
+# Cleanup
 data remove storage macroengine:input _cbm
+data modify entity @s Command set value ""
 data remove storage macroengine:input cbm
