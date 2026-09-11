@@ -1,6 +1,6 @@
 # Immediate drain mode: processes a direct request or queued requests until the queue is empty.
 # Do not use this from the tick loop; autotick uses core/run/run_next to process one action per tick.
-# # # Silent mode suppresses RTWrapper's own tellraw debug/status messages. It does not
+# Silent mode suppresses RTWrapper's own tellraw debug/status messages. It does not
 # permanently change vanilla gamerules.
 #
 # Bug fix (v1.0.0): this used to re-invoke itself directly with
@@ -16,6 +16,6 @@
 # strictly same-tick for very long queues (it was already effectively bounded by the chain
 # limit before this fix, just via a crash instead of a controlled continuation). For queues
 # short enough to never have hit the chain limit, behavior is unchanged.
-# # execute if score #debug rtw.config matches 1.. if score #silent rtw.config matches 0 run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] run_actions drain","color":"gold"}]
+execute if score #debug rtw.config matches 1.. if score #silent rtw.config matches 0 run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] run_actions drain","color":"gold"}]
 function rtwrapper:core/wrappers/handler/main
 execute if data storage rtwrapper:runtime queue[0] run schedule function rtwrapper:core/run/run_actions 1t replace

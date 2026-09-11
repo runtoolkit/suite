@@ -4,7 +4,7 @@
 # and no-op on missing scoreboards/storage).
 
 # Announce before state is torn down, since the debug gate itself is about to be removed.
-# # execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] uninstalling: clearing storage and scoreboards","color":"gray"}]
+execute if score #debug rtw.config matches 1.. run tellraw @a[tag=rtwrapper.debug] [{"text":"[RTWrapper] uninstalling: clearing storage and scoreboards","color":"gray"}]
 
 # Drop storage roots owned by RTWrapper. `data remove storage <id>` with no path is
 # invalid syntax; each top-level key set up by core/load.mcfunction / meta_init must be
