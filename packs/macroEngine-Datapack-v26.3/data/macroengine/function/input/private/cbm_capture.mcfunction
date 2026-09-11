@@ -2,67 +2,38 @@
 # macroengine:input/private/cbm_capture  [INTERNAL — do not call directly]
 # ======================================================================================
 #
-# Only reached when cbm_process confirmed Command is non-empty AND this
-# minecart has no capture already pending delivery. Runs with @s still
-# bound to that minecart.
+# Only reached when Command is confirmed non-empty and no pending capture.
+# Runs with @s = the command_block_minecart.
 #
-# TOCTOU note: snapshot into macroengine:input BEFORE clearing Command, so a
-# later tick mutating the entity's NBT cannot change what we already
-# captured this tick.
-#
-# Entity handling matches TunnelScript: Command is cleared back to "" so
-# the minecart is reusable and is NOT killed. This also matches the
-# 'tunnelscript_input' tag Legends11 uses elsewhere (cbm_align_tp), which
-# assumes the tagged minecart persists in the world.
-#
-# CONTRACT: cbm.executed is a real consumed-flag, not decoration. The
-# function you register on #macroengine:input/command_block_minecart is
-# responsible for setting it once it has actually finished handling
-# cbm.command:
-#   data modify storage macroengine:input cbm.executed set value 1b
-# Until that happens, cbm_process treats this minecart as
-# 'macroengine.cbm_pending' and will not re-scan its Command — this is what
-# stops one un-consumed capture from being reprocessed every tick (the spam
-# bug). If your callback runs synchronously inside the "execute if ... run
-# function #tag" line below, just set executed:1b as your callback's last
-# line and the debounce clears itself before the next tick's scan.
+# No executed:0b/1b flag anymore. The pending tag is set right before the
+# handler call and removed right after, in the SAME function call — so
+# there is no window where cbm_process on another entity could read stale
+# shared state. Per-entity tag = per-entity debounce, no cross-talk.
 # ======================================================================================
 
-# Snapshot raw command string as-is — no interpretation, no execution.
+# Snapshot first (TOCTOU safe)
 data modify storage macroengine:input cbm.command set from storage macroengine:input _cbm.current
-
 data modify storage macroengine:input cbm.source_uuid set from entity @s UUID
 data modify storage macroengine:input cbm.pos set from entity @s Pos
 
-# "raw, unvalidated, unexecuted" — downstream (separate execution pack)
-# macroengine:debug/tools/utils/input_check before ever treating it as
-# runnable, and running it there stays optional, never mandatory.
-#
-# Separately, if a caller wants cbm.command as a number/bool/tag-safe
-# literal (not as a runnable command), use macroengine:input/validate/check:
-#   function macroengine:input/validate/check with storage <yourpath> {source:"cbm.command", type:"int"}
-data modify storage macroengine:input cbm.executed set value 0b
-
-# Mark pending BEFORE firing the callback tag: if the callback sets
-# executed:1b synchronously, cbm_process clears this on its very next scan
-# of this entity. If the callback never runs (empty tag, deferred work),
-# the tag holds this minecart out of the scan instead of letting Command
-# stay clear + storage stay stale, which is what produced repeat processing
-# before this fix.
+# Mark pending BEFORE callback so a missing/never-running handler cannot spam
 tag @s add macroengine.cbm_pending
-execute if data storage macroengine:input cbm{executed:0b} run function #macroengine:input/command_block_minecart
 
-# Reset entity state so the minecart is reusable — this is NOT
-# the same thing as clearing the captured data. Fine to do unconditionally,
-# whether or not #macroengine:input/command_block_minecart contained anything.
+# Clear temporary + entity Command immediately (single-use: consumed here
+# regardless of whether a handler runs, so it never re-fires on this Command).
 data remove storage macroengine:input _cbm
 data modify entity @s Command set value ""
 
-# cbm.command / cbm.pos / cbm.source_uuid are intentionally left in storage
-# here — cleared only once the caller sets cbm.executed:1b (see CONTRACT
-# above), matching the "leave captured data for the caller" contract every
-# other input method already follows. Do not add an unconditional
-# 'data remove storage macroengine:input cbm' here: that was the original
-# bug (data wiped before an async/never-firing callback could read it), and
-# removing the debounce tag above without gating on it would bring back the
-# spam bug this rewrite fixes.
+# Resolve player context (never leave @s as the minecart)
+# Preferred: the player who summoned this CBM
+execute as @a[tag=macroengine.cbm_owner,limit=1] at @s run function macroengine:player/get_name
+execute as @a[tag=macroengine.cbm_owner,limit=1] at @s run function #macroengine:input/command_block_minecart
+
+# Fallback (if tag was lost / old minecart): nearest player within 8 blocks
+execute unless entity @a[tag=macroengine.cbm_owner] as @a[distance=..8,sort=nearest,limit=1] at @s run function macroengine:player/get_name
+execute unless entity @a[tag=macroengine.cbm_owner] as @a[distance=..8,sort=nearest,limit=1] at @s run function #macroengine:input/command_block_minecart
+
+# Release this entity's own debounce now that handling was attempted,
+# and clear the shared cbm data this entity wrote.
+tag @s remove macroengine.cbm_pending
+data remove storage macroengine:input cbm
