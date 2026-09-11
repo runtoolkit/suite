@@ -17,7 +17,7 @@ data modify storage macroengine:input name_tag.player set from entity @s UUID
 data modify storage macroengine:input name_tag.raw set value ""
 
 # Prefer plain .text field, then whole component, then stringified component
-data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name".text
+data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name"
 execute unless data storage macroengine:input {name_tag:{raw:""}} run data modify storage macroengine:input name_tag.raw set from entity @s SelectedItem.components."minecraft:custom_name"
 execute unless data storage macroengine:input {name_tag:{raw:""}} run data modify storage macroengine:input name_tag.raw set string entity @s SelectedItem.components."minecraft:custom_name"
 
