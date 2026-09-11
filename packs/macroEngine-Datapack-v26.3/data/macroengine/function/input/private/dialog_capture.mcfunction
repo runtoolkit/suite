@@ -16,6 +16,6 @@
 # dialog.raw is RAW, UNVALIDATED text. Run it through
 # macroengine:input/validate/check before treating it as a number/bool/tag-safe
 # literal: function macroengine:input/validate/check with storage <yourpath> {source:"dialog.raw", type:"int"}
-data modify storage macroengine:input dialog.raw set value "$(value)"
+$data modify storage macroengine:input dialog.raw set value "$(value)"
 data modify storage macroengine:input dialog.executed set value 0b
 execute if data storage macroengine:input dialog{executed:0b} run function #macroengine:input/dialog
