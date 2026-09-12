@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "macroengine_util",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:stick",
+    "L": "minecraft:lapis_lazuli"
+  },
+  "pattern": [
+    " I ",
+    "ISI",
+    " L "
+  ],
+  "result": {
+    "id": "minecraft:iron_ingot",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "macroengine": {
+          "util": {
+            "repair_kit": true
+          }
+        }
+      },
+      "minecraft:item_name": {
+        "translate": "item.macroengine.repair_kit"
+      },
+      "minecraft:lore": [
+        {
+          "translate": "item.macroengine.repair_kit.lore",
+          "color": "gray",
+          "italic": true
+        }
+      ]
+    }
+  }
+}

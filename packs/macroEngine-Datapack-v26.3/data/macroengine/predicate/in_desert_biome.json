@@ -1,0 +1,6 @@
+{
+  "predicate": {
+    "biomes": "minecraft:desert"
+  },
+  "type": "minecraft:location_check"
+}

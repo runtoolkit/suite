@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "macroengine_util",
+  "key": {
+    "T": "minecraft:tripwire_hook",
+    "R": "minecraft:redstone",
+    "P": "minecraft:paper"
+  },
+  "pattern": [
+    " R ",
+    "RTR",
+    " P "
+  ],
+  "result": {
+    "id": "minecraft:tripwire_hook",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "macroengine": {
+          "util": {
+            "config_key": true
+          }
+        }
+      },
+      "minecraft:item_name": {
+        "translate": "item.macroengine.config_key"
+      },
+      "minecraft:lore": [
+        {
+          "translate": "item.macroengine.config_key.lore",
+          "color": "gray",
+          "italic": true
+        }
+      ]
+    }
+  }
+}

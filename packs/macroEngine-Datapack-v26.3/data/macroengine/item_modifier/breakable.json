@@ -1,0 +1,6 @@
+{
+  "components": {
+    "!minecraft:unbreakable": {}
+  },
+  "type": "minecraft:set_components"
+}
