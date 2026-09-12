@@ -1,5 +1,6 @@
 {
   "values": [
-    "#macroengine:events/on_load"
+    "#macroengine:events/on_load",
+    "macroengine:setup/chat/init"
   ]
 }
