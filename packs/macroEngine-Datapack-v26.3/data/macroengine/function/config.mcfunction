@@ -12,7 +12,7 @@ execute unless score #runtoolkit.archivedpacks.macroengine macroengine.meta = #r
 
 # ── Engine defaults (only fill missing keys — preserves live data) ─
 execute unless data storage macroengine:engine global run data modify storage macroengine:engine global set value {}
-data modify storage macroengine:engine global.version set value "v6.2.0"
+data modify storage macroengine:engine global.version set value "v26.3"
 
 execute unless data storage macroengine:engine config run data modify storage macroengine:engine config set value {}
 
