@@ -10,7 +10,7 @@ This is a **monorepo**, not a single Gradle project with some extra files
 next to it:
 
 - `mods/` — Fabric mods. Each subproject is built and linted through the
-  root Gradle build (`./gradlew buildAll` / `./gradlew lintAll`). Changes
+  root Gradle build (`./gradlew buildAll` / `./gradlew lint`). Changes
   here must build cleanly across **all** subprojects, not just the one you
   touched — a shared dependency bump or API change can silently break a
   sibling mod.
@@ -34,7 +34,7 @@ covers the Gradle side.
 
 - JDK 25, wrapper included — don't add a second build system or bypass the
   wrapper.
-- `./gradlew buildAll` and `./gradlew lintAll` must both pass before you
+- `./gradlew buildAll` and `./gradlew lint` must both pass before you
   request review; CI enforces this on every push and PR (see
   `.github/workflows/build.yml`).
 - Building a single subproject during iteration is fine
@@ -87,7 +87,7 @@ or clearly malicious cases, the contributor being blocked from the repo.
 ## Before opening a PR
 
 - [ ] `./gradlew buildAll` passes
-- [ ] `./gradlew lintAll` passes
+- [ ] `./gradlew lint` passes
 - [ ] If you touched `packs/`, you've validated the pack loads correctly
       (Gradle passing does not cover this)
 - [ ] PR description explains **what** changed and **why**, and says

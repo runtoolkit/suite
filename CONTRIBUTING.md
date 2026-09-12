@@ -18,11 +18,11 @@ already read it.
    git checkout -b your-branch-name
    ```
 
-4. Make your changes.
-5. Build and lint before opening a PR:
+3. Make your changes.
+4. Build and lint before opening a PR:
    ```bash
    ./gradlew buildAll
-   ./gradlew lintAll
+   ./gradlew lint
    ```
 
 ## Branch naming

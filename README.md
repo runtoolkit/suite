@@ -8,8 +8,8 @@ Consolidated monorepo for the runtoolkit ecosystem.
 - `packs/`     — Datapacks / resource packs
 - `scripts/`   — Helper scripts and tools
 - `examples/`  — Templates, example Fabric mods, example datapacks, test files
-- `archived/`  — Projects no longer developed but kept for reference
-- `other/`     — Content that doesn't fit another category
+- `archived/`  — Reserved for projects no longer developed but kept for reference (not currently populated — nothing has been moved here yet)
+- `other/`     — Reserved for content that doesn't fit another category (not currently populated)
 
 ## Building
 
@@ -31,7 +31,7 @@ This runs the build task across every subproject under `mods/` and produces mod 
 ### Lint all subprojects
 
 ```bash
-./gradlew lintAll
+./gradlew lint
 ```
 
 ### Build a single subproject
@@ -42,7 +42,7 @@ This runs the build task across every subproject under `mods/` and produces mod 
 
 ### CI
 
-Pushes and pull requests trigger the `build.yml` workflow (Build & Lint), which runs `buildAll` and `lintAll` across all subprojects and uploads build artifacts. See `.github/workflows/build.yml` for the full pipeline, including the release-publishing job.
+Pushes and pull requests trigger the `build.yml` workflow (Build & Lint), which runs `buildAll` and `lint` across all subprojects and uploads build artifacts. See `.github/workflows/build.yml` for the full pipeline, including the release-publishing job.
 
 ## Old repos
 

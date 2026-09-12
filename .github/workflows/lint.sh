@@ -8,11 +8,9 @@ echo "::endgroup::"
 
 IGNORE_PATHS=(
     "packs/inv_gui"
-    "packs/dataLib-dp/datapacks/dataLib/data/datalib/function/world/get_time.mcfunction"
-    "packs/dataLib-dp/datapacks/dataLib/data/datalib/function/world/time_phase.mcfunction"
     "packs/cmdTunnel-datapack/data/*/functions/init.mcfunction"
-    "packs/macroEngine-Datapack-v26.2/data/macroengine/function/world/get_time.mcfunction"
-    "packs/macroEngine-Datapack-v26.2/data/macroengine/function/world/time_phase.mcfunction"
+    "packs/macroEngine-Datapack-v26.3/data/macroengine/function/world/get_time.mcfunction"
+    "packs/macroEngine-Datapack-v26.3/data/macroengine/function/world/time_phase.mcfunction"
 )
 
 echo "::group::🚫 Ignoring paths"
