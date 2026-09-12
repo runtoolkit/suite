@@ -1,7 +1,7 @@
 {
   "description": {
-    "color": "#6DECC9",
-    "translate": "trim_material.macroengine.prismarine_shard"
+    "color": "#3B2F4A",
+    "translate": "trim_material.macroengine.obsidian_glass"
   },
-  "palette_id": "macroengine:trim/prismarine_shard"
+  "palette": "macroengine_obsidian_glass"
 }
