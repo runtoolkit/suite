@@ -1,5 +1,5 @@
 {
-  "_comment": "26.3 (pack format 121, pre-3/rc-1/rc-2): custom_model_data requires the {floats,flags,strings,colors} object form (since pack format 59 / 24w45a / 1.21.4). Edit the float value to match your resource pack's predicate override.",
+  "_comment": "26.3pre3 (pack format 112): custom_model_data requires the {floats,flags,strings,colors} object form (since pack format 59 / 24w45a / 1.21.4). Edit the float value to match your resource pack's predicate override.",
   "components": {
     "minecraft:custom_model_data": {
       "floats": [

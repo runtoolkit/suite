@@ -135,6 +135,6 @@ data remove storage macroengine:engine color._names
 data remove storage macroengine:engine fork_warn
 data remove storage macroengine:engine fork_warn_tick
 
-# BUGFIX v26.3.3: macroengine.meta scoreboard (used by _rt_origin watermark check)
+# BUGFIX v26.3: macroengine.meta scoreboard (used by _rt_origin watermark check)
 # was never removed on disable/cleanup, causing scoreboard pollution across reloads.
 scoreboard objectives remove macroengine.meta

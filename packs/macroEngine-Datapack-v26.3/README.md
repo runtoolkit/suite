@@ -1,5 +1,5 @@
 
-# macroEngine (v26.3.3)
+# macroEngine (v26.3)
 
 **macroEngine** is a macro/module framework datapack for Minecraft Java Edition, providing a large library of reusable command-based systems (math, string, NBT, geo, permissions, UUID cache, hooks, rate limiting, and more) plus a multi-source text/value input system (dialogs, books, signs, lecterns, name tags, command block minecarts).
 
@@ -21,9 +21,6 @@
 - **Item modifiers** (`item_modifier/`) — reusable `item_modifier` definitions for enchanting, glint, lore, tooltip, and rename operations
 - **Advancement-driven triggers** (`advancement/`) — core, hidden, and system advancements used to drive internal logic and hooks
 - **Experimental namespace** — gated behind `toggle/experimental`, for features not yet considered stable
-- **Chat channels** (`chat_type/`, `api/chat/`) — styled message channels (`admin_broadcast`, `gate_log`, `rate_limit_notice`) with a tellraw-based sender routed through `systems/rate_limit`. Note: vanilla `chat_type` only auto-applies to signed player chat, not function-issued messages — `api/chat/send` mimics the registered style rather than assigning the real chat_type.
-- **gate_sanctuary biome** (`worldgen/`, `api/world/goto_sanctuary`) — a no-spawn, no-precipitation biome intended as an admin/testing area, with a sparse `sanctuary_marker` surface feature. Requires a world restart after first adding the pack (worldgen does not reload with `/reload`).
-- **Jukebox discs** (`jukebox_song/`, `api/jukebox/give`) — custom `jukebox_song` registry entries (`gate_alert`, `sanctuary_ambient`) reusing vanilla sound events, given via `api/jukebox/give` as a `jukebox_playable`-bound `music_disc_11` item.
 
 ---
 
@@ -61,7 +58,7 @@ Internal systems under `systems/` are used by API functions and are not intended
 
 ## Notes
 
-- This is the 26.3-rc-1 line of macroEngine, part of the `runtoolkit/suite` monorepo (`packs/macroEngine-Datapack-v26.3.3`).
+- This is the 26.3-rc-1 line of macroEngine, part of the `runtoolkit/suite` monorepo (`packs/macroEngine-Datapack-v26.3`).
 - A parallel `packs/macroEngine-Datapack-1.21.2` build exists for older-version support.
 - Experimental features are opt-in via `api/toggle/experimental/true` and are not guaranteed stable between versions.
 

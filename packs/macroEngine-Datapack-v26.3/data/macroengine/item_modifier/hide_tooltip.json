@@ -1,5 +1,5 @@
 {
-  "_comment": "26.3 (pack format 121, pre-3/rc-1/rc-2): minecraft:hide_tooltip was removed; use tooltip_display with hide_tooltip:true instead.",
+  "_comment": "26.3pre3 (pack format 112): minecraft:hide_tooltip was removed; use tooltip_display with hide_tooltip:true instead.",
   "components": {
     "minecraft:tooltip_display": {
       "hide_tooltip": true,
