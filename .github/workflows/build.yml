@@ -26,7 +26,7 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
         # If gradlew isn't committed yet, generate the wrapper first:
-        # gradle wrapper --gradle-version 8.8
+        # gradle wrapper --gradle-version 9.4.0
       - name: Build all subprojects
         # FIX: with --continue, this step can still report "success" even when
         # part of the build failed (Gradle can mark a partial failure with a
