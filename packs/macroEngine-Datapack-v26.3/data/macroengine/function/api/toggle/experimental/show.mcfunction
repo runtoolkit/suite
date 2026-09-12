@@ -12,9 +12,11 @@
 #                      (cmd_min_level / sandbox_cmd_min_level / admin_min_level).
 #                      Turn this OFF immediately if permission checks start
 #                      blocking things that should work — every threshold
-#                      defaults to 0 (everyone passes) so it's safe to leave
-#                      on, but it's the flag that previously caused problems
-#                      and got removed, so it ships OFF by default.
+#                      defaults to 0 (everyone passes) so leaving it on is
+#                      safe out of the box. Ships ON by default as of this
+#                      build (see config.mcfunction); fresh installs get
+#                      enforcement live once you raise a *_min_level above 0,
+#                      existing worlds that already wrote a value here keep it.
 #   hologram        — experimental/hologram/* (floating text display entities)
 #   particle_trail  — experimental/particle_trail/* (player movement trails)
 #   crafting_ui     — experimental/crafting_ui/* (custom crafting menu)

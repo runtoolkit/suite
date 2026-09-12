@@ -1,0 +1,23 @@
+{
+  "death.attack.macroengine.overload": "%1$s overloaded",
+  "death.attack.macroengine.overload.player": "%1$s overloaded while fighting %2$s",
+  "death.attack.macroengine.sanctioned": "%1$s was sanctioned",
+  "death.attack.macroengine.sanctioned.player": "%1$s was sanctioned by %2$s",
+  "death.attack.macroengine.purge": "%1$s was purged",
+  "death.attack.macroengine.purge.player": "%1$s was purged by %2$s",
+
+  "enchantment.macroengine.xp_thrift": "XP Thrift",
+  "enchantment.macroengine.steady_hand": "Steady Hand",
+
+  "trim_pattern.macroengine.circuit": "Circuit Armor Trim",
+  "trim_pattern.macroengine.ledger": "Ledger Armor Trim",
+  "trim_material.macroengine.obsidian_glass": "Obsidian Glass Material",
+  "trim_material.macroengine.prismarine_shard": "Prismarine Shard Material",
+
+  "item.macroengine.repair_kit": "Repair Kit",
+  "item.macroengine.repair_kit.lore": "macroEngine utility item",
+  "item.macroengine.marker_tag": "Marker Tag",
+  "item.macroengine.marker_tag.lore": "macroEngine utility item",
+  "item.macroengine.config_key": "Config Key",
+  "item.macroengine.config_key.lore": "macroEngine utility item"
+}

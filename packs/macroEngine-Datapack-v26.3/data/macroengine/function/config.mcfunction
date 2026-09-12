@@ -12,7 +12,7 @@ execute unless score #runtoolkit.archivedpacks.macroengine macroengine.meta = #r
 
 # ── Engine defaults (only fill missing keys — preserves live data) ─
 execute unless data storage macroengine:engine global run data modify storage macroengine:engine global set value {}
-data modify storage macroengine:engine global.version set value "v26.3"
+data modify storage macroengine:engine global.version set value "v26.3.3"
 
 execute unless data storage macroengine:engine config run data modify storage macroengine:engine config set value {}
 
@@ -41,13 +41,23 @@ execute unless data storage macroengine:engine security.cmd_min_level run data m
 execute unless data storage macroengine:engine security.sandbox_cmd_min_level run data modify storage macroengine:engine security.sandbox_cmd_min_level set value 0
 
 # ── Experimental feature flags (systems/flag/experimental/*) ──────
-# All default OFF. Each gates one piece of new/previously-removed
-# functionality so it can be toggled without editing files or /reload
-# stripping intent. See systems/flag/experimental/list.mcfunction for
-# the authoritative description of each flag.
+# All default OFF except strict_gating (see below). Each gates one piece
+# of new/previously-removed functionality so it can be toggled without
+# editing files or /reload stripping intent. See
+# systems/flag/experimental/list.mcfunction for the authoritative
+# description of each flag.
 execute unless data storage macroengine:engine flags run data modify storage macroengine:engine flags set value {}
 execute unless data storage macroengine:engine flags.experimental run data modify storage macroengine:engine flags.experimental set value {}
-execute unless data storage macroengine:engine flags.experimental.strict_gating run data modify storage macroengine:engine flags.experimental.strict_gating set value 0b
+
+# strict_gating defaults ON as of this build: it's the only flag here
+# that's a security control rather than a feature preview, and every
+# threshold above defaults to 0 (everyone passes), so turning it on by
+# default changes nothing until an admin actually raises a
+# *_min_level. If it still causes problems, disable it explicitly via
+# api/toggle/experimental — existing worlds that already wrote 0b to
+# this path are untouched by this change (see the `unless data` guard
+# below), so this only affects fresh installs.
+execute unless data storage macroengine:engine flags.experimental.strict_gating run data modify storage macroengine:engine flags.experimental.strict_gating set value 1b
 execute unless data storage macroengine:engine flags.experimental.hologram run data modify storage macroengine:engine flags.experimental.hologram set value 0b
 execute unless data storage macroengine:engine flags.experimental.particle_trail run data modify storage macroengine:engine flags.experimental.particle_trail set value 0b
 execute unless data storage macroengine:engine flags.experimental.crafting_ui run data modify storage macroengine:engine flags.experimental.crafting_ui set value 0b

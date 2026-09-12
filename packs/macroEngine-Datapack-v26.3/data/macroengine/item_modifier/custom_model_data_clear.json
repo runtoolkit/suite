@@ -1,0 +1,6 @@
+{
+  "components": {
+    "!minecraft:custom_model_data": {}
+  },
+  "type": "minecraft:set_components"
+}

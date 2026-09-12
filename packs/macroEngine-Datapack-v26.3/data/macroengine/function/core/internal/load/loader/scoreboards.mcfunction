@@ -1,5 +1,5 @@
 # macroengine:core/internal/load/loader/scoreboards
-# (moved from macroengine:core/internal/load/load/scoreboards in v26.3 — load/ vs loader/
+# (moved from macroengine:core/internal/load/load/scoreboards in v26.3.3 — load/ vs loader/
 #  separates gate/confirmation logic from the actual init routines)
 
 scoreboard objectives add macroengine.tmp dummy

@@ -1,0 +1,6 @@
+{
+  "predicate": {
+    "biomes": "minecraft:end_highlands"
+  },
+  "type": "minecraft:location_check"
+}

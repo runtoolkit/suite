@@ -5,7 +5,7 @@
 # Must be called AFTER the dialog_opened tag has been set on @s.
 # Both api/dialog/open and api/dialog/show call this after tag assignment.
 #
-# BUGFIX v26.3: guard now also checks that dialog.DIALOG.title exists in
+# BUGFIX v26.3.3: guard now also checks that dialog.DIALOG.title exists in
 # storage so that the admin message includes meaningful dialog info rather
 # than falling through with a generic "opened a dialog" when no dialog
 # context is set.

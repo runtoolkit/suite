@@ -1,0 +1,7 @@
+{
+  "components": {
+    "!minecraft:item_name": {},
+    "!minecraft:custom_name": {}
+  },
+  "type": "minecraft:set_components"
+}

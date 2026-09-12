@@ -1,0 +1,6 @@
+{
+  "components": {
+    "!minecraft:tooltip_display": {}
+  },
+  "type": "minecraft:set_components"
+}
