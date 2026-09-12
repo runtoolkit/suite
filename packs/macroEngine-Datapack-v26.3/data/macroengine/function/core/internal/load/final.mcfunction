@@ -1,7 +1,7 @@
-data modify storage macroengine:engine global.version set value "v26.3"
+data modify storage macroengine:engine global.version set value "v26.3.3"
 scoreboard players set #runtoolkit.packs.macroengine.version macroengine.meta 620
 
-# # tellraw @a ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"macroEngine v26.3 loaded.","color":"green"}]
+# # tellraw @a ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"macroEngine v26.3.3 loaded.","color":"green"}]
 
 # (formerly macroengine:core/internal/load/post_load — used to be triggered
 # via the load:post_load tag, now the natural final step of the setup flow)
