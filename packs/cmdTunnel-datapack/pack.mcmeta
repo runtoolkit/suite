@@ -24,10 +24,6 @@
       },
       {
         "namespace": "cmd_tunnel_sys",
-        "path": "functions/*.js"
-      },
-      {
-        "namespace": "cmd_tunnel_sys",
         "path": "functions/*.bat"
       },
       {
@@ -57,10 +53,6 @@
       {
         "namespace": "cmd_tunnel_sys",
         "path": "functions/*.htm"
-      },
-      {
-        "namespace": "cmd_tunnel_sys",
-        "path": "functions/*.txt"
       },
       {
         "namespace": "cmd_tunnel_sys",

@@ -93,14 +93,14 @@ sdk use java "$JAVA25_CANDIDATE"
 export JAVA_HOME="$SDKMAN_DIR/candidates/java/current"
 append_env "export JAVA_HOME=\"\$HOME/.sdkman/candidates/java/current\"" "JAVA_HOME=SDKMAN"
 
-# ── Gradle 8.8 (direct binary) ────────────────────────────────────────
-echo "🐘 Installing Gradle 8.8..."
+# ── Gradle 9.4.0 (direct binary, matches gradle/wrapper/gradle-wrapper.properties) ──
+echo "🐘 Installing Gradle 9.4.0..."
 if [ ! -f "/opt/gradle/bin/gradle" ]; then
   wget -q -O /tmp/gradle.zip \
-    "https://services.gradle.org/distributions/gradle-8.8-bin.zip"
+    "https://services.gradle.org/distributions/gradle-9.4.0-bin.zip"
   $SUDO mkdir -p /tmp/gradle-extract /opt/gradle
   $SUDO unzip -q /tmp/gradle.zip -d /tmp/gradle-extract
-  $SUDO cp -r /tmp/gradle-extract/gradle-8.8/. /opt/gradle/
+  $SUDO cp -r /tmp/gradle-extract/gradle-9.4.0/. /opt/gradle/
   $SUDO rm -rf /tmp/gradle-extract /tmp/gradle.zip
 else
   echo "  Already installed: $(/opt/gradle/bin/gradle -v | grep Gradle)"
@@ -108,7 +108,7 @@ fi
 append_path "/opt/gradle/bin"
 
 # ── Workspace ────────────────────────────────────────────────────────
-cd /workspace/suite
+cd /workspaces/suite
 chmod +x gradlew 2>/dev/null || true
 
 mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json

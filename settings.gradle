@@ -11,8 +11,10 @@ rootProject.name = 'runtoolkit-suite'
 // Subprojects to skip entirely (kept as files, not wired into the Gradle build).
 // Reason for each is noted so future edits know why it's here.
 def EXCLUDED_PROJECT_DIRS = [
-    'mods/datapack-fixer',     
-    'packs/RTWrapper/rtwrapper-fabric',
+    'mods/datapack-fixer',              // Has its own settings.gradle + gradlew;
+                                         // an independent Gradle build, not a subproject.
+    'packs/RTWrapper/rtwrapper-fabric', // Same: own settings.gradle + gradlew,
+                                         // versioned/released separately from this monorepo.
 ]
 
 // Recursively find every build.gradle(.kts) under mods/, packs/, examples/

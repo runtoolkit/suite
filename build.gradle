@@ -92,7 +92,7 @@ tasks.register('checkPacks') {
                     // FIX: 1.21.9+ pack.mcmeta uses min_format/max_format instead of
                     // pack_format (see minecraft-versions notes). Since 26.x is the
                     // target, either form must be accepted, otherwise current
-                    // dataLib-dp packs get flagged as false positives.
+                    // v26.x macroEngine packs get flagged as false positives.
                     def hasLegacyFormat = pack?.pack_format != null
                     def hasNewFormat = pack?.min_format != null && pack?.max_format != null
                     if (!hasLegacyFormat && !hasNewFormat) {
