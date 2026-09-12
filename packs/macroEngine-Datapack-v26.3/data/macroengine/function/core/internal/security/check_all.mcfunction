@@ -4,7 +4,7 @@
 # THE central permission gate for cmd/, cb/, and raw wand/trigger
 # dispatch. This is the function `admin_min_level`, `cmd_min_level`,
 # and `sandbox_cmd_min_level` have been documented as enforcing
-# (via "(check_all)" / "SECURITY: caller must hold...") since v6.0.2,
+# (via "(check_all)" / "SECURITY: caller must hold...") since v26.3,
 # but the function never existed — nothing actually read
 # macroengine.perm_level anywhere in the pack. This file closes that gap.
 #
