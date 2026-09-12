@@ -1,4 +1,4 @@
-// build.gradle for packs/macroEngine-Datapack-v26.3.4
+// build.gradle for packs/macroEngine-Datapack-v26.3.3
 //
 // Adds a Modrinth publish task using the Modrinth Minotaur Gradle plugin.
 // This subproject has no Java sources — it only packages and publishes the
@@ -8,10 +8,10 @@
 //   MODRINTH_TOKEN  — a Modrinth personal access token with upload permission
 //
 // Usage:
-//   ./gradlew :packs:macroEngine-Datapack-v26.3.4:modrinth
+//   ./gradlew :packs:macroEngine-Datapack-v26.3.3:modrinth
 //
 // The zip itself is produced by the root project's `zipPacks` task
-// (see /build.gradle) into build/packs-dist/macroEngine-Datapack-v26.3.4.zip.
+// (see /build.gradle) into build/packs-dist/macroEngine-Datapack-v26.3.3.zip.
 // This subproject also defines its own `zipMacroEnginePack` task so it can be
 // built and published in isolation without depending on the whole `packs/` scan.
 
@@ -28,7 +28,7 @@ def distDir = layout.buildDirectory.dir('dist')
 tasks.register('zipMacroEnginePack', Zip) {
     group = 'build'
     description = 'Zips this datapack folder (data/, pack.mcmeta, pack.png, README.md) into a Modrinth-ready archive.'
-    archiveFileName.set('macroEngine-Datapack-v26.3.4.zip')
+    archiveFileName.set('macroEngine-Datapack-v26.3.3.zip')
     destinationDirectory.set(distDir)
 
     from(packDir) {
@@ -42,8 +42,8 @@ tasks.register('zipMacroEnginePack', Zip) {
 modrinth {
     token.set(System.getenv('MODRINTH_TOKEN'))
     projectId.set(System.getenv('MODRINTH_PROJECT_ID') ?: 'macroengine') // set to actual Modrinth slug/ID
-    versionNumber.set(System.getenv('MODRINTH_VERSION_NUMBER') ?: 'v26.3.4')
-    versionName.set(System.getenv('MODRINTH_VERSION_NAME') ?: "macroEngine ${System.getenv('MODRINTH_VERSION_NUMBER') ?: 'v26.3.4'}")
+    versionNumber.set(System.getenv('MODRINTH_VERSION_NUMBER') ?: 'v26.3.3')
+    versionName.set(System.getenv('MODRINTH_VERSION_NAME') ?: "macroEngine ${System.getenv('MODRINTH_VERSION_NUMBER') ?: 'v26.3.3'}")
     versionType.set(System.getenv('MODRINTH_VERSION_TYPE') ?: 'release') // release | beta | alpha
     uploadFile.set(tasks.named('zipMacroEnginePack').flatMap { it.archiveFile })
     gameVersions.addAll([System.getenv('MODRINTH_GAME_VERSION') ?: '26.3-rc-1'])
