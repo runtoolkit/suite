@@ -1,0 +1,9 @@
+{
+  "sound_event": "minecraft:ambient.cave",
+  "description": {
+    "translate": "jukebox_song.macroengine.sanctuary_ambient",
+    "fallback": "macroEngine — Sanctuary Ambient"
+  },
+  "length_in_seconds": 12.0,
+  "comparator_output": 4
+}

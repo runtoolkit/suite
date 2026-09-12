@@ -1,0 +1,9 @@
+{
+  "sound_event": "minecraft:block.note_block.chime",
+  "description": {
+    "translate": "jukebox_song.macroengine.gate_alert",
+    "fallback": "macroEngine — Gate Alert"
+  },
+  "length_in_seconds": 4.0,
+  "comparator_output": 15
+}
