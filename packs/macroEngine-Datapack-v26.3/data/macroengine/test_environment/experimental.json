@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:game_rules",
+  "rules": {
+    "advance_time": false,
+    "spawn_mobs": false,
+    "advance_weather": false,
+    "random_tick_speed": 0
+  }
+}

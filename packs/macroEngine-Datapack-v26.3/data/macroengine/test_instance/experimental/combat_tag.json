@@ -1,0 +1,9 @@
+{
+  "type": "macroengine:experimental",
+  "structure": "macroengine:test/experimental_check",
+  "max_ticks": 100,
+  "setup_ticks": 5,
+  "required": false,
+  "manual_only": true,
+  "sky_access": false
+}
