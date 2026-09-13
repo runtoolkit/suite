@@ -124,13 +124,8 @@ execute unless data storage macroengine:engine wand_cooldowns run data modify st
 #                          admins must be given macroengine.debug explicitly
 #                          via /function macroengine:debug/tools/admin/debug_tag/*
 #                          (v26.3, see admin_systems.mcfunction)
-#   debug_log              0b = test-block console logging disabled (default).
-#                          1b = every systems/log/add call also pulses the
-#                          configured test_block, so the message text lands
-#                          in latest.log. Toggle with
-#                          /function macroengine:debug/tools/log/enable (or disable).
 # ─────────────────────────────────────────────────────────────────
-execute unless data storage macroengine:engine security run data modify storage macroengine:engine security set value {trust_players:0b,cmd_min_level:3,sandbox_cmd_min_level:4,admin_min_level:2,admin_can_override:0b,sandbox_allowlist:{},auto_debug_tag:1b,debug_log:0b}
+execute unless data storage macroengine:engine security run data modify storage macroengine:engine security set value {trust_players:0b,cmd_min_level:3,sandbox_cmd_min_level:4,admin_min_level:2,admin_can_override:0b,sandbox_allowlist:{},auto_debug_tag:1b}
 # ─────────────────────────────────────────────────────────────────
 # Security module v26.3+ additions
 # BREAKING CHANGE: sandbox_allowlist is now a compound {} (was list []).
@@ -140,7 +135,7 @@ execute unless data storage macroengine:engine security run data modify storage 
 # ─────────────────────────────────────────────────────────────────
 # Reset security to new compound format (migration: [] → {})
 execute if data storage macroengine:engine security.sandbox_allowlist[] run data modify storage macroengine:engine security.sandbox_allowlist set value {}
-execute unless data storage macroengine:engine security run data modify storage macroengine:engine security set value {trust_players:0b,cmd_min_level:3,sandbox_cmd_min_level:4,admin_min_level:2,admin_can_override:0b,sandbox_allowlist:{},auto_debug_tag:1b,debug_log:0b}
+execute unless data storage macroengine:engine security run data modify storage macroengine:engine security set value {trust_players:0b,cmd_min_level:3,sandbox_cmd_min_level:4,admin_min_level:2,admin_can_override:0b,sandbox_allowlist:{},auto_debug_tag:1b}
 execute unless data storage macroengine:engine security.sandbox_allowlist run data modify storage macroengine:engine security.sandbox_allowlist set value {}
 execute unless data storage macroengine:engine security.multi_type_allowlist run data modify storage macroengine:engine security.multi_type_allowlist set value {multi_cmd:1b,multi_cmd_adv:1b}
 # Migration: packs upgraded from pre-v26.3 will have a security
@@ -148,20 +143,6 @@ execute unless data storage macroengine:engine security.multi_type_allowlist run
 # 'unless data storage ... security run ...' guard above (which only
 # fires when the whole compound is absent) doesn't skip existing worlds.
 execute unless data storage macroengine:engine security.auto_debug_tag run data modify storage macroengine:engine security.auto_debug_tag set value 1b
-# Same backfill logic for debug_log — older worlds upgrading to this
-# version won't have it yet since the compound already exists for them.
-execute unless data storage macroengine:engine security.debug_log run data modify storage macroengine:engine security.debug_log set value 0b
-
-# ─────────────────────────────────────────────────────────────────
-# Debug-log test_block position
-# ───────────────────────────────
-# Where the mode=log test_block used for console-logging lives.
-# Default matches the coordinate the pack was verified against
-# (see systems/log/testblock/*). Move it with:
-#   /data modify storage macroengine:engine debug_log_pos set value {x:X,y:Y,z:Z}
-# then /function macroengine:systems/log/testblock/place to (re)place the block
-# at the new coordinate.
-execute unless data storage macroengine:engine debug_log_pos run data modify storage macroengine:engine debug_log_pos set value {x:-4,y:-58,z:-4}
 
 # multiCommands context tracker (always reset on load — transient state)
 data remove storage macroengine:engine multiCommands

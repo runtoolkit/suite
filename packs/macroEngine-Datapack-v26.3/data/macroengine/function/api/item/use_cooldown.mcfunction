@@ -29,3 +29,5 @@ data modify storage macroengine:_item_tmp macroengine.cooldown_until set from st
 $data modify storage macroengine:_item_tmp slot set value "$(slot)"
 
 function macroengine:core/internal/api/item/use_cooldown_apply with storage macroengine:_item_tmp
+
+schedule function macroengine:core/internal/api/item/clear_tmp 3t replace

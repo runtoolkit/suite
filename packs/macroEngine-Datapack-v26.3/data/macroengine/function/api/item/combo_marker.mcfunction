@@ -25,3 +25,5 @@ $data modify storage macroengine:_item_tmp macroengine.combo set value $(combo)
 $data modify storage macroengine:_item_tmp slot set value "$(slot)"
 
 function macroengine:core/internal/api/item/combo_marker_apply with storage macroengine:_item_tmp
+
+schedule function macroengine:core/internal/api/item/clear_tmp 3t replace

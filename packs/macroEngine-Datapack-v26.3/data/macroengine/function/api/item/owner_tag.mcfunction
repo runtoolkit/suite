@@ -32,3 +32,5 @@ $data modify storage macroengine:_item_tmp macroengine.owner set value "$(owner)
 $data modify storage macroengine:_item_tmp slot set value "$(slot)"
 
 function macroengine:core/internal/api/item/owner_tag_apply with storage macroengine:_item_tmp
+
+schedule function macroengine:core/internal/api/item/clear_tmp 3t replace
