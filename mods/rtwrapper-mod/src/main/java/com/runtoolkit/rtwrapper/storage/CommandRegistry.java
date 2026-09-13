@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Holds the registered custom commands in config/rtwrapper/commands.json.
+ * Holds the registered custom commands in <world save>/rtwrapper/commands.json.
  * The Java counterpart of the `rtwrapper:triggers` storage in the RTWrapper
  * datapack, except this lives in the world's save directory rather than in
  * an NBT storage namespace.
