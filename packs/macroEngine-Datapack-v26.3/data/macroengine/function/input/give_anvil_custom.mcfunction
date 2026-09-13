@@ -10,4 +10,4 @@
 # CALL: function macroengine:input/give_anvil_custom {item:"minecraft:iron_ingot"}
 # ======================================================================================
 
-$give @s $(item)[minecraft:custom_data={macroengine:{input:1b}},minecraft:item_name={"text":"Anvil Input"}] 1
+$give @s $(item)[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}},minecraft:item_name={"text":"Anvil Input"}] 1
