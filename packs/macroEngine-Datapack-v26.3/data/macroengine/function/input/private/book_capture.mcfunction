@@ -23,8 +23,7 @@ data modify storage macroengine:input book.player set from entity @s UUID
 data modify storage macroengine:input book.raw set from entity @s SelectedItem.components."minecraft:writable_book_content".pages[0].raw
 
 # Same "raw, unvalidated, unexecuted" contract as command_block_minecart capture.
-data modify storage macroengine:input book.executed set value 0b
-execute if data storage macroengine:input book{executed:0b} run function #macroengine:input/writable_book
+function #macroengine:input/writable_book
 
 # Debounce: book stays in hand; will not re-capture until they unselect the marked book
 tag @s add macroengine.book_captured
