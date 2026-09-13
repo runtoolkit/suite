@@ -64,3 +64,6 @@ execute unless data storage macroengine:engine flags.experimental.crafting_ui ru
 execute unless data storage macroengine:engine flags.experimental.waypoint run data modify storage macroengine:engine flags.experimental.waypoint set value 0b
 execute unless data storage macroengine:engine flags.experimental.combat_tag run data modify storage macroengine:engine flags.experimental.combat_tag set value 0b
 execute unless data storage macroengine:engine flags.experimental.scoreboard_hud run data modify storage macroengine:engine flags.experimental.scoreboard_hud set value 0b
+
+
+scoreboard players set #runtoolkit.archivedpacks.macroengine macroengine.meta 1
