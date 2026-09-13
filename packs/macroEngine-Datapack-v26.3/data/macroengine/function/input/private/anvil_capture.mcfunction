@@ -42,8 +42,8 @@ item replace entity @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] conta
 
 # --- old name (pre-rename item_name) ---
 data modify storage macroengine:input anvil.old_name set value "Anvil Input"
-execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] run data modify storage macroengine:input anvil.old_name set from entity @s Items[{Slot:0b}].components."minecraft:item_name".text
-execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] unless data storage macroengine:input {anvil:{old_name:""}} unless data entity @s Items[{Slot:0b}].components."minecraft:item_name".text run data modify storage macroengine:input anvil.old_name set from entity @s Items[{Slot:0b}].components."minecraft:item_name"
+execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] run data modify storage macroengine:input anvil.old_name set from entity @s Items[{Slot:0b}].components."minecraft:item_name"
+execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] unless data storage macroengine:input {anvil:{old_name:""}} unless data entity @s Items[{Slot:0b}].components."minecraft:item_name" run data modify storage macroengine:input anvil.old_name set from entity @s Items[{Slot:0b}].components."minecraft:item_name"
 
 # --- new name (post-rename custom_name), with raw fallback chain ---
 data modify storage macroengine:input anvil.new_name set value ""
@@ -63,10 +63,9 @@ tag @s add macroengine.anvil_pending
 # Consume the carrier now — this input type is single-use, unlike the
 # "kept while held" contract of name_tag/writable_book. Clear the
 # cursor slot specifically (not the whole inventory).
-item replace entity @s player.cursor with air
+item replace entity @s player.cursor with minecraft:air
 
-data modify storage macroengine:input anvil.executed set value 0b
-execute if data storage macroengine:input anvil{executed:0b} run function #macroengine:input/anvil
+function #macroengine:input/anvil
 
 tag @s remove macroengine.anvil_pending
 data remove storage macroengine:input anvil
