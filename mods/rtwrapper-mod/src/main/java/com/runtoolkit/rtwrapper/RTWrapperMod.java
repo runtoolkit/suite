@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * (a macro-command wrapper/queue API), rewritten from scratch in Java with
  * the additional features requested by the user:
  *   - OP-level gate (configurable per command, 0-4)
- *   - Audit log to both the console and config/rtwrapper/audit.log
+ *   - Audit log to both the console and <world save>/rtwrapper/audit.log
  *   - Chest GUI (/cmdname menu) - lists registered commands and runs them on click
  *   - /cmdname subcommand tree (register/unregister/list/run/menu/reload)
  *     instead of /trigger

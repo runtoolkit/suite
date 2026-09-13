@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Writes every gated command execution attempt to both the server console
- * and config/rtwrapper/audit.log.
+ * and <world save>/rtwrapper/audit.log.
  *
  * The original RTWrapper datapack had no auditing mechanism of this kind
  * (only silent/debug flags) - this is an entirely new feature.

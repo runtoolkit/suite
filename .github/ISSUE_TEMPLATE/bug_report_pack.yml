@@ -16,7 +16,7 @@ body:
         - cmdTunnel-datapack
         - inv_gui
         - macroEngine-Datapack-v26.3
-        - macroEngine-Resourcepack-v26.2
+        - macroEngine-Resourcepack-v26.3
         - Other / not sure
     validations:
       required: true
