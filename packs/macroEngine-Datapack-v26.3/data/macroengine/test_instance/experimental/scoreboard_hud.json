@@ -1,9 +1,10 @@
 {
-  "type": "macroengine:experimental",
+  "type": "minecraft:block_based",
   "structure": "macroengine:test/experimental_check",
   "max_ticks": 100,
   "setup_ticks": 5,
   "required": false,
   "manual_only": true,
-  "sky_access": false
+  "sky_access": false,
+  "environment": "macroengine:experimental"
 }
