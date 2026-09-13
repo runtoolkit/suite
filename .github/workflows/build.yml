@@ -98,6 +98,29 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build pack zips
         run: ./gradlew zipPacks
+      - name: Remove stale pack assets from release
+        # A pack can be renamed or deleted from packs/ (e.g. a version bump
+        # like macroEngine-Resourcepack-v26.2 -> v26.3). softprops/action-gh-release
+        # only uploads/overwrites the files it's given - it never removes an
+        # existing release asset that no longer has a matching zip, so without
+        # this step a renamed/removed pack's old zip stays attached forever,
+        # contradicting the "Always reflects the current contents of packs/"
+        # promise below.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view packs-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            current_files=$(cd build/packs-dist && ls *.zip 2>/dev/null || true)
+            existing_assets=$(gh release view packs-latest --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+            for asset in $existing_assets; do
+              if ! printf '%s\n' "$current_files" | grep -qxF "$asset"; then
+                echo "Deleting stale release asset: $asset"
+                gh release delete-asset packs-latest "$asset" --repo "$GITHUB_REPOSITORY" --yes
+              fi
+            done
+          else
+            echo "Release packs-latest does not exist yet; nothing to clean."
+          fi
       - name: Publish to permanent 'packs-latest' release
         uses: softprops/action-gh-release@v3
         with:
