@@ -26,6 +26,7 @@ $data modify storage macroengine:rl_work ensure_key set value "$(key)"
 function macroengine:core/internal/systems/rate_limit/player_check with storage macroengine:rl_work
 
 $execute unless data storage macroengine:engine rate_limit.rules.$(key) run function macroengine:core/internal/systems/rate_limit/no_rule
+$execute unless data storage macroengine:engine rate_limit.rules.$(key) run schedule function macroengine:core/internal/systems/rate_limit/clear_work 3t replace
 $execute unless data storage macroengine:engine rate_limit.rules.$(key) run return 0
 
 # Copy rule into work storage with key context
@@ -34,3 +35,5 @@ $data modify storage macroengine:rl_work rule.key set value "$(key)"
 
 # Run the sliding window evaluation
 function macroengine:core/internal/systems/rate_limit/evaluate with storage macroengine:rl_work rule
+
+schedule function macroengine:core/internal/systems/rate_limit/clear_work 3t replace
