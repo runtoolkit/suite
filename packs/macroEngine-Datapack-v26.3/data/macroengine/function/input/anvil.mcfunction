@@ -6,10 +6,10 @@
 #
 # PURPOSE:
 #   Detect a player who has picked up a marked item
-#   (custom_data={macroengine:{input:1b}}, given via give_anvil /
-#   give_anvil_custom) into their cursor slot after anvil-renaming it.
-#   Capture into macroengine:input anvil.old_name / anvil.new_name /
-#   anvil.raw, then clear the carrier item.
+#   (custom_data={macroengine:{input:1b,inputItem:"anvil"}}, given via
+#   give_anvil / give_anvil_custom) into their cursor slot after
+#   anvil-renaming it. Capture into macroengine:input anvil.old_name /
+#   anvil.new_name / anvil.raw, then clear the carrier item.
 #
 # WHY player.cursor:
 #   The cursor slot (the item currently "held" by the mouse while a
@@ -25,8 +25,11 @@
 # hold-session debounce needed since the item no longer exists after.
 # ======================================================================================
 
-# Fast exit — skip entirely if no player has the marked item in cursor
-execute store success score #macroengine.AnvilHit macroengine.tmp if items entity @a player.cursor *[minecraft:custom_data={macroengine:{input:1b}}]
+# Fast exit — skip entirely if no player has the marked item in cursor.
+# inputItem:"anvil" distinguishes this from other input:1b carriers
+# (name_tag, writable_book) that used to share the same bare flag and
+# could cross-trigger each other's capture.
+execute store success score #macroengine.AnvilHit macroengine.tmp if items entity @a player.cursor *[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}}]
 execute if score #macroengine.AnvilHit macroengine.tmp matches 0 run return 0
 
-execute as @a if items entity @s player.cursor *[minecraft:custom_data={macroengine:{input:1b}}] run function macroengine:input/private/anvil_capture
+execute as @a if items entity @s player.cursor *[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}}] run function macroengine:input/private/anvil_capture

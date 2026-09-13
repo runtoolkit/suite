@@ -15,4 +15,4 @@
 # custom_name does not exist until the player actually renames it.
 # ======================================================================================
 
-give @s minecraft:paper[minecraft:custom_data={macroengine:{input:1b}},minecraft:item_name={"text":"Anvil Input"}] 1
+give @s minecraft:paper[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}},minecraft:item_name={"text":"Anvil Input"}] 1

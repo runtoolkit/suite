@@ -47,7 +47,7 @@ execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] unless data st
 
 # --- new name (post-rename custom_name), with raw fallback chain ---
 data modify storage macroengine:input anvil.new_name set value ""
-execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] run data modify storage macroengine:input anvil.new_name set from entity @s Items[{Slot:0b}].components."minecraft:custom_name".text
+execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] run data modify storage macroengine:input anvil.new_name set from entity @s Items[{Slot:0b}].components."minecraft:custom_name"
 execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] if data storage macroengine:input {anvil:{new_name:""}} run data modify storage macroengine:input anvil.new_name set from entity @s Items[{Slot:0b}].components."minecraft:custom_name"
 execute as @e[tag=macroengine.anvil_scratch,limit=1,sort=nearest] if data storage macroengine:input {anvil:{new_name:""}} run data modify storage macroengine:input anvil.new_name set string entity @s Items[{Slot:0b}].components."minecraft:custom_name"
 

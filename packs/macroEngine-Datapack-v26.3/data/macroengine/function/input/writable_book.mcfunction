@@ -7,8 +7,8 @@
 #
 # PURPOSE:
 #   Detect a player holding a writable_book marked with
-#   custom_data={macroengine:{input:1b}} (given via
-#   macroengine:input/give_writable_book),
+#   custom_data={macroengine:{input:1b,inputItem:"writable_book"}} (given
+#   via macroengine:input/give_writable_book),
 #   and extract the raw text of page[0] from
 #   SelectedItem.components."minecraft:writable_book_content".pages[0].raw
 #   into macroengine:input storage. Input capture ONLY — no execution here.
@@ -24,10 +24,13 @@
 #   this tick simply finds nothing — this is intentional, not a bug.
 # ======================================================================================
 
-# Release debounce for anyone no longer holding the marked input book
-execute as @a[tag=macroengine.book_captured] unless entity @s[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b}}}}}] run tag @s remove macroengine.book_captured
+# Release debounce for anyone no longer holding the marked input book.
+# inputItem:"writable_book" distinguishes this from other input:1b
+# carriers (name_tag, anvil) that used to share the same bare flag and
+# could cross-trigger each other's capture.
+execute as @a[tag=macroengine.book_captured] unless entity @s[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b,inputItem:"writable_book"}}}}}] run tag @s remove macroengine.book_captured
 
 # Fast exit — skip entirely if no player is holding the marked book
-execute unless entity @a[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b}}}}}] run return 0
+execute unless entity @a[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b,inputItem:"writable_book"}}}}}] run return 0
 
-execute as @a[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b}}}}}] run function macroengine:input/private/book_capture
+execute as @a[nbt={SelectedItem:{components:{"minecraft:custom_data":{macroengine:{input:1b,inputItem:"writable_book"}}}}}] run function macroengine:input/private/book_capture
