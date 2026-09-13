@@ -9,11 +9,6 @@
   "enchantment.macroengine.xp_thrift": "XP Thrift",
   "enchantment.macroengine.steady_hand": "Steady Hand",
 
-  "trim_pattern.macroengine.circuit": "Circuit Armor Trim",
-  "trim_pattern.macroengine.ledger": "Ledger Armor Trim",
-  "trim_material.macroengine.obsidian_glass": "Obsidian Glass Material",
-  "trim_material.macroengine.prismarine_shard": "Prismarine Shard Material",
-
   "item.macroengine.repair_kit": "Repair Kit",
   "item.macroengine.repair_kit.lore": "macroEngine utility item",
   "item.macroengine.marker_tag": "Marker Tag",
