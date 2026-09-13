@@ -24,3 +24,13 @@ function macroengine:core/internal/api/cmd/freeze/tick
 # no-op unless its own flag is on, checked internally by the callee.
 function macroengine:experimental/particle_trail/tick
 function macroengine:experimental/combat_tag/tick
+
+# BACKPORT/FIX NOTE: the old cleanup line here used
+#   kill @e[type=minecraft:item,nbt={Item:{components:{"minecraft:custom_data":{macroengine:{input:1b}}}}}]
+# nbt= cannot match into Item.components (component maps aren't NBT tags,
+# not since 1.20.5) — this selector matched nothing on every version we
+# support, so the marker items were never actually being killed here.
+# Replaced with a predicate match against macroengine:is_input_marker
+# (data/macroengine/predicate/is_input_marker.json), which checks
+# minecraft:custom_data via minecraft:matches_item / entity_properties.
+kill @e[type=minecraft:item,predicate=macroengine:is_input_marker]
