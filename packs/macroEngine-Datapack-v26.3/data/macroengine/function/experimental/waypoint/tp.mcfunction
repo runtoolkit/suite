@@ -6,7 +6,7 @@
 # Usage:  function macroengine:experimental/waypoint/tp {name:"base"}
 # Caller: any player
 
-# # execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/waypoint is disabled.","color":"red"}]
+execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/waypoint is disabled.","color":"red"}]
 execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run return 0
 
 # # $execute unless data storage macroengine:engine waypoints."$(name)" run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"no waypoint named ","color":"red"},{"text":"$(name)","color":"aqua"}]
