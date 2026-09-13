@@ -5,7 +5,7 @@
 # Usage:  function macroengine:experimental/waypoint/set {name:"base"}
 # Caller: any player
 
-# # execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/waypoint is disabled.","color":"red"}]
+execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"experimental/waypoint is disabled.","color":"red"}]
 execute unless data storage macroengine:engine flags.experimental{waypoint:1b} run return 0
 
 data modify storage macroengine:engine _waypoint_tmp set value {}
