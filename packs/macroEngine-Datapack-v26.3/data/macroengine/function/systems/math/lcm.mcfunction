@@ -9,7 +9,7 @@
 # data modify storage macroengine:input a set value 12
 # data modify storage macroengine:input b set value 8
 # function macroengine:systems/math/lcm with storage macroengine:input {}
-# # macroengine:output result = 24
+macroengine:output result = 24
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $lcm_a macroengine.tmp $(a)

@@ -9,7 +9,7 @@
 # data modify storage macroengine:input min set value 10
 # data modify storage macroengine:input max set value 20
 # function macroengine:systems/math/is_between with storage macroengine:input {}
-# # macroengine:output result = 1b
+macroengine:output result = 1b
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $ib_v macroengine.tmp $(value)
