@@ -26,30 +26,183 @@ tasks.register('buildAll') {
 }
 
 // ---------------------------------------------------------------------------
+// Origin watermark helpers
+//
+// Every pack under packs/ is expected to carry a _rt_origin.mcfunction file
+// (under data/<namespace>/function/) proving it came from this monorepo and
+// wasn't hand-assembled or swapped before packaging. Kept as a shared
+// closure so zipPacks, showOriginWatermarks, and cleanOriginWatermarks all
+// agree on how a watermark file is found.
+// ---------------------------------------------------------------------------
+def findOriginWatermarks = { File packsRoot ->
+    def found = []
+    if (packsRoot.exists()) {
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == '_rt_origin.mcfunction' && !f.path.contains("${File.separator}build${File.separator}")) {
+                found << f
+            }
+        }
+    }
+    found
+}
+
+def findPackDirs = { File packsRoot ->
+    def dirs = []
+    if (packsRoot.exists()) {
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                dirs << f.parentFile
+            }
+        }
+    }
+    dirs
+}
+
+// ---------------------------------------------------------------------------
+// showOriginWatermarks: prints every _rt_origin.mcfunction file found under
+// packs/ with its full content, so the watermark is visible before anything
+// gets deleted.
+// ---------------------------------------------------------------------------
+tasks.register('showOriginWatermarks') {
+    group = 'verification'
+    description = 'Prints the content of every _rt_origin.mcfunction watermark found under packs/.'
+    def packsRoot = file('packs')
+    doLast {
+        def watermarks = findOriginWatermarks(packsRoot)
+        if (watermarks.isEmpty()) {
+            println "No _rt_origin.mcfunction watermark files found under packs/."
+            return
+        }
+        watermarks.sort { it.path }.each { f ->
+            println "==================================================================="
+            println "Watermark: ${packsRoot.toPath().relativize(f.toPath())}"
+            println "-------------------------------------------------------------------"
+            println f.text
+        }
+        println "==================================================================="
+        println "${watermarks.size()} watermark file(s) listed."
+    }
+}
+
+// ---------------------------------------------------------------------------
+// cleanOriginWatermarks: shows then deletes every _rt_origin.mcfunction file
+// under packs/. This is the ONLY task in this build that deletes watermark
+// files. It always shows them first (dependsOn showOriginWatermarks) and it
+// is wired as finalizedBy on zipPacks below, so it can only run after
+// zipPacks has actually produced the zips (and therefore only after the
+// watermark's presence has already been verified and packaged). Running
+// `cleanOriginWatermarks` on its own, without `zipPacks` having run this
+// session, is refused: that ordering is the only enforcement this build can
+// give — nothing stops a file being deleted by hand outside Gradle, so
+// don't treat this as a filesystem-level lock, just as the build's own
+// sanctioned path for cleanup.
+// ---------------------------------------------------------------------------
+tasks.register('cleanOriginWatermarks') {
+    group = 'build'
+    description = 'Shows then deletes every _rt_origin.mcfunction watermark under packs/. Only runs after zipPacks in the same invocation.'
+    dependsOn 'showOriginWatermarks'
+    def packsRoot = file('packs')
+    doLast {
+        if (!gradle.taskGraph.hasTask(':zipPacks')) {
+            throw new GradleException(
+                "cleanOriginWatermarks refused: this task only deletes watermarks as a follow-up to " +
+                "zipPacks in the same build invocation (it is registered as zipPacks.finalizedBy). " +
+                "Run `./gradlew zipPacks` (which will trigger this automatically), not this task alone."
+            )
+        }
+        def watermarks = findOriginWatermarks(packsRoot)
+        watermarks.each { f ->
+            f.delete()
+            println "Deleted watermark: ${packsRoot.toPath().relativize(f.toPath())}"
+        }
+        println "cleanOriginWatermarks: removed ${watermarks.size()} watermark file(s)."
+    }
+}
+
+// ---------------------------------------------------------------------------
 // zipPacks: finds every folder under packs/ containing a pack.mcmeta
 // (datapack or resource pack, data/ and/or assets/) and zips each one
 // independently into build/packs-dist/<folder-name>.zip
+//
+// Before zipping:
+//   1. Every pack dir must contain a _rt_origin.mcfunction watermark, or the
+//      build fails (provenance can't be verified for that pack).
+//   2. A confirmation gate prints the watermarks that are about to be
+//      packaged and (a) requires -PconfirmZip=yes on the command line, or
+//      (b) if running interactively with no -PconfirmZip flag, prompts on
+//      stdin and requires the user to type "yes".
+// After zipping, cleanOriginWatermarks runs automatically (finalizedBy) to
+// show and then remove the watermark files that were just packaged.
 // ---------------------------------------------------------------------------
 tasks.register('zipPacks') {
     group = 'build'
-    description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/'
+    description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/ (requires + consumes _rt_origin.mcfunction watermarks).'
     def packsRoot = file('packs')
     def outDir = file('build/packs-dist')
-    doLast {
-        outDir.mkdirs()
-        if (!packsRoot.exists()) {
-            println "No packs/ directory found, skipping."
+
+    doFirst {
+        def packDirs = findPackDirs(packsRoot)
+        if (packDirs.isEmpty()) {
             return
         }
-        def packDirs = []
-        packsRoot.eachFileRecurse { f ->
-            // FIX: exclude pack.mcmeta files accidentally nested under build/ or
-            // similar output folders (e.g. a copy extracted from a previous zip),
-            // otherwise duplicate/dirty zips get produced.
-            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
-                packDirs << f.parentFile
+
+        // 1. Provenance guard: every pack must have its watermark.
+        def missing = packDirs.findAll { dir ->
+            dir.eachFileRecurse { f -> }
+            def hasWatermark = false
+            dir.eachFileRecurse { f ->
+                if (f.name == '_rt_origin.mcfunction') {
+                    hasWatermark = true
+                }
             }
+            !hasWatermark
         }
+        if (missing) {
+            def details = missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+            throw new GradleException(
+                "zipPacks failed: the following pack(s) are missing a _rt_origin.mcfunction watermark " +
+                "under data/<namespace>/function/, so provenance cannot be verified before packaging:\n${details}\n" +
+                "Add the watermark before zipping."
+            )
+        }
+
+        // 2. Pre-zip warning + confirmation.
+        def watermarks = findOriginWatermarks(packsRoot)
+        println "==================================================================="
+        println "About to package ${packDirs.size()} pack(s) into ZIP archives."
+        println "The following origin watermarks will be embedded and then removed"
+        println "from the source tree by cleanOriginWatermarks once packaging finishes:"
+        watermarks.sort { it.path }.each { f ->
+            println "  - ${packsRoot.toPath().relativize(f.toPath())}"
+        }
+        println "==================================================================="
+
+        def confirmed = false
+        if (project.hasProperty('confirmZip')) {
+            confirmed = (project.property('confirmZip').toString().toLowerCase() == 'yes')
+            if (!confirmed) {
+                throw new GradleException(
+                    "zipPacks aborted: -PconfirmZip was set but not to 'yes'. Pass -PconfirmZip=yes to proceed."
+                )
+            }
+        } else if (System.console() != null) {
+            print "Proceed with packaging and watermark cleanup? Type 'yes' to continue: "
+            def answer = System.console().readLine()
+            confirmed = (answer?.trim()?.toLowerCase() == 'yes')
+            if (!confirmed) {
+                throw new GradleException("zipPacks aborted: confirmation not received.")
+            }
+        } else {
+            throw new GradleException(
+                "zipPacks aborted: no interactive console available and -PconfirmZip=yes was not passed. " +
+                "Re-run with -PconfirmZip=yes (e.g. in CI) or run interactively and confirm the prompt."
+            )
+        }
+    }
+
+    doLast {
+        outDir.mkdirs()
+        def packDirs = findPackDirs(packsRoot)
         if (packDirs.isEmpty()) {
             println "No pack.mcmeta files found under packs/."
             return
@@ -64,6 +217,10 @@ tasks.register('zipPacks') {
         }
         println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}"
     }
+
+    // Cleanup only happens as a consequence of zipPacks completing —
+    // this is the ordering guarantee described above cleanOriginWatermarks.
+    finalizedBy 'cleanOriginWatermarks'
 }
 
 // Make zipPacks run as part of the normal build
