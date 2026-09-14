@@ -1,0 +1,8 @@
+{
+    "pack": {
+        "pack_format": 121,
+        "max_format": [121, 1],
+        "min_format": [121, 1],
+        "description": "DailyBonus - once-per-in-game-day login reward by Runtoolkit"
+    }
+}
