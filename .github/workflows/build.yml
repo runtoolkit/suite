@@ -35,7 +35,14 @@ jobs:
         # partial/empty artifacts forward even on failure. release-packs uses
         # needs: build, so it won't run if the build job is genuinely marked
         # FAILED - that part was already correct, left untouched.
-        run: ./gradlew buildAll --continue
+        #
+        # FIX 2: buildAll depends on zipPacks (see build.gradle), and zipPacks
+        # now requires explicit confirmation before packaging (either an
+        # interactive 'yes' within a timeout, or -PconfirmZip=yes). CI has no
+        # interactive stdin, so without this flag the zipPacks step inside
+        # buildAll would always fail here. -PconfirmZip=yes is the sanctioned
+        # non-interactive path for CI, per build.gradle's own error message.
+        run: ./gradlew buildAll --continue -PconfirmZip=yes
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v6
@@ -97,7 +104,12 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: Build pack zips
-        run: ./gradlew zipPacks
+        # FIX: zipPacks now requires confirmation before packaging (see
+        # build.gradle). CI has no interactive console/stdin, so the
+        # bounded-timeout prompt would just time out and fail every run.
+        # -PconfirmZip=yes is the flag build.gradle itself documents as the
+        # non-interactive path for CI.
+        run: ./gradlew zipPacks -PconfirmZip=yes
       - name: Remove stale pack assets from release
         # A pack can be renamed or deleted from packs/ (e.g. a version bump
         # like macroEngine-Resourcepack-v26.2 -> v26.3). softprops/action-gh-release
