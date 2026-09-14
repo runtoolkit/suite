@@ -174,6 +174,10 @@ tasks.register('zipPacks') {
         // 2. Pre-zip warning + confirmation.
         def watermarks = findOriginWatermarks(packsRoot)
         println "==================================================================="
+        println "runtoolkit/suite - MIT License, Copyright (c) 2026 Runtoolkit"
+        println "See LICENSE for full license text and NOTICE.md / CONTRIBUTING.md"
+        println "for the project's usage and _rt_origin.mcfunction watermark policy."
+        println "-------------------------------------------------------------------"
         println "About to package ${packDirs.size()} pack(s) into ZIP archives."
         println "Watermarks stay untouched in packs/. They will only be stripped from"
         println "the build/packs-remap/ working copy used to build the ZIPs:"
@@ -190,18 +194,47 @@ tasks.register('zipPacks') {
                     "zipPacks aborted: -PconfirmZip was set but not to 'yes'. Pass -PconfirmZip=yes to proceed."
                 )
             }
-        } else if (System.console() != null) {
-            print "Proceed with packaging (watermarks stripped from the remap copy only)? Type 'yes' to continue: "
-            def answer = System.console().readLine()
+        } else {
+            // FIX: System.console() is null in many interactive-but-not-a-real-TTY
+            // environments (VS Code integrated terminal, Codespaces, some IDE
+            // consoles), which previously made zipPacks abort immediately even
+            // though a person was right there able to answer. Read from System.in
+            // instead (works in both a real console and these environments), but
+            // don't block forever: give it a bounded timeout and treat a timeout
+            // as "not confirmed" so a truly non-interactive run (CI with no
+            // -PconfirmZip) still fails fast instead of hanging the build.
+            def timeoutSeconds = 15
+            println "Proceed with packaging (watermarks stripped from the remap copy only)?"
+            print "Type 'yes' to continue (auto-cancels in ${timeoutSeconds}s with no input): "
+            System.out.flush()
+
+            def answerHolder = new java.util.concurrent.atomic.AtomicReference<String>(null)
+            def reader = Thread.start {
+                try {
+                    def line = System.in.newReader().readLine()
+                    answerHolder.set(line)
+                } catch (Exception ignored) {
+                    // stdin closed/unavailable - leave answerHolder null, handled below
+                }
+            }
+            reader.join(timeoutSeconds * 1000L)
+
+            if (reader.isAlive()) {
+                // Timed out waiting for input.
+                reader.interrupt()
+                throw new GradleException(
+                    "zipPacks aborted: no 'yes' received within ${timeoutSeconds}s (timed out waiting for input). " +
+                    "Re-run and confirm promptly, or pass -PconfirmZip=yes to skip the prompt (e.g. in CI)."
+                )
+            }
+
+            def answer = answerHolder.get()
             confirmed = (answer?.trim()?.toLowerCase() == 'yes')
             if (!confirmed) {
-                throw new GradleException("zipPacks aborted: confirmation not received.")
+                throw new GradleException(
+                    "zipPacks aborted: confirmation not received (expected 'yes', got: ${answer ?: '<no input>'})."
+                )
             }
-        } else {
-            throw new GradleException(
-                "zipPacks aborted: no interactive console available and -PconfirmZip=yes was not passed. " +
-                "Re-run with -PconfirmZip=yes (e.g. in CI) or run interactively and confirm the prompt."
-            )
         }
     }
 
