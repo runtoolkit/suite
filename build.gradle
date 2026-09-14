@@ -26,43 +26,259 @@ tasks.register('buildAll') {
 }
 
 // ---------------------------------------------------------------------------
+// Origin watermark helpers
+//
+// Every pack under packs/ is expected to carry a _rt_origin.mcfunction file
+// (under data/<namespace>/function/) proving it came from this monorepo and
+// wasn't hand-assembled or swapped before packaging. Kept as a shared
+// closure so zipPacks, showOriginWatermarks, and cleanOriginWatermarks all
+// agree on how a watermark file is found.
+// ---------------------------------------------------------------------------
+def findOriginWatermarks = { File packsRoot ->
+    def found = []
+    if (packsRoot.exists()) {
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == '_rt_origin.mcfunction' && !f.path.contains("${File.separator}build${File.separator}")) {
+                found << f
+            }
+        }
+    }
+    found
+}
+
+def findPackDirs = { File packsRoot ->
+    def dirs = []
+    if (packsRoot.exists()) {
+        packsRoot.eachFileRecurse { f ->
+            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
+                dirs << f.parentFile
+            }
+        }
+    }
+    dirs
+}
+
+// ---------------------------------------------------------------------------
+// showOriginWatermarks: prints every _rt_origin.mcfunction file found under
+// packs/ with its full content, so the watermark is visible before anything
+// gets deleted.
+// ---------------------------------------------------------------------------
+tasks.register('showOriginWatermarks') {
+    group = 'verification'
+    description = 'Prints the content of every _rt_origin.mcfunction watermark found under packs/.'
+    def packsRoot = rootProject.file('packs')
+    doLast {
+        def watermarks = findOriginWatermarks(packsRoot)
+        if (watermarks.isEmpty()) {
+            println "No _rt_origin.mcfunction watermark files found under packs/."
+            return
+        }
+        watermarks.sort { it.path }.each { f ->
+            println "==================================================================="
+            println "Watermark: ${packsRoot.toPath().relativize(f.toPath())}"
+            println "-------------------------------------------------------------------"
+            println f.text
+        }
+        println "==================================================================="
+        println "${watermarks.size()} watermark file(s) listed."
+    }
+}
+
+// ---------------------------------------------------------------------------
+// cleanOriginWatermarks: DISABLED BY DESIGN.
+//
+// Previously this task deleted _rt_origin.mcfunction files from packs/
+// (the real source tree) as a finalizedBy step after zipPacks. That is no
+// longer the desired behavior: watermarks must persist permanently in
+// packs/ as proof of origin, and are only ever stripped from the disposable
+// build/packs-remap/ working copy that zipPacks builds ZIPs from (see
+// zipPacks above). This task is kept registered (so external references to
+// `cleanOriginWatermarks` don't break the build) but always refuses to run,
+// so nothing can delete a watermark from packs/ anymore, accidentally or
+// otherwise.
+// ---------------------------------------------------------------------------
+tasks.register('cleanOriginWatermarks') {
+    group = 'build'
+    description = 'DISABLED: watermarks in packs/ are no longer deleted by the build. See zipPacks (build/packs-remap/).'
+    doLast {
+        throw new GradleException(
+            "cleanOriginWatermarks is disabled: watermarks in packs/ are permanent and are never deleted " +
+            "by this build anymore. zipPacks now strips watermarks only from the disposable " +
+            "build/packs-remap/ copy it builds ZIPs from. packs/ is never touched."
+        )
+    }
+}
+
+// ---------------------------------------------------------------------------
 // zipPacks: finds every folder under packs/ containing a pack.mcmeta
 // (datapack or resource pack, data/ and/or assets/) and zips each one
 // independently into build/packs-dist/<folder-name>.zip
+//
+// Before zipping:
+//   1. Every pack dir must contain a _rt_origin.mcfunction watermark, or the
+//      build fails (provenance can't be verified for that pack).
+//   2. A confirmation gate prints the watermarks that are about to be
+//      packaged and (a) requires -PconfirmZip=yes on the command line, or
+//      (b) if running interactively with no -PconfirmZip flag, prompts on
+//      stdin and requires the user to type "yes".
+// After zipping, cleanOriginWatermarks runs automatically (finalizedBy) to
+// show and then remove the watermark files that were just packaged.
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// zipPacks (remap flow): the source tree under packs/ is NEVER modified.
+// Watermarks stay in packs/ permanently as proof of origin.
+//
+// Flow:
+//   1. Provenance guard on packs/ (unchanged): every pack must have its
+//      watermark before anything is packaged.
+//   2. Confirmation gate (unchanged semantics).
+//   3. Each pack dir is COPIED to build/packs-remap/<pack-name>/.
+//   4. The watermark is removed ONLY from the build/packs-remap/ copy.
+//   5. The ZIP is built from the cleaned build/packs-remap/ copy, so the
+//      final .zip does NOT contain _rt_origin.mcfunction.
+//   6. packs/ itself is untouched at every step — nothing is ever deleted
+//      from the repository.
 // ---------------------------------------------------------------------------
 tasks.register('zipPacks') {
     group = 'build'
-    description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/'
-    def packsRoot = file('packs')
+    description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/, stripping watermarks from a build/packs-remap/ copy only (packs/ is never modified).'
+    def packsRoot = rootProject.file('packs')
+    def remapDir = file('build/packs-remap')
     def outDir = file('build/packs-dist')
-    doLast {
-        outDir.mkdirs()
-        if (!packsRoot.exists()) {
-            println "No packs/ directory found, skipping."
+
+    doFirst {
+        def packDirs = findPackDirs(packsRoot)
+        if (packDirs.isEmpty()) {
             return
         }
-        def packDirs = []
-        packsRoot.eachFileRecurse { f ->
-            // FIX: exclude pack.mcmeta files accidentally nested under build/ or
-            // similar output folders (e.g. a copy extracted from a previous zip),
-            // otherwise duplicate/dirty zips get produced.
-            if (f.name == 'pack.mcmeta' && !f.path.contains("${File.separator}build${File.separator}")) {
-                packDirs << f.parentFile
+
+        // 1. Provenance guard: every pack must have its watermark.
+        def missing = packDirs.findAll { dir ->
+            def hasWatermark = false
+            dir.eachFileRecurse { f ->
+                if (f.name == '_rt_origin.mcfunction') {
+                    hasWatermark = true
+                }
+            }
+            !hasWatermark
+        }
+        if (missing) {
+            def details = missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+            throw new GradleException(
+                "zipPacks failed: the following pack(s) are missing a _rt_origin.mcfunction watermark " +
+                "under data/<namespace>/function/, so provenance cannot be verified before packaging:\n${details}\n" +
+                "Add the watermark before zipping."
+            )
+        }
+
+        // 2. Pre-zip warning + confirmation.
+        def watermarks = findOriginWatermarks(packsRoot)
+        println "==================================================================="
+        println "runtoolkit/suite - MIT License, Copyright (c) 2026 Runtoolkit"
+        println "See LICENSE for full license text and NOTICE.md / CONTRIBUTING.md"
+        println "for the project's usage and _rt_origin.mcfunction watermark policy."
+        println "-------------------------------------------------------------------"
+        println "About to package ${packDirs.size()} pack(s) into ZIP archives."
+        println "Watermarks stay untouched in packs/. They will only be stripped from"
+        println "the build/packs-remap/ working copy used to build the ZIPs:"
+        watermarks.sort { it.path }.each { f ->
+            println "  - ${packsRoot.toPath().relativize(f.toPath())}"
+        }
+        println "==================================================================="
+
+        def confirmed = false
+        if (project.hasProperty('confirmZip')) {
+            confirmed = (project.property('confirmZip').toString().toLowerCase() == 'yes')
+            if (!confirmed) {
+                throw new GradleException(
+                    "zipPacks aborted: -PconfirmZip was set but not to 'yes'. Pass -PconfirmZip=yes to proceed."
+                )
+            }
+        } else {
+            // FIX: System.console() is null in many interactive-but-not-a-real-TTY
+            // environments (VS Code integrated terminal, Codespaces, some IDE
+            // consoles), which previously made zipPacks abort immediately even
+            // though a person was right there able to answer. Read from System.in
+            // instead (works in both a real console and these environments), but
+            // don't block forever: give it a bounded timeout and treat a timeout
+            // as "not confirmed" so a truly non-interactive run (CI with no
+            // -PconfirmZip) still fails fast instead of hanging the build.
+            def timeoutSeconds = 15
+            println "Proceed with packaging (watermarks stripped from the remap copy only)?"
+            print "Type 'yes' to continue (auto-cancels in ${timeoutSeconds}s with no input): "
+            System.out.flush()
+
+            def answerHolder = new java.util.concurrent.atomic.AtomicReference<String>(null)
+            def reader = Thread.start {
+                try {
+                    def line = System.in.newReader().readLine()
+                    answerHolder.set(line)
+                } catch (Exception ignored) {
+                    // stdin closed/unavailable - leave answerHolder null, handled below
+                }
+            }
+            reader.join(timeoutSeconds * 1000L)
+
+            if (reader.isAlive()) {
+                // Timed out waiting for input.
+                reader.interrupt()
+                throw new GradleException(
+                    "zipPacks aborted: no 'yes' received within ${timeoutSeconds}s (timed out waiting for input). " +
+                    "Re-run and confirm promptly, or pass -PconfirmZip=yes to skip the prompt (e.g. in CI)."
+                )
+            }
+
+            def answer = answerHolder.get()
+            confirmed = (answer?.trim()?.toLowerCase() == 'yes')
+            if (!confirmed) {
+                throw new GradleException(
+                    "zipPacks aborted: confirmation not received (expected 'yes', got: ${answer ?: '<no input>'})."
+                )
             }
         }
+    }
+
+    doLast {
+        def packDirs = findPackDirs(packsRoot)
         if (packDirs.isEmpty()) {
             println "No pack.mcmeta files found under packs/."
             return
         }
+
+        // 3. Fresh remap workspace every run, so stale copies never linger.
+        if (remapDir.exists()) {
+            remapDir.deleteDir()
+        }
+        remapDir.mkdirs()
+        outDir.mkdirs()
+
         packDirs.each { dir ->
             def relPath = packsRoot.toPath().relativize(dir.toPath()).toString()
             def safeName = relPath.replace(File.separator, '-').replace('/', '-')
+
+            // Copy source pack -> build/packs-remap/<safeName>/ (packs/ untouched).
+            def remapPackDir = new File(remapDir, safeName)
+            remapPackDir.mkdirs()
+            ant.copy(todir: remapPackDir.absolutePath) {
+                fileset(dir: dir.absolutePath)
+            }
+
+            // 4. Strip the watermark from the remap copy only.
+            def stripped = 0
+            remapPackDir.eachFileRecurse { f ->
+                if (f.name == '_rt_origin.mcfunction') {
+                    f.delete()
+                    stripped++
+                }
+            }
+
+            // 5. Zip from the cleaned remap copy.
             def zipName = "${safeName}.zip"
             def zipFile = new File(outDir, zipName)
-            println "Zipping ${dir} -> build/packs-dist/${zipName}"
-            ant.zip(destfile: zipFile.absolutePath, basedir: dir.absolutePath)
+            println "Zipping ${remapPackDir} -> build/packs-dist/${zipName} (stripped ${stripped} watermark(s) from remap copy)"
+            ant.zip(destfile: zipFile.absolutePath, basedir: remapPackDir.absolutePath)
         }
-        println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}"
+        println "Done: ${packDirs.size()} pack(s) zipped into ${outDir}. packs/ source tree left untouched."
     }
 }
 
@@ -76,7 +292,7 @@ tasks.named('buildAll') { dependsOn 'zipPacks' }
 tasks.register('checkPacks') {
     group = 'verification'
     description = 'Validates that every pack.mcmeta under packs/ is valid JSON and declares a format (pack_format, or min_format/max_format for 1.21.9+).'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         if (!packsRoot.exists()) {
             println "No packs/ directory found, skipping."
@@ -120,7 +336,7 @@ tasks.named('zipPacks') { dependsOn 'checkPacks' }
 tasks.register('printPackList') {
     group = 'help'
     description = 'Lists every detected pack folder under packs/ without zipping anything.'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         if (!packsRoot.exists()) {
             println "No packs/ directory found."
@@ -163,7 +379,7 @@ tasks.register('printPackList') {
 tasks.register('mergeDatapacks') {
     group = 'build'
     description = 'Merges the packs listed in packs/merge-manifest.json into build/merged-datapack/.'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     def manifestFile = file('packs/merge-manifest.json')
     def outDir = file('build/merged-datapack')
     doLast {
@@ -344,6 +560,11 @@ tasks.matching { it.name == 'clean' }.configureEach {
         if (outDir.exists()) {
             outDir.deleteDir()
             println "Cleaned build/packs-dist/"
+        }
+        def remapDir = file('build/packs-remap')
+        if (remapDir.exists()) {
+            remapDir.deleteDir()
+            println "Cleaned build/packs-remap/"
         }
     }
 }
