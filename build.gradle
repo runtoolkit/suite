@@ -115,7 +115,8 @@ tasks.register('cleanOriginWatermarks') {
 // independently into build/packs-dist/<folder-name>.zip
 //
 // Before zipping:
-//   1. Every pack dir must contain a _rt_origin.mcfunction watermark, or the
+//   1. Every pack dir must contain a _rt_origin.mcfunction watermark (unless
+//      it is purely a Resource Pack with assets/ and no data/), or the
 //      build fails (provenance can't be verified for that pack).
 //   2. A confirmation gate prints the watermarks that are about to be
 //      packaged and (a) requires -PconfirmZip=yes on the command line, or
@@ -129,8 +130,8 @@ tasks.register('cleanOriginWatermarks') {
 // Watermarks stay in packs/ permanently as proof of origin.
 //
 // Flow:
-//   1. Provenance guard on packs/ (unchanged): every pack must have its
-//      watermark before anything is packaged.
+//   1. Provenance guard on packs/ (datapacks only): required packs must have
+//      their watermark before anything is packaged.
 //   2. Confirmation gate (unchanged semantics).
 //   3. Each pack dir is COPIED to build/packs-remap/<pack-name>/.
 //   4. The watermark is removed ONLY from the build/packs-remap/ copy.
@@ -152,8 +153,13 @@ tasks.register('zipPacks') {
             return
         }
 
-        // 1. Provenance guard: every pack must have its watermark.
+        // 1. Provenance guard: datapacks must have watermarks; resource packs (assets/ only) bypass this check.
         def missing = packDirs.findAll { dir ->
+            def isResourcePack = new File(dir, 'assets').exists() && !new File(dir, 'data').exists()
+            if (isResourcePack) {
+                return false
+            }
+
             def hasWatermark = false
             dir.eachFileRecurse { f ->
                 if (f.name == '_rt_origin.mcfunction') {

@@ -12,8 +12,7 @@ rootProject.name = 'runtoolkit-suite'
 // Reason for each is noted so future edits know why it's here.
 def EXCLUDED_PROJECT_DIRS = [
     'mods/datapack-fixer',
-    'packs/RTWrapper/rtwrapper-fabric',
-    'packs/macroEngine-Resourcepack-v26.3'
+    'packs/RTWrapper/rtwrapper-fabric'
 ]
 
 // Recursively find every build.gradle(.kts) under mods/, packs/, examples/
