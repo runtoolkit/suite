@@ -45,7 +45,6 @@ jobs:
           cp -r tmp_datalib/data/dl_load out/injected/data/
           cp -r tmp_datalib/data/stringlib out/injected/data/
           cp -r tmp_datalib/data/datalib.main out/injected/data/
-          cp -r tmp_datalib/data/stringlib out/injected/data/
 
           LOAD_FILE="out/injected/data/${NS}/function/load.mcfunction"
           mkdir -p "$(dirname "$LOAD_FILE")"
