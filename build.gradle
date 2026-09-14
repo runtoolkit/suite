@@ -66,7 +66,7 @@ def findPackDirs = { File packsRoot ->
 tasks.register('showOriginWatermarks') {
     group = 'verification'
     description = 'Prints the content of every _rt_origin.mcfunction watermark found under packs/.'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         def watermarks = findOriginWatermarks(packsRoot)
         if (watermarks.isEmpty()) {
@@ -101,7 +101,7 @@ tasks.register('cleanOriginWatermarks') {
     group = 'build'
     description = 'Shows then deletes every _rt_origin.mcfunction watermark under packs/. Only runs after zipPacks in the same invocation.'
     dependsOn 'showOriginWatermarks'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         if (!gradle.taskGraph.hasTask(':zipPacks')) {
             throw new GradleException(
@@ -137,7 +137,7 @@ tasks.register('cleanOriginWatermarks') {
 tasks.register('zipPacks') {
     group = 'build'
     description = 'Zips every pack.mcmeta-containing folder under packs/ into build/packs-dist/ (requires + consumes _rt_origin.mcfunction watermarks).'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     def outDir = file('build/packs-dist')
 
     doFirst {
@@ -233,7 +233,7 @@ tasks.named('buildAll') { dependsOn 'zipPacks' }
 tasks.register('checkPacks') {
     group = 'verification'
     description = 'Validates that every pack.mcmeta under packs/ is valid JSON and declares a format (pack_format, or min_format/max_format for 1.21.9+).'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         if (!packsRoot.exists()) {
             println "No packs/ directory found, skipping."
@@ -277,7 +277,7 @@ tasks.named('zipPacks') { dependsOn 'checkPacks' }
 tasks.register('printPackList') {
     group = 'help'
     description = 'Lists every detected pack folder under packs/ without zipping anything.'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     doLast {
         if (!packsRoot.exists()) {
             println "No packs/ directory found."
@@ -320,7 +320,7 @@ tasks.register('printPackList') {
 tasks.register('mergeDatapacks') {
     group = 'build'
     description = 'Merges the packs listed in packs/merge-manifest.json into build/merged-datapack/.'
-    def packsRoot = file('packs')
+    def packsRoot = rootProject.file('packs')
     def manifestFile = file('packs/merge-manifest.json')
     def outDir = file('build/merged-datapack')
     doLast {
