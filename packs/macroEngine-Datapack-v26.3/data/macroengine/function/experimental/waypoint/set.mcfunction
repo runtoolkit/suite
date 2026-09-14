@@ -18,4 +18,4 @@ execute unless data storage macroengine:engine waypoints run data modify storage
 $data modify storage macroengine:engine waypoints."$(name)" set from storage macroengine:engine _waypoint_tmp
 data remove storage macroengine:engine _waypoint_tmp
 
-# # $tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"waypoint ","color":"gray"},{"text":"$(name)","color":"aqua"},{"text":" set","color":"green"}]
+$tellraw @s ["",{"text":"[MACROENGINE] ","color":"#00AAAA","bold":true},{"text":"waypoint ","color":"gray"},{"text":"$(name)","color":"aqua"},{"text":" set","color":"green"}]

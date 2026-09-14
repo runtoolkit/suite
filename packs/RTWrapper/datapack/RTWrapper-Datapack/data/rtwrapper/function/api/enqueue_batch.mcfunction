@@ -13,7 +13,7 @@
 #
 # Deliberately NOT included here (left for a later -pre2 pass): atomic all-or-nothing
 # rollback, and short-circuiting the rest of a batch if one element's dispatch sets
-# #errors. Right now a failed element just increments #errors and the batch continues.
+errors. Right now a failed element just increments #errors and the batch continues.
 
 execute unless data storage rtwrapper:api batch[0] run return 0
 

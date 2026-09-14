@@ -26,7 +26,7 @@
 #
 # BACKPORT NOTE (1.21.2): same constraint as api/toggle/show.mcfunction —
 # no `dialog show` (added 1.21.6 / pack format 80) available here, so this
-# # # is a fixed clickable tellraw menu, not a native dialog screen.
+# is a fixed clickable tellraw menu, not a native dialog screen.
 
 execute unless entity @s[tag=macroengine.admin] run return 0
 
