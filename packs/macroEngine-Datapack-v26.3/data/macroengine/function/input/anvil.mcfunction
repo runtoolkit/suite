@@ -32,4 +32,4 @@
 execute store success score #macroengine.AnvilHit macroengine.tmp if items entity @a player.cursor *[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}}]
 execute if score #macroengine.AnvilHit macroengine.tmp matches 0 run return 0
 
-execute as @a if items entity @s player.cursor *[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}}] run function macroengine:input/private/anvil_capture
+execute as @a at @s anchored eyes positioned ^ ^ ^1.5 unless block ~ ~ ~ minecraft:anvil if items entity @s player.cursor *[minecraft:custom_data={macroengine:{input:1b,inputItem:"anvil"}}] run function macroengine:input/private/anvil_capture
