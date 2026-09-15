@@ -7,7 +7,7 @@
 # Usage (inside your tick system function):
 # function macroengine:systems/rate_limit/channel/check {id:"my_system"}
 # execute if data storage macroengine:output {result:0b} run return 0
-... rest of the system's logic
+# ... rest of the system's logic
 #
 # Rule must be registered via:
 # function macroengine:systems/rate_limit/config {key:"channel:my_system",limit:5,window:20}

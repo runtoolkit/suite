@@ -15,7 +15,7 @@
 # data modify storage macroengine:input b set value 1000000
 # data modify storage macroengine:input c set value 500000
 # function macroengine:systems/math/mul_div with storage macroengine:input {}
-macroengine:output result = 2000000
+# macroengine:output result = 2000000
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $md_a macroengine.tmp $(a)
