@@ -9,7 +9,7 @@
 # data modify storage macroengine:input b set value 200
 # data modify storage macroengine:input c set value 300
 # function macroengine:systems/math/sum3 with storage macroengine:input {}
-macroengine:output result = 600
+# macroengine:output result = 600
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $s3_a macroengine.tmp $(a)

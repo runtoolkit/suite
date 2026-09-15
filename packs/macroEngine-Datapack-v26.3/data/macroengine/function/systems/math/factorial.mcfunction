@@ -13,7 +13,7 @@
 #
 # Example:
 # function macroengine:systems/math/factorial {n:5}
-macroengine:output result = 120
+# macroengine:output result = 120
 # function macroengine:systems/math/factorial {n:0}
 macroengine:output result = 1
 # ─────────────────────────────────────────────────────────────────

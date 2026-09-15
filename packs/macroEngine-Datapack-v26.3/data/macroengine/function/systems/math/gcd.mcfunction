@@ -8,7 +8,7 @@
 # data modify storage macroengine:input a set value 48
 # data modify storage macroengine:input b set value 18
 # function macroengine:systems/math/gcd with storage macroengine:input {}
-macroengine:output result = 6
+# macroengine:output result = 6
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $gcd_a macroengine.tmp $(a)
