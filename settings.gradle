@@ -1,3 +1,17 @@
+// =============================================================================
+// runtoolkit/suite - settings.gradle
+//
+// Responsible for:
+//   1. Plugin repositories (pluginManagement).
+//   2. Auto-discovering every buildable subproject under mods/, packs/,
+//      examples/ and wiring it into the multi-project build.
+//
+// Nothing in this file should need editing when a new mod/pack subproject is
+// added - drop a build.gradle(.kts) anywhere under those three roots and it
+// is picked up automatically. Edit EXCLUDED_PROJECT_DIRS below only when a
+// subproject must be deliberately kept out of the Gradle build.
+// =============================================================================
+
 pluginManagement {
     repositories {
         maven { url 'https://maven.fabricmc.net/' }
@@ -8,40 +22,95 @@ pluginManagement {
 
 rootProject.name = 'runtoolkit-suite'
 
-// Subprojects to skip entirely (kept as files, not wired into the Gradle build).
-// Reason for each is noted so future edits know why it's here.
+// -----------------------------------------------------------------------
+// Roots to scan for subprojects. Each entry is a top-level directory
+// relative to the repo root; every build.gradle(.kts) found underneath it
+// (at any nesting depth) becomes a Gradle subproject.
+// -----------------------------------------------------------------------
+def SCAN_ROOTS = ['mods', 'packs', 'examples']
+
+// -----------------------------------------------------------------------
+// Subprojects to skip entirely (kept as files on disk, not wired into the
+// Gradle build). Paths are relative to the repo root. A reason is required
+// for every entry so future edits know why it's here instead of having to
+// dig through git blame.
+// -----------------------------------------------------------------------
 def EXCLUDED_PROJECT_DIRS = [
-    'mods/datapack-fixer',
-    'packs/RTWrapper/rtwrapper-fabric'
+    'mods/datapack-fixer'               : 'legacy tool, not yet migrated to the shared build - see mods/datapack-fixer/README',
+    'packs/RTWrapper/rtwrapper-fabric'  : 'superseded by mods/rtwrapper-mod; kept only for historical reference',
 ]
 
-// Recursively find every build.gradle(.kts) under mods/, packs/, examples/
-// and include it as a subproject, regardless of nesting depth.
+// Set debugSettings=1 on the command line (-PdebugSettings=1) for verbose
+// per-directory discovery logging. Off by default to keep normal `gradle
+// tasks` / `gradle build` output readable.
+def DEBUG = startParameter.projectProperties.get('debugSettings') == '1'
+def debugLog = { String msg -> if (DEBUG) println "[settings:debug] ${msg}" }
+
+println "[settings] runtoolkit-suite: discovering subprojects under ${SCAN_ROOTS.join(', ')}"
+
+// -----------------------------------------------------------------------
+// Recursively finds every build.gradle / build.gradle.kts under `base`
+// and includes it as a Gradle subproject at path ":<base>:<relative-dir>".
+// Skips:
+//   - anything inside a build/ or .gradle/ directory (build output, never
+//     a real subproject definition)
+//   - anything listed in EXCLUDED_PROJECT_DIRS (with a logged reason)
+// Returns the number of subprojects it included, for the summary below.
+// -----------------------------------------------------------------------
 def includeIfGradle = { String base ->
     File baseDir = file(base)
     if (!baseDir.exists() || !baseDir.isDirectory()) {
-        return
+        println "[settings] WARNING: scan root '${base}' does not exist - skipping (0 subprojects)."
+        return 0
     }
+
+    int includedCount = 0
     baseDir.eachFileRecurse { File f ->
-        if (f.name == 'build.gradle' || f.name == 'build.gradle.kts') {
-            File dir = f.parentFile
-            if (dir.path.contains(File.separator + 'build' + File.separator) ||
-                dir.path.contains(File.separator + '.gradle' + File.separator)) {
-                return
-            }
-            String relToRoot = rootDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, '/')
-            if (EXCLUDED_PROJECT_DIRS.any { relToRoot == it || relToRoot.startsWith(it + '/') }) {
-                return
-            }
-            String rel = baseDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, ':')
-            def path = ":${base}:${rel}"
-            if (!findProject(path)) {
-                include(path)
-                project(path).projectDir = dir
-            }
+        if (f.name != 'build.gradle' && f.name != 'build.gradle.kts') {
+            return
         }
+
+        File dir = f.parentFile
+        if (dir.path.contains(File.separator + 'build' + File.separator) ||
+            dir.path.contains(File.separator + '.gradle' + File.separator)) {
+            debugLog("ignoring ${f} (inside a build/.gradle output directory)")
+            return
+        }
+
+        String relToRoot = rootDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, '/')
+        def exclusionReason = EXCLUDED_PROJECT_DIRS.find { excludedPath, reason ->
+            relToRoot == excludedPath || relToRoot.startsWith(excludedPath + '/')
+        }?.value
+        if (exclusionReason != null) {
+            println "[settings] excluding ${relToRoot} (${exclusionReason})"
+            return
+        }
+
+        String rel = baseDir.toPath().relativize(dir.toPath()).toString().replace(File.separator, ':')
+        def path = ":${base}:${rel}"
+        if (findProject(path)) {
+            debugLog("skipping ${path} - already included")
+            return
+        }
+
+        include(path)
+        project(path).projectDir = dir
+        includedCount++
+        debugLog("included ${path} -> ${dir}")
     }
+    return includedCount
 }
-includeIfGradle('mods')
-includeIfGradle('packs')
-includeIfGradle('examples')
+
+// -----------------------------------------------------------------------
+// Run discovery for every scan root and print a one-line-per-root summary
+// so `gradle projects` output and CI logs make it obvious, at a glance,
+// how many subprojects were found where - without needing -PdebugSettings.
+// -----------------------------------------------------------------------
+def discoverySummary = SCAN_ROOTS.collectEntries { root -> [(root): includeIfGradle(root)] }
+
+println "[settings] subproject discovery summary:"
+discoverySummary.each { root, count ->
+    println "[settings]   ${root}/ -> ${count} subproject(s)"
+}
+println "[settings]   total: ${discoverySummary.values().sum()} subproject(s), " +
+        "${EXCLUDED_PROJECT_DIRS.size()} excluded"
