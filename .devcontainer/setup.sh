@@ -1,5 +1,9 @@
 #!/bin/bash
 set -e
+gh alias delete run-bash
+gh alias delete save
+gh alias delete commit
+gh alias delete sync
 
 # ── Package manager detection ─────────────────────────────────────────
 for PM in apt-get apt yum dnf apk; do
@@ -184,17 +188,19 @@ fi
 
 RAW_CMD="$*"
 
-REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
-CURRENT_USER=$(gh api user -q .login 2>/dev/null || true)
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
+CURRENT_USER=$(gh api user -q .login 2>/dev/null || echo "")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 
-CMD="${RAW_CMD//\{repo\}/$REPO_FULL}"
-CMD="${CMD//\{user\}/$CURRENT_USER}"
-CMD="${CMD//\{branch\}/$CURRENT_BRANCH}"
+CMD=$(printf "%s" "$RAW_CMD" | sed \
+  -e "s|{repo}|$REPO_FULL|g" \
+  -e "s|{user}|$CURRENT_USER|g" \
+  -e "s|{branch}|$CURRENT_BRANCH|g"
+)
 
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 LOG_FILE="$HOME/.gh_run_bash_history.log"
-START_TIME=$SECONDS
+START_TIME=$(date +%s)
 
 echo "🚀 Original: $RAW_CMD"
 echo "🎯 Resolved: $CMD"
@@ -204,7 +210,8 @@ echo "--------------------------------------------------"
 eval "$CMD"
 EXIT_CODE=$?
 
-ELAPSED=$((SECONDS - START_TIME))
+END_TIME=$(date +%s)
+ELAPSED=$((END_TIME - START_TIME))
 
 echo "--------------------------------------------------"
 
