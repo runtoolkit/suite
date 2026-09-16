@@ -9,7 +9,7 @@
 # data modify storage macroengine:input key set value "my_feature"
 # data modify storage macroengine:input default set value 0b
 # function macroengine:systems/flag/get_or_default with storage macroengine:input {}
-macroengine:output result = 0b (if flag not set)
+# macroengine:output result = 0b (if flag not set)
 # ─────────────────────────────────────────────────────────────────
 
 $data modify storage macroengine:output result set value $(default)

@@ -11,7 +11,7 @@
 # data modify storage macroengine:input v2 set value 30
 # data modify storage macroengine:input count set value 3
 # function macroengine:systems/math/average with storage macroengine:input {}
-macroengine:output result = 20
+# macroengine:output result = 20
 # ─────────────────────────────────────────────────────────────────
 
 $scoreboard players set $avg_c macroengine.tmp $(count)
