@@ -109,61 +109,67 @@ append_path "/opt/gradle/bin"
 
 # ── Workspace ────────────────────────────────────────────────────────
 cd /workspaces/suite
-gh alias set --shell commit 'msg=""; push=false; files=(); while [ "$#" -gt 0 ]; do case "$1" in -m|--message) [ "$#" -ge 2 ] || { echo "Error: -m requires a message."; return 2; }; msg="$2"; shift 2;; --push) push=true; shift;; --) shift; files+=("$@"); break;; *) files+=("$1"); shift;; esac; done; [ -n "$msg" ] || { echo "Error: commit message is required."; echo "Usage: gh commit -m \"message\" [--push] [files...]"; return 2; }; [ "${#files[@]}" -gt 0 ] || { echo "Error: no files specified."; return 2; }; git add -- "${files[@]}" && git commit -m "$msg" && if [ "$push" = true ]; then git push; fi'
 
-gh alias set --shell save 'msg="$*"; [ -n "$msg" ] || { echo "Error: commit message is required."; echo "Usage: gh save \"commit message\""; return 2; }; git add . && git commit -m "$msg"'
+# Commit
+gh alias set --shell commit '
+msg="";
+push=false;
 
-gh alias set --shell sync 'git pull --rebase && git push'
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -m|--message)
+      [ "$#" -ge 2 ] || { echo "Error: $1 requires a message."; exit 2; }
+      msg="$2";
+      shift 2
+      ;;
+    --push)
+      push=true;
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      if [ -z "$msg" ]; then
+        msg="$1";
+        shift
+      else
+        break
+      fi
+      ;;
+  esac
+done
 
-gh alias set --shell run-bash '!f() {
-  if [ "$#" -eq 0 ]; then
-    echo "Error: No command provided."
-    echo "Usage: gh run-bash "<command with placeholders>""
-    echo "Placeholders: {repo}, {user}, {branch}"
-    return 1
-  fi
+[ -n "$msg" ] || {
+  echo "Error: commit message is required.";
+  echo "Usage: gh commit \"message\" [files...] [--push]";
+  echo "   or: gh commit -m \"message\" [files...] [--push]";
+  exit 2;
+}
 
-  RAW_CMD="$*"
+git add -- "$@" || exit $?
+git commit -m "$msg" || exit $?
 
-  # Resolve GitHub/Git context dynamically
-  REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
-  CURRENT_USER=$(gh api user -q .login 2>/dev/null || true)
-  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+if [ "$push" = true ]; then
+  git push
+fi
+'
 
-  # Replace placeholders
-  CMD="${RAW_CMD//\{repo\}/$REPO_FULL}"
-  CMD="${CMD//\{user\}/$CURRENT_USER}"
-  CMD="${CMD//\{branch\}/$CURRENT_BRANCH}"
+# Save
+gh alias set --shell save '
+msg="$*";
 
-  TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
-  LOG_FILE="$HOME/.gh_run_bash_history.log"
-  START_TIME=$SECONDS
+[ -n "$msg" ] || {
+  echo "Error: commit message is required.";
+  echo "Usage: gh save \"commit message\"";
+  exit 2;
+}
 
-  echo "🚀 Original: $RAW_CMD"
-  echo "🎯 Resolved: $CMD"
-  echo "📅 Started at: $TIMESTAMP"
-  echo "--------------------------------------------------"
+git add . && git commit -m "$msg"
+'
 
-  # Intentionally execute the resolved command through the shell.
-  eval "$CMD"
-  EXIT_CODE=$?
 
-  ELAPSED=$((SECONDS - START_TIME))
-
-  echo "--------------------------------------------------"
-
-  if [ "$EXIT_CODE" -eq 0 ]; then
-    echo "✅ Executed successfully in ${ELAPSED}s"
-  else
-    echo "❌ Failed with exit code $EXIT_CODE in ${ELAPSED}s"
-  fi
-
-  # Audit trail
-  printf '[%s] EXIT:%s | DURATION:%ss | CMD: %s\n' \
-    "$TIMESTAMP" "$EXIT_CODE" "$ELAPSED" "$CMD" >> "$LOG_FILE"
-
-  return "$EXIT_CODE"
-}; f'
 chmod +x gradlew 2>/dev/null || true
 
 mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
