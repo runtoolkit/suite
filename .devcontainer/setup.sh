@@ -242,7 +242,7 @@ mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
 EOF
 
 # Push
-gh alias set --shell sync '
+gh alias set --shell push '
 gh run-bash "git push {branch}"
 '
 
