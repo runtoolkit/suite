@@ -90,14 +90,29 @@ jobs:
         uses: actions/checkout@v6
       - name: Run scripts/gui_generator/generate.py script
         run: python3 scripts/gui_generator/generate.py && mkdir -p packs/guigen-example && cp -r scripts/gui_generator/output/datapack packs/guigen-example
+      - name: Upload generated pack
+        # Saklama: bu adım olmadan generate.py'nin ürettiği packs/guigen-example
+        # bu job'la birlikte kaybolurdu, çünkü her job kendi temiz runner'ında
+        # çalışır ve dosya sistemi job'lar arası paylaşılmaz. release-packs bu
+        # artifact'ı indirip packs/ altına koyacak.
+        uses: actions/upload-artifact@v6
+        with:
+          name: guigen-example-pack
+          path: packs/guigen-example
+          if-no-files-found: error
+          retention-days: 93
 
   release-packs:
     name: Publish packs to a permanent release
-    needs: [ build, lint ]
+    needs: [ build, lint, run-generate-py ]
     # FIX: needs previously only listed 'build'. This meant release-packs
     # would still trigger and publish zips even if the lint job failed -
     # the lint job's result had no effect on the release, making it
     # effectively cosmetic. Added 'lint' to needs.
+    #
+    # FIX 3: added 'run-generate-py' to needs. The generated pack must exist
+    # in packs/ before zipPacks runs below, or it won't be included in the
+    # release zips.
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     permissions:
@@ -114,6 +129,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+      - name: Download generated pack
+        # Yayınlama: run-generate-py'de saklanan artifact'ı checkout edilmiş
+        # repo'nun packs/ dizini altına indiriyoruz, zipPacks çalışmadan önce -
+        # böylece diğer paketlerle birlikte zip'lenip release'e dahil olur.
+        uses: actions/download-artifact@v6
+        with:
+          name: guigen-example-pack
+          path: packs/guigen-example
       - name: Build pack zips
         # FIX: zipPacks now requires confirmation before packaging (see
         # build.gradle). CI has no interactive console/stdin, so the
