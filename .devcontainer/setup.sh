@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+# Alias'ları sil (yoksa hata verme)
+gh alias delete run-bash 2>/dev/null || true
+gh alias delete save 2>/dev/null || true
+gh alias delete commit 2>/dev/null || true
+gh alias delete sync 2>/dev/null || true
+gh alias delete push 2>/dev/null || true
+
 # ── Package manager detection ─────────────────────────────────────────
 for PM in apt-get apt yum dnf apk; do
   if command -v "$PM" &>/dev/null; then PKG="$PM"; break; fi
@@ -63,7 +70,7 @@ else
   wget -q -O /tmp/node.tar.gz \
     "https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.gz"
   $SUDO tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
-  rm /tmp/node.tar.gz
+  rm -f /tmp/node.tar.gz
 fi
 
 # ── SDKMAN ────────────────────────────────────────────────────────────
@@ -80,12 +87,19 @@ append_env \
 
 # ── Java 25 (via SDKMAN, default candidate) ────────────────────────────
 echo "☕ Installing Java 25 via SDKMAN..."
-JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-tem' | head -1)"
+# Daha sağlam aday tespiti
+JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-tem' | head -1 || true)"
+if [ -z "$JAVA25_CANDIDATE" ]; then
+  # Alternatif: temurin 25
+  JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-temurin' | head -1 || true)"
+fi
 if [ -z "$JAVA25_CANDIDATE" ]; then
   echo "❌ SDKMAN'da Java 25 (Temurin) sürümü bulunamadı!" >&2
   exit 1
 fi
-if ! sdk list java 2>/dev/null | grep -q "installed.*$JAVA25_CANDIDATE\|$JAVA25_CANDIDATE.*installed"; then
+echo "  Candidate: $JAVA25_CANDIDATE"
+
+if ! sdk list java 2>/dev/null | grep -qE "(installed.*$JAVA25_CANDIDATE|$JAVA25_CANDIDATE.*installed)"; then
   sdk install java "$JAVA25_CANDIDATE" < /dev/null
 fi
 sdk default java "$JAVA25_CANDIDATE"
@@ -100,15 +114,136 @@ if [ ! -f "/opt/gradle/bin/gradle" ]; then
     "https://services.gradle.org/distributions/gradle-9.4.0-bin.zip"
   $SUDO mkdir -p /tmp/gradle-extract /opt/gradle
   $SUDO unzip -q /tmp/gradle.zip -d /tmp/gradle-extract
-  $SUDO cp -r /tmp/gradle-extract/gradle-9.4.0/. /opt/gradle/
+  $SUDO cp -a /tmp/gradle-extract/gradle-9.4.0/. /opt/gradle/
   $SUDO rm -rf /tmp/gradle-extract /tmp/gradle.zip
 else
-  echo "  Already installed: $(/opt/gradle/bin/gradle -v | grep Gradle)"
+  echo "  Already installed: $(/opt/gradle/bin/gradle -v | grep Gradle || true)"
 fi
 append_path "/opt/gradle/bin"
 
 # ── Workspace ────────────────────────────────────────────────────────
 cd /workspaces/suite
+
+# Commit
+gh alias set --shell commit '
+msg="";
+push=false;
+files=();
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -m|--message)
+      [ "$#" -ge 2 ] || { echo "Error: $1 requires a message."; exit 2; }
+      msg="$2";
+      shift 2
+      ;;
+    --push)
+      push=true;
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      if [ -z "$msg" ]; then
+        msg="$1";
+        shift
+      else
+        files+=("$1");
+        shift
+      fi
+      ;;
+  esac
+done
+
+[ -n "$msg" ] || {
+  echo "Error: commit message is required.";
+  echo "Usage: gh commit \"message\" [files...] [--push]";
+  echo "   or: gh commit -m \"message\" [files...] [--push]";
+  exit 2;
+}
+
+if [ ${#files[@]} -eq 0 ]; then
+  git add -A || exit $?
+else
+  git add -- "${files[@]}" || exit $?
+fi
+git commit -m "$msg" || exit $?
+
+if [ "$push" = true ]; then
+  git push
+fi
+'
+
+# Save
+gh alias set --shell save '
+msg="$*";
+
+[ -n "$msg" ] || {
+  echo "Error: commit message is required.";
+  echo "Usage: gh save \"commit message\"";
+  exit 2;
+}
+
+git add . && git commit -m "$msg"
+'
+
+# Sync
+gh alias set --shell sync '
+git pull --rebase && git push
+'
+
+# Bash
+gh alias set --shell run-bash '
+if [ "$#" -eq 0 ]; then
+  echo "Error: No command provided."
+  echo "Usage: gh run-bash \"<command with placeholders>\""
+  echo "Placeholders: {repo}, {user}, {branch}"
+  exit 1
+fi
+
+RAW_CMD="$*"
+
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
+CURRENT_USER=$(gh api user -q .login 2>/dev/null || echo "")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+
+CMD=$(printf "%s" "$RAW_CMD" | sed \
+  -e "s|{repo}|$REPO_FULL|g" \
+  -e "s|{user}|$CURRENT_USER|g" \
+  -e "s|{branch}|$CURRENT_BRANCH|g"
+)
+
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+LOG_FILE="$HOME/.gh_run_bash_history.log"
+START_TIME=$(date +%s)
+
+echo "🚀 Original: $RAW_CMD"
+echo "🎯 Resolved: $CMD"
+echo "📅 Started at: $TIMESTAMP"
+echo "--------------------------------------------------"
+
+eval "$CMD"
+EXIT_CODE=$?
+
+END_TIME=$(date +%s)
+ELAPSED=$((END_TIME - START_TIME))
+
+echo "--------------------------------------------------"
+
+if [ "$EXIT_CODE" -eq 0 ]; then
+  echo "✅ Executed successfully in ${ELAPSED}s"
+else
+  echo "❌ Failed with exit code $EXIT_CODE in ${ELAPSED}s"
+fi
+
+printf "[%s] EXIT:%s | DURATION:%ss | CMD: %s\n" \
+  "$TIMESTAMP" "$EXIT_CODE" "$ELAPSED" "$CMD" >> "$LOG_FILE"
+
+exit "$EXIT_CODE"
+'
+
 chmod +x gradlew 2>/dev/null || true
 
 mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
@@ -122,13 +257,18 @@ mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
 }
 EOF
 
+# Push (daha doğru: origin + branch)
+gh alias set --shell push '
+gh run-bash "git push -u origin {branch}"
+'
+
 # ── Done ──────────────────────────────────────────────────────────────
 echo ""
 echo "✅ Versions:"
 node -v
 npm -v
 java -version
-/opt/gradle/bin/gradle -v | grep Gradle
+/opt/gradle/bin/gradle -v | grep Gradle || true
 jq --version
 shellcheck --version | head -1
 git lfs version

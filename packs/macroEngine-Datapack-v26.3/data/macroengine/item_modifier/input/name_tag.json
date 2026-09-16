@@ -1,0 +1,9 @@
+{
+    "type": "minecraft:set_custom_data",
+    "tag": {
+        "macroengine": {
+            "input": true,
+            "inputItem": "name_tag"
+        }
+    }
+}
