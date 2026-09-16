@@ -72,8 +72,16 @@ def _handler_for(menu: Menu, w: Widget) -> list[str]:
         s = w.counter_score
         d = w.counter_delta
         mn, mx = w.counter_min, w.counter_max
+        # `scoreboard players add` only accepts non-negative literals in
+        # vanilla syntax; a negative delta must go through `remove` with
+        # its absolute value instead, or the command is invalid.
+        step_cmd = (
+            f"scoreboard players add @s {s} {d}"
+            if d >= 0
+            else f"scoreboard players remove @s {s} {abs(d)}"
+        )
         lines += [
-            f"scoreboard players add @s {s} {d}",
+            step_cmd,
             # clamp
             f"execute if score @s {s} matches {mx + 1}.. run scoreboard players set @s {s} {mx}",
             f"execute if score @s {s} matches ..{mn - 1} run scoreboard players set @s {s} {mn}",
