@@ -7,6 +7,7 @@
 #
 # Merged in from the former macroengine.main:macroengine/tick (runtoolkit
 # dispatch removed — this function is now called directly via
+# #minecraft:tick, see data/minecraft/tags/function/tick.json).
 # minecraft:tick, see data/minecraft/tags/function/tick.json).
 
 # Config-level pause guard (separate from the storage-level pause below)

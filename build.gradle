@@ -9,15 +9,28 @@
 // Sections in this file, in order:
 //   1. Shared repositories (allprojects)
 //   2. Aggregate tasks: lint, buildAll
-//   3. Origin watermark helpers (shared by section 4)
+//   3. Origin watermark helpers (shared by section 4) + showOriginWatermarks /
+//      cleanOriginWatermarks (disabled) / checkOriginWatermarks
+//   3b. copyDirRecursive / zipDirectory helpers (used by zipPacks) +
+//       findMissingWatermarks provenance-guard helper (shared by
+//       zipPacks and checkOriginWatermarks)
 //   4. zipPacks - packages every pack under packs/ into build/packs-dist/
-//   5. checkPacks / printPackList - pack.mcmeta validation and listing
+//   5. checkPacks / printPackList / printModList - pack.mcmeta validation and listing
 //   6. mergeDatapacks - merges packs/merge-manifest.json into one datapack
 //   7. clean task extension - also wipes build/packs-dist and packs-remap
 //
 // Logging convention: every task prefixes its own output with "[taskName]"
 // so `gradle buildAll` (which runs several of these back to back) never
 // produces an ambiguous line - you can always tell which task printed what.
+//
+// Gradle 10 compatibility note: every doFirst/doLast/configureEach action in
+// this file avoids live Project API access at execution time (the bare
+// 'subprojects' getter, 'project.hasProperty'/'project.property', 'file(...)',
+// and AntBuilder via 'ant.copy'/'ant.zip' all resolve through Project, and
+// Gradle deprecated - and will remove in Gradle 10 - calling any of them once
+// a task is executing). Anything a doFirst/doLast needs from the Project is
+// captured into a plain local variable during configuration instead; see the
+// comments on 'lint', 'buildAll', 'zipPacks', and the 'clean' extension.
 // =============================================================================
 
 // -----------------------------------------------------------------------
@@ -40,10 +53,15 @@ tasks.register('lint') {
     // so up-to-date checks, the task graph, and logging all work correctly.
     def checkstyleTasks = subprojects.collect { sub -> sub.tasks.matching { it.name == 'checkstyleMain' } }
     dependsOn checkstyleTasks
+    // Captured at configuration time: the bare 'subprojects' getter resolves
+    // through Project, and calling it (like project.hasProperty/ant.copy
+    // elsewhere in this file) from inside doFirst/doLast is the deprecated,
+    // Gradle-10-incompatible "Task.project at execution time" pattern.
+    def totalSubprojectCount = subprojects.size()
+    def withCheckstylePaths = subprojects.findAll { sub -> sub.tasks.findByName('checkstyleMain') != null }.collect { it.path }
     doFirst {
-        def withCheckstyle = subprojects.findAll { sub -> sub.tasks.findByName('checkstyleMain') != null }
-        println "[lint] running checkstyleMain on ${withCheckstyle.size()}/${subprojects.size()} subproject(s):"
-        withCheckstyle.each { println "[lint]   - ${it.path}" }
+        println "[lint] running checkstyleMain on ${withCheckstylePaths.size()}/${totalSubprojectCount} subproject(s):"
+        withCheckstylePaths.each { println "[lint]   - ${it}" }
     }
     doLast {
         println "[lint] completed (ran checkstyleMain where present)."
@@ -57,9 +75,11 @@ tasks.register('buildAll') {
     // configuration time) so this doesn't fail if a subproject doesn't have
     // a 'build' task yet.
     dependsOn subprojects.collect { it.tasks.matching { t -> t.name == 'build' } }
+    // Captured at configuration time - see the 'lint' task above for why.
+    def totalSubprojectCount = subprojects.size()
+    def buildableCount = subprojects.count { it.tasks.findByName('build') != null }
     doFirst {
-        def buildable = subprojects.findAll { it.tasks.findByName('build') != null }
-        println "[buildAll] building ${buildable.size()}/${subprojects.size()} subproject(s) that declare a 'build' task."
+        println "[buildAll] building ${buildableCount}/${totalSubprojectCount} subproject(s) that declare a 'build' task."
     }
     doLast {
         println "[buildAll] done."
@@ -97,6 +117,64 @@ def findPackDirs = { File packsRoot ->
         }
     }
     dirs
+}
+
+// Shared provenance guard: given the pack dirs found by findPackDirs, returns
+// how many were exempted as resource-pack-only, and which datapacks are
+// missing their _rt_origin.mcfunction watermark. Used by both zipPacks (which
+// aborts the build on a miss) and checkOriginWatermarks (a standalone,
+// non-interactive check with no zip/build side effects) so the "what counts
+// as missing a watermark" logic is defined exactly once.
+def findMissingWatermarks = { List<File> packDirs ->
+    def resourcePackCount = 0
+    def missing = packDirs.findAll { dir ->
+        def isResourcePack = new File(dir, 'assets').exists() && !new File(dir, 'data').exists()
+        if (isResourcePack) {
+            resourcePackCount++
+            return false
+        }
+        def hasWatermark = false
+        dir.eachFileRecurse { f ->
+            if (f.name == '_rt_origin.mcfunction') {
+                hasWatermark = true
+            }
+        }
+        !hasWatermark
+    }
+    [resourcePackCount: resourcePackCount, missing: missing]
+}
+
+// -----------------------------------------------------------------------
+// 3b. Copy/zip helpers (used by zipPacks)
+//
+// Deliberately plain java.nio.file/java.util.zip instead of ant.copy/
+// ant.zip: AntBuilder is exposed via Project.getAnt(), and calling it from
+// inside a doLast/doFirst action is exactly the "Invocation of Task.project
+// at execution time" pattern Gradle deprecated and removes in Gradle 10.
+// These helpers touch no Project API at all, so they stay valid there with
+// no change in behavior (same recursive copy, same zip entry layout).
+// -----------------------------------------------------------------------
+def copyDirRecursive = { File srcDir, File destDir ->
+    srcDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+        def rel = srcDir.toPath().relativize(f.toPath())
+        def target = destDir.toPath().resolve(rel)
+        java.nio.file.Files.createDirectories(target.parent)
+        java.nio.file.Files.copy(f.toPath(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+
+def zipDirectory = { File srcDir, File zipFile ->
+    zipFile.parentFile.mkdirs()
+    new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(zipFile)).withCloseable { zos ->
+        def files = []
+        srcDir.eachFileRecurse(groovy.io.FileType.FILES) { files << it }
+        files.sort { it.path }.each { f ->
+            def rel = srcDir.toPath().relativize(f.toPath()).toString().replace(File.separator, '/')
+            zos.putNextEntry(new java.util.zip.ZipEntry(rel))
+            f.withInputStream { is -> zos << is }
+            zos.closeEntry()
+        }
+    }
 }
 
 tasks.register('showOriginWatermarks') {
@@ -144,6 +222,40 @@ tasks.register('cleanOriginWatermarks') {
     }
 }
 
+// checkOriginWatermarks: standalone, non-interactive provenance check.
+//
+// zipPacks already refuses to build if a datapack is missing its watermark,
+// but that check only runs as a side effect of the full (interactive,
+// confirmation-gated) zip build. There was previously no way to ask "does
+// every pack have its watermark?" on its own - e.g. in a PR-check CI job
+// that shouldn't also produce ZIPs or prompt for confirmation. This task
+// runs the same findMissingWatermarks guard used by zipPacks, but only
+// reads packs/ - it never writes to build/ and never touches packs/.
+tasks.register('checkOriginWatermarks') {
+    group = 'verification'
+    description = 'Verifies every non-resource-pack folder under packs/ has a _rt_origin.mcfunction watermark. Read-only: unlike zipPacks, never prompts, never zips, never touches build/.'
+    def packsRoot = rootProject.file('packs')
+    doLast {
+        def packDirs = findPackDirs(packsRoot)
+        println "[checkOriginWatermarks] scanning ${packsRoot} -> found ${packDirs.size()} pack(s) with a pack.mcmeta."
+        if (packDirs.isEmpty()) {
+            return
+        }
+        def guard = findMissingWatermarks(packDirs)
+        def watermarkedCount = packDirs.size() - guard.resourcePackCount - guard.missing.size()
+        println "[checkOriginWatermarks] ${guard.resourcePackCount} resource-pack-only dir(s) exempted, " +
+                "${watermarkedCount} datapack(s) have a watermark."
+        if (guard.missing) {
+            def details = guard.missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+            throw new GradleException(
+                "[checkOriginWatermarks] failed: the following pack(s) are missing a _rt_origin.mcfunction " +
+                "watermark under data/<namespace>/function/:\n${details}"
+            )
+        }
+        println "[checkOriginWatermarks] OK: all ${watermarkedCount} datapack(s) have a watermark."
+    }
+}
+
 // -----------------------------------------------------------------------
 // 4. zipPacks
 //
@@ -173,6 +285,17 @@ tasks.register('zipPacks') {
     def packsRoot = rootProject.file('packs')
     def remapDir = file('build/packs-remap')
     def outDir = file('build/packs-dist')
+    // Captured at configuration time (task registration body runs during
+    // configuration, not execution). '-P' project properties are fixed for
+    // the whole build invocation before configuration even starts, so
+    // reading it here is equivalent to reading it later - but reading it
+    // later, from inside doFirst, would be a live 'project.hasProperty'/
+    // 'project.property' call during task execution, which Gradle
+    // deprecated and removes in Gradle 10 ("Invocation of Task.project at
+    // execution time"). See also the 'lint'/'buildAll' tasks above, and the
+    // copyDirRecursive/zipDirectory helpers (section 3b) for the same fix
+    // applied to ant.copy/ant.zip below.
+    def confirmZipProp = project.findProperty('confirmZip')
 
     doFirst {
         def packDirs = findPackDirs(packsRoot)
@@ -182,26 +305,12 @@ tasks.register('zipPacks') {
         }
 
         // 1. Provenance guard: datapacks must have watermarks; resource packs (assets/ only) bypass this check.
-        def resourcePackCount = 0
-        def missing = packDirs.findAll { dir ->
-            def isResourcePack = new File(dir, 'assets').exists() && !new File(dir, 'data').exists()
-            if (isResourcePack) {
-                resourcePackCount++
-                return false
-            }
-
-            def hasWatermark = false
-            dir.eachFileRecurse { f ->
-                if (f.name == '_rt_origin.mcfunction') {
-                    hasWatermark = true
-                }
-            }
-            !hasWatermark
-        }
-        println "[zipPacks] provenance guard: ${resourcePackCount} resource-pack-only dir(s) exempted, " +
-                "${packDirs.size() - resourcePackCount - missing.size()} datapack(s) have a watermark."
-        if (missing) {
-            def details = missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+        //    Shared with checkOriginWatermarks - see findMissingWatermarks (section 3b).
+        def guard = findMissingWatermarks(packDirs)
+        println "[zipPacks] provenance guard: ${guard.resourcePackCount} resource-pack-only dir(s) exempted, " +
+                "${packDirs.size() - guard.resourcePackCount - guard.missing.size()} datapack(s) have a watermark."
+        if (guard.missing) {
+            def details = guard.missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
             throw new GradleException(
                 "[zipPacks] failed: the following pack(s) are missing a _rt_origin.mcfunction watermark " +
                 "under data/<namespace>/function/, so provenance cannot be verified before packaging:\n${details}\n" +
@@ -225,9 +334,9 @@ tasks.register('zipPacks') {
         println "==================================================================="
 
         def confirmed = false
-        if (project.hasProperty('confirmZip')) {
-            confirmed = (project.property('confirmZip').toString().toLowerCase() == 'yes')
-            println "[zipPacks] -PconfirmZip=${project.property('confirmZip')} supplied on the command line."
+        if (confirmZipProp != null) {
+            confirmed = (confirmZipProp.toString().toLowerCase() == 'yes')
+            println "[zipPacks] -PconfirmZip=${confirmZipProp} supplied on the command line."
             if (!confirmed) {
                 throw new GradleException(
                     "[zipPacks] aborted: -PconfirmZip was set but not to 'yes'. Pass -PconfirmZip=yes to proceed."
@@ -301,9 +410,7 @@ tasks.register('zipPacks') {
             // Copy source pack -> build/packs-remap/<safeName>/ (packs/ untouched).
             def remapPackDir = new File(remapDir, safeName)
             remapPackDir.mkdirs()
-            ant.copy(todir: remapPackDir.absolutePath) {
-                fileset(dir: dir.absolutePath)
-            }
+            copyDirRecursive(dir, remapPackDir)
 
             // 4. Strip the watermark from the remap copy only.
             def stripped = 0
@@ -318,7 +425,7 @@ tasks.register('zipPacks') {
             def zipName = "${safeName}.zip"
             def zipFile = new File(outDir, zipName)
             println "[zipPacks] zipping ${remapPackDir} -> build/packs-dist/${zipName} (stripped ${stripped} watermark(s) from remap copy)"
-            ant.zip(destfile: zipFile.absolutePath, basedir: remapPackDir.absolutePath)
+            zipDirectory(remapPackDir, zipFile)
         }
         println "[zipPacks] done: ${packDirs.size()} pack(s) zipped into ${outDir}. packs/ source tree left untouched."
     }
@@ -394,6 +501,35 @@ tasks.register('printPackList') {
         } else {
             println "[printPackList] detected ${found.size()} pack(s):"
             found.sort().each { println "[printPackList]   - ${it}" }
+        }
+    }
+}
+
+// printModList: the mods/ counterpart to printPackList above. There was
+// previously no way to list mod subprojects without either reading
+// settings.gradle by hand or running a real build ('buildAll'/':mods:x:build').
+// A mod folder is detected the same way Gradle itself would include it as a
+// subproject: it's an immediate child of mods/ with its own build.gradle.
+tasks.register('printModList') {
+    group = 'help'
+    description = 'Lists every detected Fabric mod folder under mods/ (immediate subfolders with their own build.gradle) without building anything.'
+    def modsRoot = rootProject.file('mods')
+    doLast {
+        if (!modsRoot.exists()) {
+            println "[printModList] no mods/ directory found."
+            return
+        }
+        def found = []
+        modsRoot.eachFile { d ->
+            if (d.isDirectory() && new File(d, 'build.gradle').exists()) {
+                found << d.name
+            }
+        }
+        if (found.isEmpty()) {
+            println "[printModList] no mods found."
+        } else {
+            println "[printModList] detected ${found.size()} mod(s):"
+            found.sort().each { println "[printModList]   - ${it}" }
         }
     }
 }
@@ -609,15 +745,19 @@ tasks.register('mergeDatapacks') {
 // regardless of how a subproject overrides 'clean'.
 // -----------------------------------------------------------------------
 tasks.matching { it.name == 'clean' }.configureEach {
+    // Captured at configuration time (configureEach's own closure body runs
+    // during task realization/configuration, before any doLast runs) - see
+    // the 'lint' task above for why 'file(...)' can't be called from inside
+    // doLast itself.
+    def packsDistDir = file('build/packs-dist')
+    def packsRemapDir = file('build/packs-remap')
     doLast {
-        def outDir = file('build/packs-dist')
-        if (outDir.exists()) {
-            outDir.deleteDir()
+        if (packsDistDir.exists()) {
+            packsDistDir.deleteDir()
             println "[clean] removed build/packs-dist/"
         }
-        def remapDir = file('build/packs-remap')
-        if (remapDir.exists()) {
-            remapDir.deleteDir()
+        if (packsRemapDir.exists()) {
+            packsRemapDir.deleteDir()
             println "[clean] removed build/packs-remap/"
         }
     }
