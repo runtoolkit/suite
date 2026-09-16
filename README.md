@@ -110,6 +110,7 @@ The following repos were moved into this monorepo and are now **private**:
 - [TEMPLATE-MOD](https://github.com/runtoolkit/TEMPLATE-MOD)
 - [inv_gui](https://github.com/runtoolkit/inv_gui)
 - [macroEngine](https://github.com/runtoolkit/macroEngine)
+- [guigen](https://github.com/runtoolkit/guigen)
 
 ## Skipped repos (empty or inconsistent)
 
