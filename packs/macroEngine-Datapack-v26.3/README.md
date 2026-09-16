@@ -4,7 +4,7 @@
 **macroEngine** is a macro/module framework datapack for Minecraft Java Edition, providing a large library of reusable command-based systems (math, string, NBT, geo, permissions, UUID cache, hooks, rate limiting, and more) plus a multi-source text/value input system (dialogs, books, signs, lecterns, name tags, command block minecarts).
 
 > Owner: [runtoolkit](https://github.com/runtoolkit)
-> Minecraft: **26.3-rc-1** (`pack_format` / `min_format`–`max_format` **121**)
+> Minecraft: **26.3** (`pack_format` / `min_format`–`max_format` **121**)
 > License: MIT
 > Namespace: `macroengine`
 
@@ -26,7 +26,7 @@
 
 ## Requirements
 
-- Minecraft Java Edition **26.3-rc-1**
+- Minecraft Java Edition **26.3**
 - Datapack `min_format`/`max_format`: **121**
 
 ---
@@ -58,8 +58,7 @@ Internal systems under `systems/` are used by API functions and are not intended
 
 ## Notes
 
-- This is the 26.3-rc-1 line of macroEngine, part of the `runtoolkit/suite` monorepo (`packs/macroEngine-Datapack-v26.3`).
-- A parallel `packs/macroEngine-Datapack-1.21.2` build exists for older-version support.
+- This is the 26.3 line of macroEngine, part of the `runtoolkit/suite` monorepo (`packs/macroEngine-Datapack-v26.3`).
 - Experimental features are opt-in via `api/toggle/experimental/true` and are not guaranteed stable between versions.
 
 ---
