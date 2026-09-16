@@ -435,6 +435,154 @@ tasks.register('zipPacks') {
 tasks.named('buildAll') { dependsOn 'zipPacks' }
 
 // -----------------------------------------------------------------------
+// 4b. packDatapacksAsMods
+//
+// Wraps every datapack under packs/ (a folder with data/; resource-pack-only
+// folders - assets/ but no data/ - are skipped, since there's no data/ for
+// Fabric to expose) into a standalone Fabric mod JAR under
+// build/packs-mods/<pack-name>.jar.
+//
+// This does NOT compile any Java, and can't: a datapack has no bytecode to
+// compile, and there is no automatic mcfunction -> Java translation (see
+// this file's own README, "Mods are hard, datapacks are easy" FAQ entry,
+// for why that gap is real - the same reason a resulting JAR legitimately
+// has 0 .class files, which is expected here, not broken). What this task
+// does is exactly what a Fabric mod JAR needs to auto-load an embedded
+// datapack with zero manual install step: bundle data/ (+ assets/ if
+// present) alongside a generated fabric.mod.json. Fabric Loader's built-in
+// mod resource-pack support (no Fabric API dependency required) then
+// exposes a mod JAR's own data/ and assets/ folders as an implicit data
+// pack / resource pack automatically.
+//
+// Reuses zipPacks' machinery rather than duplicating it: the same
+// findMissingWatermarks provenance guard (a datapack must already carry its
+// _rt_origin.mcfunction watermark), and the same copyDirRecursive/
+// zipDirectory helpers from section 3b (a Fabric mod JAR is a plain ZIP
+// with a different extension). packs/ itself is never modified - only a
+// disposable build/packs-mods-remap/ copy has its watermark stripped, same
+// policy as zipPacks' build/packs-remap/.
+//
+// Not wired into buildAll/zipPacks by default: unlike the plain
+// distributable ZIP, "auto-loading mod" is an opt-in packaging format, and
+// wrapping every pack under packs/ (including internal test/dev packs) into
+// a mod JAR on every build isn't assumed to be wanted. Run it explicitly:
+// `./gradlew packDatapacksAsMods`.
+// -----------------------------------------------------------------------
+tasks.register('packDatapacksAsMods') {
+    group = 'build'
+    description = 'Wraps every datapack under packs/ into a standalone, auto-loading Fabric mod JAR under build/packs-mods/. Bundles data (and assets) only - produces no compiled code, by design.'
+    def packsRoot = rootProject.file('packs')
+    def remapDir = file('build/packs-mods-remap')
+    def outDir = file('build/packs-mods')
+    // Captured at configuration time - see the Gradle 10 compatibility note
+    // at the top of this file (same reasoning as zipPacks' confirmZipProp).
+    def modVersion = (project.version != null && project.version.toString() != 'unspecified') ? project.version.toString() : '1.0.0'
+    def slurper = new groovy.json.JsonSlurper()
+
+    doLast {
+        def allPackDirs = findPackDirs(packsRoot)
+        def packDirs = allPackDirs.findAll { dir -> new File(dir, 'data').exists() }
+        def skippedResourceOnly = allPackDirs.size() - packDirs.size()
+        println "[packDatapacksAsMods] scanning ${packsRoot} -> found ${allPackDirs.size()} pack(s), " +
+                "${packDirs.size()} with a data/ folder (${skippedResourceOnly} resource-pack-only dir(s) skipped)."
+        if (packDirs.isEmpty()) {
+            println "[packDatapacksAsMods] nothing to wrap."
+            return
+        }
+
+        // Provenance guard - same rule as zipPacks (section 3b): every
+        // datapack must already carry its _rt_origin.mcfunction watermark.
+        def guard = findMissingWatermarks(packDirs)
+        if (guard.missing) {
+            def details = guard.missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+            throw new GradleException(
+                "[packDatapacksAsMods] failed: the following pack(s) are missing a _rt_origin.mcfunction " +
+                "watermark under data/<namespace>/function/, so provenance cannot be verified before " +
+                "wrapping:\n${details}\nAdd the watermark before running this task (or run checkOriginWatermarks)."
+            )
+        }
+
+        if (remapDir.exists()) {
+            println "[packDatapacksAsMods] clearing stale remap workspace at ${remapDir}"
+            remapDir.deleteDir()
+        }
+        remapDir.mkdirs()
+        outDir.mkdirs()
+
+        packDirs.each { dir ->
+            def relPath = packsRoot.toPath().relativize(dir.toPath()).toString()
+            def safeName = relPath.replace(File.separator, '-').replace('/', '-')
+
+            // Fabric mod ids only allow [a-z0-9-_] and must start with a letter.
+            def modId = safeName.toLowerCase().replaceAll('[^a-z0-9_-]', '_')
+            if (!(modId =~ /^[a-z]/)) {
+                modId = "pack_${modId}"
+            }
+            if (modId.length() > 64) {
+                modId = modId.substring(0, 64)
+            }
+
+            def description = "Auto-wrapped datapack (${relPath}) - bundles data/ so it loads without a manual datapack install."
+            def packMcmetaFile = new File(dir, 'pack.mcmeta')
+            if (packMcmetaFile.exists()) {
+                try {
+                    def meta = slurper.parse(packMcmetaFile)
+                    if (meta?.pack?.description) {
+                        description = meta.pack.description.toString()
+                    }
+                } catch (Exception ignored) {
+                    // A malformed pack.mcmeta would already fail checkPacks
+                    // (this task depends on it); fall back rather than abort here.
+                }
+            }
+
+            // 1. Fresh remap workspace for this pack, then copy data/ (+ assets/ if present).
+            def remapPackDir = new File(remapDir, safeName)
+            remapPackDir.mkdirs()
+            copyDirRecursive(new File(dir, 'data'), new File(remapPackDir, 'data'))
+            def assetsDir = new File(dir, 'assets')
+            if (assetsDir.exists()) {
+                copyDirRecursive(assetsDir, new File(remapPackDir, 'assets'))
+            }
+
+            // 2. Strip the watermark from the remap copy only (packs/ untouched) - same policy as zipPacks.
+            def stripped = 0
+            remapPackDir.eachFileRecurse { f ->
+                if (f.name == '_rt_origin.mcfunction') {
+                    f.delete()
+                    stripped++
+                }
+            }
+
+            // 3. Generate fabric.mod.json. No entrypoints/mixins - this JAR
+            //    carries no code, only data/assets, which is what makes
+            //    Fabric Loader treat it as a built-in datapack/resource pack.
+            def modJson = groovy.json.JsonOutput.toJson([
+                schemaVersion: 1,
+                id           : modId,
+                version      : modVersion,
+                name         : dir.name,
+                description  : description,
+                environment  : '*',
+                depends      : [fabricloader: '*']
+            ])
+            new File(remapPackDir, 'fabric.mod.json').text = groovy.json.JsonOutput.prettyPrint(modJson)
+
+            // 4. Zip the remap copy into a .jar. A Fabric mod JAR is a plain
+            //    ZIP under the hood, so this reuses the same zipDirectory
+            //    helper zipPacks uses for its .zip output (section 3b).
+            def jarName = "${safeName}.jar"
+            def jarFile = new File(outDir, jarName)
+            println "[packDatapacksAsMods] wrapping ${relPath} -> build/packs-mods/${jarName} " +
+                    "(id=${modId}, stripped ${stripped} watermark(s) from remap copy)"
+            zipDirectory(remapPackDir, jarFile)
+        }
+        println "[packDatapacksAsMods] done: ${packDirs.size()} datapack(s) wrapped into ${outDir}. packs/ source tree left untouched."
+    }
+}
+tasks.named('packDatapacksAsMods') { dependsOn 'checkPacks' }
+
+// -----------------------------------------------------------------------
 // 5. checkPacks / printPackList
 // -----------------------------------------------------------------------
 tasks.register('checkPacks') {
