@@ -168,7 +168,57 @@ msg="$*";
 
 git add . && git commit -m "$msg"
 '
+# Sync
+gh alias set --shell sync '
+git pull --rebase && git push
+'
 
+# Bash
+gh alias set --shell run-bash '
+if [ "$#" -eq 0 ]; then
+  echo "Error: No command provided."
+  echo "Usage: gh run-bash \"<command with placeholders>\""
+  echo "Placeholders: {repo}, {user}, {branch}"
+  exit 1
+fi
+
+RAW_CMD="$*"
+
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)
+CURRENT_USER=$(gh api user -q .login 2>/dev/null || true)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+
+CMD="${RAW_CMD//\{repo\}/$REPO_FULL}"
+CMD="${CMD//\{user\}/$CURRENT_USER}"
+CMD="${CMD//\{branch\}/$CURRENT_BRANCH}"
+
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+LOG_FILE="$HOME/.gh_run_bash_history.log"
+START_TIME=$SECONDS
+
+echo "🚀 Original: $RAW_CMD"
+echo "🎯 Resolved: $CMD"
+echo "📅 Started at: $TIMESTAMP"
+echo "--------------------------------------------------"
+
+eval "$CMD"
+EXIT_CODE=$?
+
+ELAPSED=$((SECONDS - START_TIME))
+
+echo "--------------------------------------------------"
+
+if [ "$EXIT_CODE" -eq 0 ]; then
+  echo "✅ Executed successfully in ${ELAPSED}s"
+else
+  echo "❌ Failed with exit code $EXIT_CODE in ${ELAPSED}s"
+fi
+
+printf "[%s] EXIT:%s | DURATION:%ss | CMD: %s\n" \
+  "$TIMESTAMP" "$EXIT_CODE" "$ELAPSED" "$CMD" >> "$LOG_FILE"
+
+exit "$EXIT_CODE"
+'
 
 chmod +x gradlew 2>/dev/null || true
 
