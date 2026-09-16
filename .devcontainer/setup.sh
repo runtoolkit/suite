@@ -4,6 +4,7 @@ gh alias delete run-bash
 gh alias delete save
 gh alias delete commit
 gh alias delete sync
+gh alias delete push
 
 # ── Package manager detection ─────────────────────────────────────────
 for PM in apt-get apt yum dnf apk; do
@@ -239,6 +240,11 @@ mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
   }
 }
 EOF
+
+# Push
+gh alias set --shell sync '
+gh run-bash "git push {branch}"
+'
 
 # ── Done ──────────────────────────────────────────────────────────────
 echo ""
