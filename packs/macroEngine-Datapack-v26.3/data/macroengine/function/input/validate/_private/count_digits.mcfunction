@@ -4,6 +4,7 @@
 # Requires scratch.rest to be set (the string to scan, already stripped of
 # any leading sign/dot handling by the caller). Sets score
 # #macroengine.DigitCount macroengine.tmp to the total number of '0'-'9' characters found
+# macroengine.DigitCount macroengine.tmp to the total number of '0'-'9' characters found
 # in scratch.rest, using macroengine:core/internal/string/util/find once per digit.
 #
 # Note on cost: this is 10 macroengine:core/internal/string/util/find calls regardless of input

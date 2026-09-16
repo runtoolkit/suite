@@ -16,6 +16,9 @@
 //       zipPacks and checkOriginWatermarks)
 //   4. zipPacks - packages every pack under packs/ into build/packs-dist/
 //   5. checkPacks / printPackList / printModList - pack.mcmeta validation and listing
+//   3. Origin watermark helpers (shared by section 4)
+//   4. zipPacks - packages every pack under packs/ into build/packs-dist/
+//   5. checkPacks / printPackList - pack.mcmeta validation and listing
 //   6. mergeDatapacks - merges packs/merge-manifest.json into one datapack
 //   7. clean task extension - also wipes build/packs-dist and packs-remap
 //
@@ -62,6 +65,10 @@ tasks.register('lint') {
     doFirst {
         println "[lint] running checkstyleMain on ${withCheckstylePaths.size()}/${totalSubprojectCount} subproject(s):"
         withCheckstylePaths.each { println "[lint]   - ${it}" }
+    doFirst {
+        def withCheckstyle = subprojects.findAll { sub -> sub.tasks.findByName('checkstyleMain') != null }
+        println "[lint] running checkstyleMain on ${withCheckstyle.size()}/${subprojects.size()} subproject(s):"
+        withCheckstyle.each { println "[lint]   - ${it.path}" }
     }
     doLast {
         println "[lint] completed (ran checkstyleMain where present)."
@@ -80,6 +87,9 @@ tasks.register('buildAll') {
     def buildableCount = subprojects.count { it.tasks.findByName('build') != null }
     doFirst {
         println "[buildAll] building ${buildableCount}/${totalSubprojectCount} subproject(s) that declare a 'build' task."
+    doFirst {
+        def buildable = subprojects.findAll { it.tasks.findByName('build') != null }
+        println "[buildAll] building ${buildable.size()}/${subprojects.size()} subproject(s) that declare a 'build' task."
     }
     doLast {
         println "[buildAll] done."
@@ -263,6 +273,13 @@ tasks.register('checkOriginWatermarks') {
 // resource pack, data/ and/or assets/) and zips each one independently into
 // build/packs-dist/<folder-name>.zip.
 //
+// -----------------------------------------------------------------------
+// 4. zipPacks
+//
+// Finds every folder under packs/ containing a pack.mcmeta (datapack or
+// resource pack, data/ and/or assets/) and zips each one independently into
+// build/packs-dist/<folder-name>.zip.
+//
 // The source tree under packs/ is NEVER modified. Watermarks stay in
 // packs/ permanently as proof of origin.
 //
@@ -311,6 +328,26 @@ tasks.register('zipPacks') {
                 "${packDirs.size() - guard.resourcePackCount - guard.missing.size()} datapack(s) have a watermark."
         if (guard.missing) {
             def details = guard.missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
+        def resourcePackCount = 0
+        def missing = packDirs.findAll { dir ->
+            def isResourcePack = new File(dir, 'assets').exists() && !new File(dir, 'data').exists()
+            if (isResourcePack) {
+                resourcePackCount++
+                return false
+            }
+
+            def hasWatermark = false
+            dir.eachFileRecurse { f ->
+                if (f.name == '_rt_origin.mcfunction') {
+                    hasWatermark = true
+                }
+            }
+            !hasWatermark
+        }
+        println "[zipPacks] provenance guard: ${resourcePackCount} resource-pack-only dir(s) exempted, " +
+                "${packDirs.size() - resourcePackCount - missing.size()} datapack(s) have a watermark."
+        if (missing) {
+            def details = missing.collect { "  - ${packsRoot.toPath().relativize(it.toPath())}" }.join('\n')
             throw new GradleException(
                 "[zipPacks] failed: the following pack(s) are missing a _rt_origin.mcfunction watermark " +
                 "under data/<namespace>/function/, so provenance cannot be verified before packaging:\n${details}\n" +
@@ -337,6 +374,9 @@ tasks.register('zipPacks') {
         if (confirmZipProp != null) {
             confirmed = (confirmZipProp.toString().toLowerCase() == 'yes')
             println "[zipPacks] -PconfirmZip=${confirmZipProp} supplied on the command line."
+        if (project.hasProperty('confirmZip')) {
+            confirmed = (project.property('confirmZip').toString().toLowerCase() == 'yes')
+            println "[zipPacks] -PconfirmZip=${project.property('confirmZip')} supplied on the command line."
             if (!confirmed) {
                 throw new GradleException(
                     "[zipPacks] aborted: -PconfirmZip was set but not to 'yes'. Pass -PconfirmZip=yes to proceed."
@@ -426,6 +466,7 @@ tasks.register('zipPacks') {
             def zipFile = new File(outDir, zipName)
             println "[zipPacks] zipping ${remapPackDir} -> build/packs-dist/${zipName} (stripped ${stripped} watermark(s) from remap copy)"
             zipDirectory(remapPackDir, zipFile)
+            ant.zip(destfile: zipFile.absolutePath, basedir: remapPackDir.absolutePath)
         }
         println "[zipPacks] done: ${packDirs.size()} pack(s) zipped into ${outDir}. packs/ source tree left untouched."
     }
@@ -906,6 +947,14 @@ tasks.matching { it.name == 'clean' }.configureEach {
         }
         if (packsRemapDir.exists()) {
             packsRemapDir.deleteDir()
+        def outDir = file('build/packs-dist')
+        if (outDir.exists()) {
+            outDir.deleteDir()
+            println "[clean] removed build/packs-dist/"
+        }
+        def remapDir = file('build/packs-remap')
+        if (remapDir.exists()) {
+            remapDir.deleteDir()
             println "[clean] removed build/packs-remap/"
         }
     }
