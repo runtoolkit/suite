@@ -54,6 +54,7 @@ jobs:
             build/packs-dist/*.zip
           if-no-files-found: ignore
           retention-days: 93
+
   lint:
     name: Lint all subprojects
     runs-on: ubuntu-latest
@@ -80,6 +81,16 @@ jobs:
         # confirmed here, so the invocation itself was left unchanged since
         # `bash X.sh` doesn't require +x anyway.
         run: bash .github/workflows/lint.sh
+
+  run-generate-py:
+    name: Run scripts/gui_generator/generate.py
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run scripts/gui_generator/generate.py script
+        run: python3 scripts/gui_generator/generate.py && mkdir -p packs/guigen-example && cp -r scripts/gui_generator/output/datapack packs/guigen-example
+
   release-packs:
     name: Publish packs to a permanent release
     needs: [ build, lint ]
