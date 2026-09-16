@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
-gh alias delete run-bash
-gh alias delete save
-gh alias delete commit
-gh alias delete sync
-gh alias delete push
+
+# Alias'ları sil (yoksa hata verme)
+gh alias delete run-bash 2>/dev/null || true
+gh alias delete save 2>/dev/null || true
+gh alias delete commit 2>/dev/null || true
+gh alias delete sync 2>/dev/null || true
+gh alias delete push 2>/dev/null || true
 
 # ── Package manager detection ─────────────────────────────────────────
 for PM in apt-get apt yum dnf apk; do
@@ -68,7 +70,7 @@ else
   wget -q -O /tmp/node.tar.gz \
     "https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.gz"
   $SUDO tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
-  rm /tmp/node.tar.gz
+  rm -f /tmp/node.tar.gz
 fi
 
 # ── SDKMAN ────────────────────────────────────────────────────────────
@@ -85,12 +87,19 @@ append_env \
 
 # ── Java 25 (via SDKMAN, default candidate) ────────────────────────────
 echo "☕ Installing Java 25 via SDKMAN..."
-JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-tem' | head -1)"
+# Daha sağlam aday tespiti
+JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-tem' | head -1 || true)"
+if [ -z "$JAVA25_CANDIDATE" ]; then
+  # Alternatif: temurin 25
+  JAVA25_CANDIDATE="$(sdk list java 2>/dev/null | grep -oE '25(\.[0-9]+)*-temurin' | head -1 || true)"
+fi
 if [ -z "$JAVA25_CANDIDATE" ]; then
   echo "❌ SDKMAN'da Java 25 (Temurin) sürümü bulunamadı!" >&2
   exit 1
 fi
-if ! sdk list java 2>/dev/null | grep -q "installed.*$JAVA25_CANDIDATE\|$JAVA25_CANDIDATE.*installed"; then
+echo "  Candidate: $JAVA25_CANDIDATE"
+
+if ! sdk list java 2>/dev/null | grep -qE "(installed.*$JAVA25_CANDIDATE|$JAVA25_CANDIDATE.*installed)"; then
   sdk install java "$JAVA25_CANDIDATE" < /dev/null
 fi
 sdk default java "$JAVA25_CANDIDATE"
@@ -105,10 +114,10 @@ if [ ! -f "/opt/gradle/bin/gradle" ]; then
     "https://services.gradle.org/distributions/gradle-9.4.0-bin.zip"
   $SUDO mkdir -p /tmp/gradle-extract /opt/gradle
   $SUDO unzip -q /tmp/gradle.zip -d /tmp/gradle-extract
-  $SUDO cp -r /tmp/gradle-extract/gradle-9.4.0/. /opt/gradle/
+  $SUDO cp -a /tmp/gradle-extract/gradle-9.4.0/. /opt/gradle/
   $SUDO rm -rf /tmp/gradle-extract /tmp/gradle.zip
 else
-  echo "  Already installed: $(/opt/gradle/bin/gradle -v | grep Gradle)"
+  echo "  Already installed: $(/opt/gradle/bin/gradle -v | grep Gradle || true)"
 fi
 append_path "/opt/gradle/bin"
 
@@ -119,6 +128,7 @@ cd /workspaces/suite
 gh alias set --shell commit '
 msg="";
 push=false;
+files=();
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -140,7 +150,8 @@ while [ "$#" -gt 0 ]; do
         msg="$1";
         shift
       else
-        break
+        files+=("$1");
+        shift
       fi
       ;;
   esac
@@ -153,7 +164,11 @@ done
   exit 2;
 }
 
-git add -- "$@" || exit $?
+if [ ${#files[@]} -eq 0 ]; then
+  git add -A || exit $?
+else
+  git add -- "${files[@]}" || exit $?
+fi
 git commit -m "$msg" || exit $?
 
 if [ "$push" = true ]; then
@@ -173,6 +188,7 @@ msg="$*";
 
 git add . && git commit -m "$msg"
 '
+
 # Sync
 gh alias set --shell sync '
 git pull --rebase && git push
@@ -241,9 +257,9 @@ mkdir -p .vscode && cat << 'EOF' > .vscode/settings.json
 }
 EOF
 
-# Push
+# Push (daha doğru: origin + branch)
 gh alias set --shell push '
-gh run-bash "git push {branch}"
+gh run-bash "git push -u origin {branch}"
 '
 
 # ── Done ──────────────────────────────────────────────────────────────
@@ -252,7 +268,7 @@ echo "✅ Versions:"
 node -v
 npm -v
 java -version
-/opt/gradle/bin/gradle -v | grep Gradle
+/opt/gradle/bin/gradle -v | grep Gradle || true
 jq --version
 shellcheck --version | head -1
 git lfs version
