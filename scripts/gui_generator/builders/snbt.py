@@ -20,5 +20,5 @@ def item_replace_command(selector: str, slot: int, item: str, components: ItemCo
 def clear_detect_command(item: str, action: str) -> str:
     return (
         f'clear @s {item_id(item)}'
-        f'[custom_data={{guigen:{{action:"{action}"}}}}] 1'
+        f'[custom_data={guigen:{}}] 64'
     )
