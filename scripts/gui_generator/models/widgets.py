@@ -41,6 +41,16 @@ class Condition:
 
 
 @dataclass
+class Cost:
+    """Optional price to pay on successful click (item and/or score)."""
+    item: str | None = None
+    count: int = 1
+    score: str | None = None
+    amount: int = 1
+    fail_message: Text | None = None
+
+
+@dataclass
 class ToggleState:
     score: str
     off_item: str
@@ -82,8 +92,12 @@ class Widget:
     lore: list[Text] = field(default_factory=list)
     # optional shared behaviour
     commands: list[str] = field(default_factory=list)
+    functions: list[str] = field(default_factory=list)  # datapack functions to run
+    sound: str | None = None  # playsound id on click, e.g. minecraft:ui.button.click
     success_message: Text | None = None
     condition: Condition | None = None
+    cooldown_ticks: int = 0  # min ticks between clicks (0 = none)
+    cost: Cost | None = None  # item and/or score price
     # type-specific
     toggle: ToggleState | None = None
     target_page: int | None = None
