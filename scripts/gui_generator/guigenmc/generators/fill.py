@@ -32,7 +32,7 @@ def cart_selector(menu: dict[str, Any]) -> str:
 def place_item(menu: dict[str, Any], slot: int, item: str, components: dict[str, Any]) -> str:
     if is_block_container(menu["container"]):
         return item_replace_block_command(container_block_pos(menu["container"]), slot, item, components)
-    return place_item(menu, slot, item, components)
+    return item_replace_command(cart_selector(menu), slot, item, components)
 
 
 def generate_fill_router(menu: dict[str, Any], out: dict[str, str]) -> None:
