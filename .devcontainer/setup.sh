@@ -128,7 +128,6 @@ cd /workspaces/suite
 gh alias set --shell commit '
 msg="";
 push=false;
-files=();
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -150,8 +149,7 @@ while [ "$#" -gt 0 ]; do
         msg="$1";
         shift
       else
-        files+=("$1");
-        shift
+        break
       fi
       ;;
   esac
@@ -164,11 +162,7 @@ done
   exit 2;
 }
 
-if [ ${#files[@]} -eq 0 ]; then
-  git add -A || exit $?
-else
-  git add -- "${files[@]}" || exit $?
-fi
+git add -- "$@" || exit $?
 git commit -m "$msg" || exit $?
 
 if [ "$push" = true ]; then
