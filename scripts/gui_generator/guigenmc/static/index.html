@@ -516,11 +516,25 @@ function itemId(item) {
 
 function itemReplaceCommand(selector, slot, item, components) {
   const suffix = itemComponentsToSnbtSuffix(components);
-  return `item replace entity ${selector} container.${slot} with ${itemId(item)}${suffix}`;
+  const count = parseInt(components.count || 1, 10);
+  const countS = count !== 1 ? ` ${count}` : "";
+  return `item replace entity ${selector} container.${slot} with ${itemId(item)}${suffix}${countS}`;
 }
 
 function itemAirCommand(selector, slot) {
   return `item replace entity ${selector} container.${slot} with minecraft:air`;
+}
+
+// pos e.g. '~ ~1 ~' — run at the player who has the menu open.
+function itemReplaceBlockCommand(pos, slot, item, components) {
+  const suffix = itemComponentsToSnbtSuffix(components);
+  const count = parseInt(components.count || 1, 10);
+  const countS = count !== 1 ? ` ${count}` : "";
+  return `item replace block ${pos} container.${slot} with ${itemId(item)}${suffix}${countS}`;
+}
+
+function itemAirBlockCommand(pos, slot) {
+  return `item replace block ${pos} container.${slot} with minecraft:air`;
 }
 
 function customDataPredicate(fields) {
@@ -644,7 +658,6 @@ function mkContainer({ type = "chest_minecart", invulnerable = true, no_gravity 
 
 const CONTAINER_TYPES = {
   chest_minecart: ["chest_minecart", 27],
-  barrel: ["barrel", 27],
   hopper_minecart: ["hopper_minecart", 5],
   chest_boat: ["oak_chest_boat", 27],
   oak_chest_boat: ["oak_chest_boat", 27],
@@ -658,6 +671,19 @@ const CONTAINER_TYPES = {
   bamboo_chest_raft: ["bamboo_chest_raft", 27],
   pale_oak_chest_boat: ["pale_oak_chest_boat", 27],
 };
+// Block containers (setblock + item replace block). Entity id is unused for these.
+const BLOCK_CONTAINER_TYPES = {
+  barrel: ["barrel", 27],
+  chest_block: ["chest", 27],
+  trapped_chest: ["trapped_chest", 27],
+  hopper_block: ["hopper", 5],
+  dropper: ["dropper", 9],
+  dispenser: ["dispenser", 9],
+};
+// Merge into registry so the loader/UI accepts them
+for (const [k, v] of Object.entries(BLOCK_CONTAINER_TYPES)) {
+  CONTAINER_TYPES[k] = v;
+}
 const CONTAINER_ALIASES = {
   chest: "chest_minecart",
   barrel: "barrel",
@@ -665,6 +691,28 @@ const CONTAINER_ALIASES = {
   boat: "chest_boat",
   oak_boat: "oak_chest_boat",
 };
+
+function isBlockContainer(c) {
+  return (
+    Object.prototype.hasOwnProperty.call(BLOCK_CONTAINER_TYPES, c.type) ||
+    ["barrel", "chest_block", "trapped_chest", "hopper_block", "dropper", "dispenser"].includes(c.type)
+  );
+}
+
+function containerBlockId(c) {
+  const entry = BLOCK_CONTAINER_TYPES[c.type];
+  if (entry) return `minecraft:${entry[0]}`;
+  if (c.type === "barrel") return "minecraft:barrel";
+  return `minecraft:${c.type}`;
+}
+
+function containerBlockPos(c) {
+  // Relative block position for the GUI block (from the player).
+  const y = c.y_offset !== null && c.y_offset !== undefined ? parseFloat(c.y_offset) : 1.0;
+  let yi = y ? Math.round(y) : 1;
+  if (yi === 0) yi = 1;
+  return `~ ~${yi} ~`;
+}
 
 function containerEntityId(c) {
   const entry = CONTAINER_TYPES[c.type];
@@ -999,6 +1047,13 @@ function cartSelector(menu) {
   return `@e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)},sort=nearest,limit=1]`;
 }
 
+function placeItem(menu, slot, item, components) {
+  if (isBlockContainer(menu.container)) {
+    return itemReplaceBlockCommand(containerBlockPos(menu.container), slot, item, components);
+  }
+  return itemReplaceCommand(cartSelector(menu), slot, item, components);
+}
+
 function generateFillRouter(menu, out) {
   const lines = ["# Auto-generated – route to current page (every slot is overwritten)", ""];
   for (const page of menu.pages) {
@@ -1010,14 +1065,14 @@ function generateFillRouter(menu, out) {
 }
 
 function emitStatic(menu, w) {
-  return [itemReplaceCommand(cartSelector(menu), w.slot, w.item, widgetComponents(w))];
+  return [placeItem(menu, w.slot, w.item, widgetComponents(w))];
 }
 
 function emitToggle(menu, w) {
   const lines = [];
   for (const state of [0, 1]) {
     const [item, comps] = componentsForToggle(w, state);
-    const cmd = itemReplaceCommand(cartSelector(menu), w.slot, item, comps);
+    const cmd = placeItem(menu, w.slot, item, comps);
     lines.push(`execute if score @s ${w.toggle.score} matches ${state} run ${cmd}`);
   }
   return lines;
@@ -1038,8 +1093,8 @@ function emitProgress(menu, w) {
       custom_name: w.name || mkText(" "),
       custom_data: guiCustomData(w, slot),
     });
-    const emptyCmd = itemReplaceCommand(cartSelector(menu), slot, w.progress_empty_item, emptyComps);
-    const fullCmd = itemReplaceCommand(cartSelector(menu), slot, w.progress_full_item, fullComps);
+    const emptyCmd = placeItem(menu, slot, w.progress_empty_item, emptyComps);
+    const fullCmd = placeItem(menu, slot, w.progress_full_item, fullComps);
     lines.push(emptyCmd);
     if (i === 0) {
       lines.push(`execute if score @s ${w.progress_score} matches 1.. run ${fullCmd}`);
@@ -1339,28 +1394,44 @@ function generateLoad(menu, out) {
     }
   }
   for (const score of scores) lines.push(`scoreboard objectives add ${score} dummy`);
-  const cart = `@e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)}]`;
-  lines.push(
-    "",
-    `execute as ${cart} run data modify entity @s Items set value []`,
-    `kill ${cart}`,
-    "",
-    `tellraw @a [{"text":"[GUI-GENERATOR] ","color":"gray"},{"text":"Loaded. /function ${menuFunctionPrefix(menu)}/open","color":"green"}]`,
-    ""
-  );
+  if (isBlockContainer(menu.container)) {
+    lines.push(
+      "",
+      `tellraw @a [{"text":"[GUI-GENERATOR] ","color":"gray"},{"text":"Loaded. /function ${menuFunctionPrefix(menu)}/open","color":"green"}]`,
+      ""
+    );
+  } else {
+    const cart = `@e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)}]`;
+    lines.push(
+      "",
+      `execute as ${cart} run data modify entity @s Items set value []`,
+      `kill ${cart}`,
+      "",
+      `tellraw @a [{"text":"[GUI-GENERATOR] ","color":"gray"},{"text":"Loaded. /function ${menuFunctionPrefix(menu)}/open","color":"green"}]`,
+      ""
+    );
+  }
   out.set(`${coreDirPath(menu)}/load.mcfunction`, lines.join("\n"));
 }
 
 function generateOpen(menu, out) {
-  const nbt = containerSummonNbt(menu.container, [`${menu.namespace}.menu`, menuTag(menu)], menu.display_name);
   const lines = [
     "# Auto-generated open",
     `function ${menuFunctionPrefix(menu)}/close`,
     "",
-    `summon ${containerEntityId(menu.container)} ~ ~ ~ ${nbt}`,
-    "",
-    "scoreboard players set @s guigen_page 0",
   ];
+  if (isBlockContainer(menu.container)) {
+    const pos = containerBlockPos(menu.container);
+    const block = containerBlockId(menu.container);
+    const name = String(menu.display_name || menu.menu_id).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    lines.push(`setblock ${pos} ${block}{CustomName:{text:"${name}",italic:false}}`, "");
+  } else {
+    const nbt = containerSummonNbt(menu.container, [`${menu.namespace}.menu`, menuTag(menu)], menu.display_name);
+    const yOff = parseFloat(menu.container.y_offset || 0);
+    const summonCoords = yOff ? `~ ~${yOff} ~` : "~ ~ ~";
+    lines.push(`summon ${containerEntityId(menu.container)} ${summonCoords} ${nbt}`, "");
+  }
+  lines.push("scoreboard players set @s guigen_page 0");
   const inited = new Set();
   for (const w of allWidgets(menu)) {
     const scoresToInit = [];
@@ -1384,13 +1455,21 @@ function generateOpen(menu, out) {
 }
 
 function generateClose(menu, out) {
-  const cart = `@e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)},sort=nearest,limit=1]`;
-  const lines = ["# Auto-generated close", "# Empty slots first so kill does not drop GUI items"];
-  for (let slot = 0; slot < containerSlotCount(menu.container); slot++) {
-    lines.push(`execute as ${cart} run ${itemAirCommand("@s", slot)}`);
+  const lines = ["# Auto-generated close", "# Empty slots first so removal does not drop GUI items"];
+  if (isBlockContainer(menu.container)) {
+    const pos = containerBlockPos(menu.container);
+    for (let slot = 0; slot < containerSlotCount(menu.container); slot++) {
+      lines.push(itemAirBlockCommand(pos, slot));
+    }
+    lines.push(`setblock ${pos} minecraft:air`);
+  } else {
+    const cart = `@e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)},sort=nearest,limit=1]`;
+    for (let slot = 0; slot < containerSlotCount(menu.container); slot++) {
+      lines.push(`execute as ${cart} run ${itemAirCommand("@s", slot)}`);
+    }
+    lines.push(`kill @e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)}]`);
   }
   lines.push(
-    `kill @e[type=${containerEntityId(menu.container)},tag=${menuTag(menu)}]`,
     clearAllWidgets(),
     "clear @s *[custom_data~{guigen:{widget:1}}]",
     "scoreboard players reset @s guigen_menu_timer",
