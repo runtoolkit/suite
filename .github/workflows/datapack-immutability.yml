@@ -1,0 +1,40 @@
+name: Datapack Immutability Check
+
+# Read-only content check: fails a PR that touches tracked files inside a
+# packs/<name>/ directory marked "locked": true in packs/.datapack-lock.json.
+# Deliberately NOT using pull_request_target - this only needs to read the
+# diff, never needs repo secrets, and should never run with the elevated
+# permissions/base-branch token that pull_request_target grants against
+# untrusted PR content.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packs/**'
+
+permissions:
+  contents: read
+
+jobs:
+  check-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: List files changed vs base
+        id: diff
+        run: |
+          git diff --name-only "origin/${{ github.base_ref }}"...HEAD -- packs/ > changed_pack_files.txt
+          cat changed_pack_files.txt
+
+      - name: Enforce packs/.datapack-lock.json
+        run: |
+          python3 scripts/datapack_lock/check_lock.py packs/.datapack-lock.json $(cat changed_pack_files.txt)

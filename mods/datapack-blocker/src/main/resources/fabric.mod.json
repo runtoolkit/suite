@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "datapack-blocker",
+  "version": "${version}",
+  "name": "Datapack Blocker",
+  "description": "Locks a world's datapacks folder at server start: the datapacks present on first run become an allowlist and are made read-only on disk, and anything dropped in later is quarantined instead of being loaded. Ops can review and approve quarantined packs with /datapackblocker.",
+  "authors": ["Runtoolkit"],
+  "contact": {
+    "sources": "https://github.com/runtoolkit"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.runtoolkit.datapackblocker.DatapackBlockerMod"]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  }
+}
