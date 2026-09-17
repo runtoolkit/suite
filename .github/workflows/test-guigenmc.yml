@@ -68,6 +68,7 @@ jobs:
 
 
       - name: Build sdist + wheel
+        working-directory: ./scripts/gui_generator
         run: |
           pip install build twine
           python -m build
