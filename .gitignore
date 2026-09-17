@@ -13,3 +13,4 @@ local.properties
 build/
 out/
 *.tar.gz
+*.bak
