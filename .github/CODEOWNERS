@@ -1,0 +1,9 @@
+# Requires review from a maintainer whenever the datapack lock manifest
+# itself changes - this is the file that unlocks a protected pack, so its
+# own changes need a second set of eyes independent of the CI check in
+# .github/workflows/datapack-immutability.yml.
+#
+# Replace the placeholder below with the actual GitHub team or usernames
+# for this repo, then turn on "Require review from Code Owners" under
+# Settings -> Branches -> Branch protection rules for `main`.
+/packs/.datapack-lock.json @runtoolkit/maintainers
