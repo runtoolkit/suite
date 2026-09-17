@@ -11,3 +11,4 @@ venv/
 sample_config.json
 .pytest_cache/
 .DS_Store
+*.bak
