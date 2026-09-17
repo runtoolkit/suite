@@ -5,13 +5,16 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from ..components import clear_all_widgets, item_air_command
+from ..components import clear_all_widgets, item_air_block_command, item_air_command
 from ..models import (
     all_widgets,
     collect_scores,
+    container_block_id,
+    container_block_pos,
     container_entity_id,
     container_slot_count,
     container_summon_nbt,
+    is_block_container,
     interactive_widgets,
     menu_core_prefix,
     menu_function_prefix,
@@ -33,40 +36,55 @@ def generate_load(menu: dict[str, Any], out: dict[str, str]) -> None:
 
     for score in scores:
         lines.append(f"scoreboard objectives add {score} dummy")
-    cart = f"@e[type={container_entity_id(menu['container'])},tag={menu_tag(menu)}]"
-    lines.extend(
-        [
-            "",
-            f"execute as {cart} run data modify entity @s Items set value []",
-            f"kill {cart}",
-            "",
-            f'tellraw @a [{{"text":"[GUI-GENERATOR] ","color":"gray"}},'
-            f'{{"text":"Loaded. /function {menu_function_prefix(menu)}/open","color":"green"}}]',
-            "",
-        ]
-    )
+    if is_block_container(menu["container"]):
+        lines.extend(
+            [
+                "",
+                f'tellraw @a [{{"text":"[GUI-GENERATOR] ","color":"gray"}},'
+                f'{{"text":"Loaded. /function {menu_function_prefix(menu)}/open","color":"green"}}]',
+                "",
+            ]
+        )
+    else:
+        cart = f"@e[type={container_entity_id(menu['container'])},tag={menu_tag(menu)}]"
+        lines.extend(
+            [
+                "",
+                f"execute as {cart} run data modify entity @s Items set value []",
+                f"kill {cart}",
+                "",
+                f'tellraw @a [{{"text":"[GUI-GENERATOR] ","color":"gray"}},'
+                f'{{"text":"Loaded. /function {menu_function_prefix(menu)}/open","color":"green"}}]',
+                "",
+            ]
+        )
     out[f"{core_dir_path(menu)}/load.mcfunction"] = "\n".join(lines)
 
 
 def generate_open(menu: dict[str, Any], out: dict[str, str]) -> None:
-    nbt = container_summon_nbt(
-        menu["container"],
-        [f"{menu['namespace']}.menu", menu_tag(menu)],
-        menu["display_name"],
-    )
-    y_off = float(menu["container"].get("y_offset") or 0.0)
-    if y_off:
-        summon_coords = f"~ ~{y_off} ~"
-    else:
-        summon_coords = "~ ~ ~"
     lines = [
         "# Auto-generated open",
         f"function {menu_function_prefix(menu)}/close",
         "",
-        f"summon {container_entity_id(menu['container'])} {summon_coords} {nbt}",
-        "",
-        "scoreboard players set @s guigen_page 0",
     ]
+    if is_block_container(menu["container"]):
+        pos = container_block_pos(menu["container"])
+        block = container_block_id(menu["container"])
+        name = str(menu.get("display_name") or menu["menu_id"]).replace("\\", "\\\\").replace('"', '\\"')
+        # Place real minecraft:barrel (or other block) at relative position
+        lines.append(f'setblock {pos} {block}{{CustomName:{{text:"{name}",italic:false}}}}')
+        lines.append("")
+    else:
+        nbt = container_summon_nbt(
+            menu["container"],
+            [f"{menu['namespace']}.menu", menu_tag(menu)],
+            menu["display_name"],
+        )
+        y_off = float(menu["container"].get("y_offset") or 0.0)
+        summon_coords = f"~ ~{y_off} ~" if y_off else "~ ~ ~"
+        lines.append(f"summon {container_entity_id(menu['container'])} {summon_coords} {nbt}")
+        lines.append("")
+    lines.append("scoreboard players set @s guigen_page 0")
     for cmd in menu.get("on_open") or []:
         lines.append(str(cmd))
     if menu.get("on_open"):
@@ -93,7 +111,7 @@ def generate_open(menu: dict[str, Any], out: dict[str, str]) -> None:
             f"scoreboard players set @s guigen_menu_timer {menu['timer_ticks']}",
             "",
             'tellraw @s [{"text":"[GUI-GENERATOR] ","color":"gray"},'
-            '{"text":"Menu opened. Right-click the cart, then SHIFT-click buttons.","color":"yellow"}]',
+            '{"text":"Menu opened. Right-click the container, then SHIFT-click buttons.","color":"yellow"}]',
             "",
         ]
     )
@@ -101,16 +119,24 @@ def generate_open(menu: dict[str, Any], out: dict[str, str]) -> None:
 
 
 def generate_close(menu: dict[str, Any], out: dict[str, str]) -> None:
-    cart = (
-        f"@e[type={container_entity_id(menu['container'])},"
-        f"tag={menu_tag(menu)},sort=nearest,limit=1]"
-    )
-    lines = ["# Auto-generated close", "# Empty slots first so kill does not drop GUI items"]
-    for slot in range(container_slot_count(menu["container"])):
-        lines.append(f"execute as {cart} run {item_air_command('@s', slot)}")
+    lines = ["# Auto-generated close", "# Empty slots first so removal does not drop GUI items"]
+    if is_block_container(menu["container"]):
+        pos = container_block_pos(menu["container"])
+        for slot in range(container_slot_count(menu["container"])):
+            lines.append(item_air_block_command(pos, slot))
+        lines.append(f"setblock {pos} minecraft:air")
+    else:
+        cart = (
+            f"@e[type={container_entity_id(menu['container'])},"
+            f"tag={menu_tag(menu)},sort=nearest,limit=1]"
+        )
+        for slot in range(container_slot_count(menu["container"])):
+            lines.append(f"execute as {cart} run {item_air_command('@s', slot)}")
+        lines.append(
+            f"kill @e[type={container_entity_id(menu['container'])},tag={menu_tag(menu)}]"
+        )
     lines.extend(
         [
-            f"kill @e[type={container_entity_id(menu['container'])},tag={menu_tag(menu)}]",
             clear_all_widgets(),
             "clear @s *[custom_data~{guigen:{widget:1}}]",
             "scoreboard players reset @s guigen_menu_timer",

@@ -42,7 +42,7 @@ VALID_CONDITION_TYPES = [
 
 CONTAINER_TYPES: dict[str, tuple[str, int]] = {
     "chest_minecart": ("chest_minecart", 27),
-    "barrel": ("chest_minecart", 27),
+    "barrel": ("barrel", 27),  # block container
     "hopper_minecart": ("hopper_minecart", 5),
     "chest_boat": ("oak_chest_boat", 27),
     "oak_chest_boat": ("oak_chest_boat", 27),
@@ -58,6 +58,21 @@ CONTAINER_TYPES: dict[str, tuple[str, int]] = {
 }
 
 VALID_CONTAINER_TYPES = list(CONTAINER_TYPES.keys())
+
+# Block containers (setblock + item replace block). Entity id is unused for these.
+BLOCK_CONTAINER_TYPES: dict[str, tuple[str, int]] = {
+    "barrel": ("barrel", 27),
+    "chest_block": ("chest", 27),
+    "trapped_chest": ("trapped_chest", 27),
+    "hopper_block": ("hopper", 5),
+    "dropper": ("dropper", 9),
+    "dispenser": ("dispenser", 9),
+}
+# Merge into registry so loader accepts them
+for _k, _v in BLOCK_CONTAINER_TYPES.items():
+    CONTAINER_TYPES[_k] = _v
+VALID_CONTAINER_TYPES = list(CONTAINER_TYPES.keys())
+
 
 CONTAINER_ALIASES = {
     "chest": "chest_minecart",
@@ -240,6 +255,32 @@ def container_slot_count(c: dict[str, Any]) -> int:
 
 def is_boat_container(c: dict[str, Any]) -> bool:
     return "boat" in c["type"] or "raft" in c["type"]
+
+def is_block_container(c: dict[str, Any]) -> bool:
+    return c["type"] in BLOCK_CONTAINER_TYPES or c["type"] in (
+        "barrel", "chest_block", "trapped_chest", "hopper_block", "dropper", "dispenser",
+    )
+
+
+def container_block_id(c: dict[str, Any]) -> str:
+    ctype = c["type"]
+    if ctype in BLOCK_CONTAINER_TYPES:
+        return f"minecraft:{BLOCK_CONTAINER_TYPES[ctype][0]}"
+    if ctype == "barrel":
+        return "minecraft:barrel"
+    return f"minecraft:{ctype}"
+
+
+def container_block_pos(c: dict[str, Any]) -> str:
+    """Relative block position for the GUI block (from the player)."""
+    y = float(c.get("y_offset") if c.get("y_offset") is not None else 1.0)
+    # integer block offset
+    yi = int(round(y)) if y else 1
+    if yi == 0:
+        yi = 1
+    return f"~ ~{yi} ~" if yi != 1 else "~ ~1 ~"
+
+
 
 
 def container_summon_nbt(

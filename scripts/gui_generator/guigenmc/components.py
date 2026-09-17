@@ -114,8 +114,20 @@ def item_replace_command(selector: str, slot: int, item: str, components: dict[s
     return f"item replace entity {selector} container.{slot} with {item_id(item)}{suffix}{count_s}"
 
 
+def item_replace_block_command(pos: str, slot: int, item: str, components: dict[str, Any]) -> str:
+    """pos e.g. '~ ~1 ~' — run at the player who has the menu open."""
+    suffix = item_components_to_snbt_suffix(components)
+    count = int(components.get("count") or 1)
+    count_s = f" {count}" if count != 1 else ""
+    return f"item replace block {pos} container.{slot} with {item_id(item)}{suffix}{count_s}"
+
+
 def item_air_command(selector: str, slot: int) -> str:
     return f"item replace entity {selector} container.{slot} with minecraft:air"
+
+
+def item_air_block_command(pos: str, slot: int) -> str:
+    return f"item replace block {pos} container.{slot} with minecraft:air"
 
 
 def custom_data_predicate(fields: dict[str, Any]) -> str:

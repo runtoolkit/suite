@@ -7,8 +7,11 @@ from typing import Any
 from ..components import clear_all_widgets, clear_by_type, clear_by_type_id
 from ..models import (
     all_widgets,
+    container_block_id,
+    container_block_pos,
     container_entity_id,
     interactive_widgets,
+    is_block_container,
     menu_click_prefix,
     menu_function_prefix,
     menu_tag,
@@ -33,6 +36,7 @@ def detect_block(widget_type: str, widget_id: str, handler_fn: str) -> list[str]
 def generate_tick(menu: dict[str, Any], out: dict[str, str]) -> None:
     entity = container_entity_id(menu["container"])
     cart = f"@e[type={entity},tag={menu_tag(menu)},sort=nearest,limit=1]"
+    block_mode = is_block_container(menu["container"])
 
     lines = [
         "# Auto-generated core tick",
@@ -55,7 +59,31 @@ def generate_tick(menu: dict[str, Any], out: dict[str, str]) -> None:
     if cd_scores:
         lines.append("")
 
-    if menu.get("follow", True):
+    if block_mode:
+        pos = container_block_pos(menu["container"])
+        block = container_block_id(menu["container"])
+        name = str(menu.get("display_name") or menu["menu_id"]).replace("\\", "\\\\").replace('"', '\\"')
+        if menu.get("follow", True):
+            lines.extend(
+                [
+                    "# Follow: keep GUI block at relative position (real minecraft:barrel etc.)",
+                    f"execute as @a[scores={{guigen_menu_timer=1..}}] at @s "
+                    f"unless block {pos} {block} run setblock {pos} {block}"
+                    f'{{CustomName:{{text:"{name}",italic:false}}}}',
+                    "",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    f"# Block GUI at {pos} — close if missing",
+                    f"execute as @a[scores={{guigen_menu_timer=1..}}] at @s "
+                    f"unless block {pos} {block} "
+                    f"run function {menu_function_prefix(menu)}/close",
+                    "",
+                ]
+            )
+    elif menu.get("follow", True):
         y_off = float(menu["container"].get("y_offset") or 0.0)
         tp_target = f"~ ~{y_off} ~" if y_off else "~ ~ ~"
         lines.extend(

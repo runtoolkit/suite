@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..components import item_replace_command, mk_item_components
+from ..components import item_replace_block_command, item_replace_command, mk_item_components
 from ..models import (
     components_for_toggle,
+    container_block_pos,
     container_entity_id,
     container_slot_count,
     gui_custom_data,
+    is_block_container,
     menu_page_prefix,
     menu_tag,
     mk_separator_widget,
@@ -27,6 +29,12 @@ def cart_selector(menu: dict[str, Any]) -> str:
     )
 
 
+def place_item(menu: dict[str, Any], slot: int, item: str, components: dict[str, Any]) -> str:
+    if is_block_container(menu["container"]):
+        return item_replace_block_command(container_block_pos(menu["container"]), slot, item, components)
+    return place_item(menu, slot, item, components)
+
+
 def generate_fill_router(menu: dict[str, Any], out: dict[str, str]) -> None:
     lines = ["# Auto-generated – route to current page (every slot is overwritten)", ""]
     for page in menu["pages"]:
@@ -38,14 +46,14 @@ def generate_fill_router(menu: dict[str, Any], out: dict[str, str]) -> None:
 
 
 def emit_static(menu: dict[str, Any], w: dict[str, Any]) -> list[str]:
-    return [item_replace_command(cart_selector(menu), w["slot"], w["item"], widget_components(w))]
+    return [place_item(menu, w["slot"], w["item"], widget_components(w))]
 
 
 def emit_toggle(menu: dict[str, Any], w: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for state in (0, 1):
         item, comps = components_for_toggle(w, state)
-        cmd = item_replace_command(cart_selector(menu), w["slot"], item, comps)
+        cmd = place_item(menu, w["slot"], item, comps)
         lines.append(f"execute if score @s {w['toggle']['score']} matches {state} run {cmd}")
     return lines
 
@@ -65,8 +73,8 @@ def emit_progress(menu: dict[str, Any], w: dict[str, Any]) -> list[str]:
             custom_name=w.get("name") or {"text": " ", "italic": False, "color": None, "bold": None, "underlined": None},
             custom_data=gui_custom_data(w, slot),
         )
-        empty_cmd = item_replace_command(cart_selector(menu), slot, w["progress_empty_item"], empty_comps)
-        full_cmd = item_replace_command(cart_selector(menu), slot, w["progress_full_item"], full_comps)
+        empty_cmd = place_item(menu, slot, w["progress_empty_item"], empty_comps)
+        full_cmd = place_item(menu, slot, w["progress_full_item"], full_comps)
         lines.append(empty_cmd)
         if i == 0:
             lines.append(f"execute if score @s {w['progress_score']} matches 1.. run {full_cmd}")
@@ -117,7 +125,7 @@ def generate_page_fills(menu: dict[str, Any], out: dict[str, str]) -> None:
                 pad = mk_separator_widget(s, str(filler_item))
                 pad["action_id"] = f"pad_{page['index']}_{s}"
                 lines.append(
-                    item_replace_command(cart_selector(menu), s, pad["item"], widget_components(pad))
+                    place_item(menu, s, pad["item"], widget_components(pad))
                 )
             lines.append("")
 
