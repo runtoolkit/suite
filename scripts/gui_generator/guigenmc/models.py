@@ -42,6 +42,7 @@ VALID_CONDITION_TYPES = [
 
 CONTAINER_TYPES: dict[str, tuple[str, int]] = {
     "chest_minecart": ("chest_minecart", 27),
+    "barrel": ("chest_minecart", 27),
     "hopper_minecart": ("hopper_minecart", 5),
     "chest_boat": ("oak_chest_boat", 27),
     "oak_chest_boat": ("oak_chest_boat", 27),
@@ -60,6 +61,7 @@ VALID_CONTAINER_TYPES = list(CONTAINER_TYPES.keys())
 
 CONTAINER_ALIASES = {
     "chest": "chest_minecart",
+    "barrel": "barrel",
     "hopper": "hopper_minecart",
     "boat": "chest_boat",
     "oak_boat": "oak_chest_boat",

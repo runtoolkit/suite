@@ -148,31 +148,33 @@ Also supports: cost, cooldown, conditions, sounds, multi-page menus, hopper/ches
 
 ---
 
-## Install from PyPI
+## Install
+
+Publishing to PyPI is **not planned at this time**. Install from source:
 
 ```bash
-pip install guigenmc
+pip install -e .
+# or from the zip:
+# unzip guigenmc.zip && cd guigenmc && pip install -e .
 guigenmc ui
 ```
 
-## Publish (maintainers)
+> **Note:** PyPI / TestPyPI release is not currently planned. The `publish.yml` workflow and build steps are prepared for later use only. Install from the repo or zip.
 
-1. Create a GitHub release (tag `v1.0.0`, etc.) — or run the **Publish to PyPI** workflow manually.
-2. On PyPI, add a **Trusted Publisher** for this repo:
-   - Owner: your GitHub user/org  
-   - Repository: `guigenmc`  
-   - Workflow: `publish.yml`  
-   - Environment: `pypi`
-3. No API token needed (OIDC).
+## Publish (maintainers — future)
 
-Local build check:
+When a PyPI release is planned:
+
+1. Create a GitHub release (tag `v1.0.0`) or run the **Publish to PyPI** workflow
+2. Add a PyPI Trusted Publisher: repo + `publish.yml` + environment `pypi`
+3. OIDC (no API token required)
+
+Optional local package check:
 
 ```bash
 pip install build twine
 python -m build
 twine check dist/*
-# optional TestPyPI:
-# twine upload --repository testpypi dist/*
 ```
 
 ## License

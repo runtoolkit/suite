@@ -637,16 +637,44 @@ function mkWidget(fields) {
 
 // ---- models/menu.py ---------------------------------------------------------
 
-function mkContainer({ type = "chest_minecart", invulnerable = true, no_gravity = true, silent = true } = {}) {
-  return { type, invulnerable, no_gravity, silent };
+function mkContainer({ type = "chest_minecart", invulnerable = true, no_gravity = true, silent = true, glowing = false, custom_name_visible = false, persistence = true, y_offset = 0, rotation_yaw = null } = {}) {
+  return { type, invulnerable, no_gravity, silent, glowing, custom_name_visible, persistence, y_offset, rotation_yaw };
 }
 
+
+const CONTAINER_TYPES = {
+  chest_minecart: ["chest_minecart", 27],
+  barrel: ["chest_minecart", 27],
+  hopper_minecart: ["hopper_minecart", 5],
+  chest_boat: ["oak_chest_boat", 27],
+  oak_chest_boat: ["oak_chest_boat", 27],
+  spruce_chest_boat: ["spruce_chest_boat", 27],
+  birch_chest_boat: ["birch_chest_boat", 27],
+  jungle_chest_boat: ["jungle_chest_boat", 27],
+  acacia_chest_boat: ["acacia_chest_boat", 27],
+  dark_oak_chest_boat: ["dark_oak_chest_boat", 27],
+  mangrove_chest_boat: ["mangrove_chest_boat", 27],
+  cherry_chest_boat: ["cherry_chest_boat", 27],
+  bamboo_chest_raft: ["bamboo_chest_raft", 27],
+  pale_oak_chest_boat: ["pale_oak_chest_boat", 27],
+};
+const CONTAINER_ALIASES = {
+  chest: "chest_minecart",
+  barrel: "barrel",
+  hopper: "hopper_minecart",
+  boat: "chest_boat",
+  oak_boat: "oak_chest_boat",
+};
+
 function containerEntityId(c) {
-  return `minecraft:${c.type}`;
+  const entry = CONTAINER_TYPES[c.type];
+  const id = entry ? entry[0] : c.type;
+  return `minecraft:${id}`;
 }
 
 function containerSlotCount(c) {
-  return c.type === "hopper_minecart" ? 5 : 27;
+  const entry = CONTAINER_TYPES[c.type];
+  return entry ? entry[1] : 27;
 }
 
 function containerSummonNbt(c, tags, customName = null) {
@@ -655,11 +683,14 @@ function containerSummonNbt(c, tags, customName = null) {
   if (c.invulnerable) flags.push("Invulnerable:1b");
   if (c.no_gravity) flags.push("NoGravity:1b");
   if (c.silent) flags.push("Silent:1b");
-  flags.push("CustomNameVisible:0b");
+  if (c.glowing) flags.push("Glowing:1b");
+  if (c.persistence !== false) flags.push("PersistenceRequired:1b");
+  flags.push(`CustomNameVisible:${c.custom_name_visible ? 1 : 0}b`);
   if (customName) {
     flags.push(`CustomName:{text:"${escapeSnbtString(customName)}",italic:false}`);
   }
   flags.push(`Tags:[${tagList}]`);
+  if (c.rotation_yaw != null) flags.push(`Rotation:[${c.rotation_yaw}f,0f]`);
   return "{" + flags.join(",") + "}";
 }
 
@@ -910,15 +941,21 @@ function loaderPage(raw, fallbackIndex) {
 function loaderContainer(raw) {
   if (raw == null) return mkContainer();
   if (typeof raw !== "object") throw new TypeError("container must be an object");
-  const ctype = String(raw.type ?? "chest_minecart");
-  if (!["chest_minecart", "hopper_minecart"].includes(ctype)) {
-    throw new Error(`Unknown container type: ${ctype} (allowed: chest_minecart, hopper_minecart)`);
+  let ctype = String(raw.type ?? "chest_minecart");
+  ctype = CONTAINER_ALIASES[ctype] || ctype;
+  if (!(ctype in CONTAINER_TYPES)) {
+    throw new Error(`Unknown container type: ${ctype} (allowed: ${Object.keys(CONTAINER_TYPES).join(", ")})`);
   }
   return mkContainer({
     type: ctype,
     invulnerable: raw.invulnerable ?? true,
     no_gravity: raw.no_gravity ?? true,
     silent: raw.silent ?? true,
+    glowing: !!(raw.glowing ?? false),
+    custom_name_visible: !!(raw.custom_name_visible ?? raw.name_visible ?? false),
+    persistence: !!(raw.persistence ?? raw.persistent ?? true),
+    y_offset: parseFloat(raw.y_offset ?? raw.offset_y ?? 0),
+    rotation_yaw: raw.rotation_yaw != null ? parseFloat(raw.rotation_yaw) : null,
   });
 }
 
