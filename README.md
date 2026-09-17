@@ -60,6 +60,38 @@ Where "easy" breaks down:
 
 The more accurate framing: datapacks are easier to **start** and easier to **read** at small scale, but harder to **scale** and harder to **maintain correctly** as logic grows, because the language was designed for straightforward data-driven content, not for general-purpose programming. Mods have a much higher entry cost but scale far better once you're past it. Neither format is unconditionally "easier" — it depends on what you're building and how big it's going to get.
 
+---
+
+## Note: Moved from Datapacks to Fabric
+
+This project no longer ships or accepts vanilla datapacks (`.json` / `.mcfunction`
+files loaded via `/reload` or `world/datapacks/`). Development has moved to
+**Fabric mods** (Java, built with Gradle).
+
+### Why
+
+- Datapacks run inside the vanilla command system and cannot execute native
+  code or access the filesystem/network directly — but they *can* still cause
+  real problems: server/client lag from unbounded loops (`execute ... run
+  function`, large `/fill`/`/clone` regions), world/data corruption via
+  `data merge`, or griefing via entity/inventory manipulation. These are hard
+  to review at scale and easy to hide inside large command trees.
+- Fabric gives us compiled, versioned, statically checkable code, proper
+  dependency management, and CI tooling (tests, static analysis, dependency
+  scanning) that datapacks don't support.
+
+### What this means for contributors
+
+- New features should be implemented as a Fabric mod under `src/`.
+- Datapacks are no longer accepted as pull requests. If you have an existing
+  datapack you'd like ported, open an issue and we can help convert the
+  logic to a Fabric mixin/command.
+- See `gradle-tasks/verifyMod.gradle` for the checks that run in CI, and
+  `scripts/datapack_risk_scan.py` if you still need to audit a legacy
+  datapack before removing it.
+
+---
+
 ## Building
 
 This repo uses Gradle to build all Fabric mod subprojects.

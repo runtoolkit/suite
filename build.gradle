@@ -762,3 +762,361 @@ tasks.matching { it.name == 'clean' }.configureEach {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// verifyMod – monorepo-aware Fabric mod sanity check
+task verifyMod {
+    group = 'verification'
+    description = 'Runs Fabric mod sanity checks across mods/ and examples/ (fabric.mod.json, mixins, duplicate ids).'
+
+    doLast {
+        List<String> errors = []
+        List<String> warnings = []
+
+        // Only look at source fabric.mod.json files, never build/ outputs
+        def allModJsons = fileTree(dir: rootDir, include: [
+            'mods/*/src/main/resources/fabric.mod.json',
+            'examples/*/src/main/resources/fabric.mod.json'
+        ]).files.findAll { f ->
+            // Skip the two folders that settings.gradle already excludes
+            !f.path.contains("${File.separator}datapack-fixer${File.separator}") &&
+            !f.path.contains("${File.separator}RTWrapper${File.separator}rtwrapper-fabric${File.separator}")
+        }
+
+        if (allModJsons.isEmpty()) {
+            println '[verifyMod] no fabric.mod.json found under mods/ or examples/ – nothing to check.'
+            return
+        }
+
+        println "[verifyMod] checking ${allModJsons.size()} fabric.mod.json file(s)"
+
+        def idsSeen = [:]
+
+        allModJsons.each { modJsonFile ->
+            def rel = rootDir.toPath().relativize(modJsonFile.toPath()).toString()
+            def modJson
+            try {
+                modJson = new groovy.json.JsonSlurper().parse(modJsonFile)
+            } catch (Exception e) {
+                errors << "${rel}: invalid JSON – ${e.message}"
+                return
+            }
+
+            // required fields
+            ['schemaVersion', 'id', 'version', 'name'].each { field ->
+                if (!modJson.containsKey(field)) {
+                    errors << "${rel}: missing required field '${field}'"
+                }
+            }
+
+            // duplicate id detection (source files only)
+            if (modJson.id) {
+                if (idsSeen.containsKey(modJson.id)) {
+                    warnings << "Duplicate mod id '${modJson.id}' in:\n  - ${idsSeen[modJson.id]}\n  - ${rel}"
+                } else {
+                    idsSeen[modJson.id] = rel
+                }
+            }
+
+            // entrypoints → source classes (warning only – templates often lack client classes)
+            def entrypoints = modJson.entrypoints
+            if (entrypoints instanceof Map) {
+                def modRoot = modJsonFile.parentFile.parentFile.parentFile.parentFile // .../src/main/resources → mod root
+                entrypoints.each { String key, value ->
+                    (value instanceof List ? value : [value]).each { entry ->
+                        String className = (entry instanceof Map) ? entry.value : entry?.toString()
+                        if (className) {
+                            String relPath = className.replace('.', '/') + '.java'
+                            def javaFile = new File(modRoot, "src/main/java/${relPath}")
+                            if (!javaFile.exists()) {
+                                warnings << "${rel}: entrypoint '${key}' → '${className}' has no source at ${javaFile}"
+                            }
+                        }
+                    }
+                }
+            }
+
+            // mixin configs – warning only (TEMPLATE-MOD and similar stubs often omit them)
+            def mixins = modJson.mixins
+            if (mixins instanceof List) {
+                mixins.each { m ->
+                    String mixinPath = (m instanceof Map) ? m.config : m?.toString()
+                    if (mixinPath) {
+                        def mixinFile = new File(modJsonFile.parentFile, mixinPath)
+                        if (!mixinFile.exists()) {
+                            warnings << "${rel}: mixin config '${mixinPath}' not found"
+                        }
+                    }
+                }
+            }
+        }
+
+        // root build.gradle smells
+        def rootBuild = file('build.gradle')
+        if (rootBuild.exists()) {
+            String text = rootBuild.text
+            if (text.contains('mavenLocal()')) {
+                warnings << "root build.gradle uses mavenLocal() – remove for reproducible CI builds"
+            }
+        }
+
+        // Report
+        println ''
+        println '================ verifyMod report ================'
+        if (warnings.isEmpty() && errors.isEmpty()) {
+            println 'No issues found.'
+        }
+        warnings.each { println "WARN  ${it}\n" }
+        errors.each { println "ERROR ${it}\n" }
+        println "Summary: ${errors.size()} error(s), ${warnings.size()} warning(s)."
+        println '====================================================='
+        println ''
+
+        // Only hard-fail on real errors (invalid JSON / missing required fields)
+        if (!errors.isEmpty()) {
+            throw new GradleException("verifyMod found ${errors.size()} error(s). See report above.")
+        }
+    }
+}
+
+// Root project has no Java plugin → no default 'check' task.
+// maybeCreate makes ./gradlew check and the build lifecycle work.
+tasks.maybeCreate('check').configure {
+    group = 'verification'
+    description = 'Runs suite-level verification tasks (including verifyMod).'
+    dependsOn 'verifyMod'
+}
