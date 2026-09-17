@@ -1,17 +1,29 @@
-"""Generate load / open / close / give_opener / pack.mcmeta / tags."""
+"""Generate core/load, menu lifecycle, tags, pack.mcmeta."""
 
 from __future__ import annotations
 import json
+import re
 from pathlib import Path
 
 from models.menu import Menu
-from builders.paths import menu_dir, ns_functions, tags_dir
+from builders.paths import menu_dir, core_dir, tags_dir
 from builders.snbt import clear_all_widgets, item_air_command
 
 
+def _cd_score(action_id: str) -> str:
+    safe = re.sub(r"[^a-zA-Z0-9_]", "_", action_id)[:40]
+    return f"guigen_cd_{safe}"
+
+
 def generate_load(menu: Menu, out: Path) -> None:
-    lines = ["# Auto-generated load"]
-    for score in menu.collect_scores():
+    lines = ["# Auto-generated core load"]
+    scores = list(menu.collect_scores())
+    for w in menu.interactive_widgets():
+        if int(getattr(w, "cooldown_ticks", 0) or 0) > 0:
+            sc = _cd_score(w.resolved_action_id())
+            if sc not in scores:
+                scores.append(sc)
+    for score in scores:
         lines.append(f"scoreboard objectives add {score} dummy")
     cart = f"@e[type={menu.container.entity_id},tag={menu.tag}]"
     lines += [
@@ -23,7 +35,7 @@ def generate_load(menu: Menu, out: Path) -> None:
         f'{{"text":"Loaded. /function {menu.function_prefix}/open","color":"green"}}]',
         "",
     ]
-    (ns_functions(out, menu) / "load.mcfunction").write_text(
+    (core_dir(out, menu) / "load.mcfunction").write_text(
         "\n".join(lines), encoding="utf-8"
     )
 
@@ -72,7 +84,6 @@ def generate_open(menu: Menu, out: Path) -> None:
 
 
 def generate_close(menu: Menu, out: Path) -> None:
-    # No distance filter — always find the tagged cart wherever it is.
     cart = f"@e[type={menu.container.entity_id},tag={menu.tag},sort=nearest,limit=1]"
     lines = [
         "# Auto-generated close",
@@ -94,11 +105,15 @@ def generate_close(menu: Menu, out: Path) -> None:
 
 
 def generate_give_opener(menu: Menu, out: Path) -> None:
+    name = (menu.opener_name or "GUI Menu Key").replace("\\", "\\\\").replace('"', '\\"')
+    lore = (
+        menu.opener_lore or f"Run /function {menu.function_prefix}/open"
+    ).replace("\\", "\\\\").replace('"', '\\"')
     lines = [
         "# Auto-generated give_opener",
         "give @s minecraft:knowledge_book["
-        'custom_name={text:"GUI Menu Key",italic:false,color:"gold"},'
-        f'lore=[{{text:"Run /function {menu.function_prefix}/open",italic:false,color:"gray"}}],'
+        f'custom_name={{text:"{name}",italic:false,color:"gold"}},'
+        f'lore=[{{text:"{lore}",italic:false,color:"gray"}}],'
         "custom_data={guigen:{opener:1b}}] 1",
         "",
         'tellraw @s [{"text":"[GUI-GENERATOR] ","color":"gray"},{"text":"You received a Menu Key.","color":"gold"}]',
@@ -111,11 +126,11 @@ def generate_give_opener(menu: Menu, out: Path) -> None:
 
 def generate_tags(menu: Menu, out: Path) -> None:
     (tags_dir(out) / "load.json").write_text(
-        json.dumps({"values": [f"{menu.namespace}:load"]}, indent=2) + "\n",
+        json.dumps({"values": [f"{menu.core_prefix}/load"]}, indent=2) + "\n",
         encoding="utf-8",
     )
     (tags_dir(out) / "tick.json").write_text(
-        json.dumps({"values": [f"{menu.namespace}:tick"]}, indent=2) + "\n",
+        json.dumps({"values": [f"{menu.core_prefix}/tick"]}, indent=2) + "\n",
         encoding="utf-8",
     )
 
@@ -124,8 +139,8 @@ def generate_pack_mcmeta(out: Path, description: str) -> None:
     data = {
         "pack": {
             "description": description,
-            "min_format": 121,
-            "max_format": 121,
+            "min_format": 119,
+            "max_format": 119,
         }
     }
     (out / "pack.mcmeta").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")

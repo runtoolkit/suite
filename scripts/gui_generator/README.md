@@ -1,70 +1,53 @@
 # GUI Generator
 
-Declarative Minecraft inventory-GUI datapack generator.
+JSON → Minecraft inventory GUI datapack.
 
-## Components are objects (never stringified JSON)
-
-```
-custom_name={text:"Heal & Feed",italic:false,color:"green"}
-lore=[{text:"...",italic:false,color:"gray"}]
-custom_data={guigen:{widget:1,type:"button",id:"heal"}}
-max_stack_size=1
-```
-
-Every widget item carries unique `custom_data`:
-
-| Field    | Meaning                                      |
-|----------|----------------------------------------------|
-| `widget` | `1` – GUI item (opener book does **not** have this) |
-| `type`   | Widget kind (`button`, `label`, `toggle`, …) |
-| `id`     | Unique action / slot id                      |
-
-Tick `clear` commands match `type` + `id` (item id is ignored), so taking a
-widget out of the cart always vacuums it from the player and the layout is
-restored next tick. Unused slots are filled with locked separator panes.
-
-## Layout
-
-```
-gui_generator/
-  models/
-    components.py   Text, ItemComponents
-    widgets.py      Widget + constructors (button, label, toggle, …)
-    menu.py         Menu, Page, Container
-  builders/         SNBT emission, paths
-  generators/       fill, handlers, tick, lifecycle
-  config/           menu definitions
-  generate.py
-```
-
-## Widget types
-
-| Widget      | Role                                      |
-|-------------|-------------------------------------------|
-| `button`    | Click → commands (optional condition)     |
-| `label`     | Display-only                              |
-| `separator` | Filler pane                               |
-| `toggle`    | On/off with two visuals + tick keep-alive |
-| `counter`   | ± score stepper with clamp                |
-| `nav`       | Change page                               |
-| `progress`  | Multi-slot bar driven by a score          |
-| `close`     | Close menu                                |
-| `confirm`   | Jump to a confirmation page               |
-
-## Container types
-
-| Type              | Slots | Notes                |
-|-------------------|-------|----------------------|
-| `chest_minecart`  | 27    | Default, follows you |
-| `hopper_minecart` | 5     | Compact UI           |
-
-## Usage
+## Generate
 
 ```bash
 python3 generate.py
-python3 generate.py --out /path/to/datapack
+python3 generate.py -c config/test_menu.json -o ./output/datapack
 ```
 
 ```
 /function guigen:menu/test_menu/open
 ```
+
+## Datapack layout
+
+```
+data/<ns>/function/
+  core/load.mcfunction
+  core/tick.mcfunction
+  menu/<menu_id>/
+    open.mcfunction
+    close.mcfunction
+    fill.mcfunction
+    give_opener.mcfunction
+    page/0.mcfunction …
+    click/<action>.mcfunction …
+data/minecraft/tags/function/{load,tick}.json
+pack.mcmeta
+```
+
+## JSON highlights
+
+Widget fields: `kind`, `slot`, `item`, `action_id`, `name`, `lore`,
+`commands`, `functions`, `sound`, `condition`, **`cooldown_ticks`**, **`cost`**.
+
+### cooldown_ticks
+Blocks re-click for N ticks (`return` + scoreboard).
+
+### cost
+```json
+"cost": {
+  "item": "minecraft:coal",
+  "count": 3,
+  "score": "money",
+  "amount": 10,
+  "fail_message": { "text": "Not enough!", "color": "red" }
+}
+```
+Item and/or score price deducted on success.
+
+Containers: `chest_minecart` (27) | `hopper_minecart` (5).

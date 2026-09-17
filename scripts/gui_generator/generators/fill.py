@@ -1,4 +1,4 @@
-"""Generate fill.mcfunction + fill_pageN.mcfunction."""
+"""Generate fill.mcfunction + page/<n>.mcfunction."""
 
 from __future__ import annotations
 from pathlib import Path
@@ -7,13 +7,10 @@ from models.menu import Menu
 from models.widgets import Widget, separator
 from models.components import Text, ItemComponents
 from builders.snbt import item_replace_command
-from builders.paths import menu_dir
+from builders.paths import menu_dir, page_dir
 
 
 def _cart(menu: Menu) -> str:
-    # No distance limit — player can walk while the GUI is open; the cart is
-    # always teleported to them in tick. Limiting by distance caused fill to
-    # miss the cart and leave empty / broken slots.
     return (
         f"@e[type={menu.container.entity_id},tag={menu.tag},"
         f"sort=nearest,limit=1]"
@@ -21,7 +18,6 @@ def _cart(menu: Menu) -> str:
 
 
 def generate_fill_router(menu: Menu, out: Path) -> None:
-    # Every slot is overwritten by fill_page (widgets + pad panes).
     lines = [
         "# Auto-generated – route to current page (every slot is overwritten)",
         "",
@@ -29,7 +25,7 @@ def generate_fill_router(menu: Menu, out: Path) -> None:
     for page in menu.pages:
         lines.append(
             f"execute if score @s guigen_page matches {page.index} "
-            f"run function {menu.function_prefix}/fill_page{page.index}"
+            f"run function {menu.page_prefix}/{page.index}"
         )
     (menu_dir(out, menu) / "fill.mcfunction").write_text(
         "\n".join(lines) + "\n", encoding="utf-8"
@@ -91,6 +87,7 @@ def _page_occupied(page_widgets: list[Widget]) -> set[int]:
 
 def generate_page_fills(menu: Menu, out: Path) -> None:
     slots = menu.container.slot_count
+    pdir = page_dir(out, menu)
     for page in menu.pages:
         lines = [f"# Page {page.index} – {page.name}", ""]
         for w in page.widgets:
@@ -113,5 +110,6 @@ def generate_page_fills(menu: Menu, out: Path) -> None:
                 lines.append(item_replace_command(_cart(menu), s, pad.item, pad.components()))
             lines.append("")
 
-        path = menu_dir(out, menu) / f"fill_page{page.index}.mcfunction"
-        path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+        (pdir / f"{page.index}.mcfunction").write_text(
+            "\n".join(lines).rstrip() + "\n", encoding="utf-8"
+        )
