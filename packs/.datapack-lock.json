@@ -1,0 +1,18 @@
+{
+  "$comment": "Baseline generated from the existing top-level packs/ directories. 'locked: true' means CI (.github/workflows/datapack-immutability.yml) will fail any pull request that touches a file under that directory. To edit a locked pack: open a PR that sets its entry to 'locked: false' and get it reviewed/merged first, make your change and merge it, then open a follow-up PR that sets it back to 'locked: true'. New top-level directories under packs/ that are not listed here at all are allowed through (that's how new packs get added) but should be added to this file, locked, in a prompt follow-up PR.",
+  "packs": {
+    "BorderPing": { "locked": true },
+    "DailyBonus": { "locked": true },
+    "InteractionClickDetection": { "locked": true },
+    "LeftClickDetection": { "locked": true },
+    "QuickShare": { "locked": true },
+    "RTWrapper": { "locked": true },
+    "RTWrapper-1.21.1": { "locked": true },
+    "RTWrapper-v1.0.1": { "locked": true },
+    "TunnelScript": { "locked": true },
+    "cmdTunnel-datapack": { "locked": true },
+    "inv_gui": { "locked": true },
+    "macroEngine-Datapack-v26.3": { "locked": true },
+    "macroEngine-Resourcepack-v26.3": { "locked": true }
+  }
+}
