@@ -1,0 +1,68 @@
+{
+  "namespace": "shop",
+  "menu_id": "main",
+  "display_name": "Shop",
+  "timer_ticks": 600,
+  "follow": true,
+  "container": { "type": "chest_minecart" },
+  "pages": [
+    {
+      "index": 0,
+      "name": "Home",
+      "widgets": [
+        {
+          "kind": "label",
+          "slot": 4,
+          "item": "minecraft:name_tag",
+          "name": { "text": "Shop", "color": "gold", "bold": true }
+        },
+        {
+          "kind": "button",
+          "slot": 11,
+          "item": "minecraft:emerald",
+          "action_id": "buy_apple",
+          "name": { "text": "Buy Apple", "color": "green" },
+          "commands": ["give @s minecraft:apple 1"],
+          "sound": "minecraft:entity.experience_orb.pickup"
+        },
+        {
+          "kind": "nav",
+          "slot": 15,
+          "item": "minecraft:arrow",
+          "name": { "text": "Page 2 →", "color": "yellow" },
+          "target_page": 1
+        },
+        {
+          "kind": "close",
+          "slot": 26,
+          "item": "minecraft:barrier",
+          "name": { "text": "Close", "color": "red" }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "name": "More",
+      "widgets": [
+        {
+          "kind": "button",
+          "slot": 13,
+          "item": "minecraft:diamond",
+          "action_id": "buy_diamond",
+          "name": { "text": "Free Diamond", "color": "aqua" },
+          "commands": ["give @s minecraft:diamond 1"]
+        },
+        {
+          "kind": "back_nav",
+          "slot": 18,
+          "item": "minecraft:arrow",
+          "name": { "text": "← Back", "color": "yellow" }
+        },
+        {
+          "kind": "close",
+          "slot": 26
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "shop",
+  "version": "${version}",
+  "name": "Shop",
+  "description": "guigen Fabric menu",
+  "authors": [
+    "guigen"
+  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "shop.GuigenMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric_api": "*"
+  }
+}
