@@ -44,9 +44,7 @@ data remove storage macroengine:engine teams
 data remove storage macroengine:engine global
 data remove storage macroengine:output result
 
-# rate_limit module cleanup
 data remove storage macroengine:engine rate_limit
-function macroengine:core/internal/systems/rate_limit/clear_work
 
 # Stale field from the removed test_block console-logging feature —
 # harmless leftover on worlds that had it set, cleared here so disable

@@ -1,5 +1,7 @@
 # inv_gui
 
+> ⚠️ **Archived.** This pack is archived and no longer maintained. The `runtoolkit/suite` datapacks are being superseded by [Fabric](https://fabricmc.net/) mods. Existing worlds using this pack will continue to work, but no new features or fixes are planned.
+
 **inv_gui** is a Minecraft Java Edition datapack library for building inventory-based GUI menus. It is a fully renamed and restructured fork of [Sketch](https://github.com/rarula/Sketch).
 
 > Maintainer: [runtoolkit](https://github.com/runtoolkit)  
