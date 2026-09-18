@@ -1,4 +1,4 @@
-"""Load / open / close / opener / tags / pack.mcmeta generators."""
+"""Load / open / close / tags / pack.mcmeta generators."""
 
 from __future__ import annotations
 
@@ -80,6 +80,8 @@ def generate_open(menu: dict[str, Any], out: dict[str, str]) -> None:
             scores_to_init.append(w["counter_score"])
         if w.get("progress_score"):
             scores_to_init.append(w["progress_score"])
+        if w.get("cycle"):
+            scores_to_init.append(w["cycle"]["score"])
         for sc in scores_to_init:
             if sc in inited:
                 continue
@@ -122,24 +124,6 @@ def generate_close(menu: dict[str, Any], out: dict[str, str]) -> None:
     lines.append("")
     out[f"{menu_dir_path(menu)}/close.mcfunction"] = "\n".join(lines)
 
-
-def generate_give_opener(menu: dict[str, Any], out: dict[str, str]) -> None:
-    name = (menu.get("opener_name") or "GUI Menu Key").replace("\\", "\\\\").replace('"', '\\"')
-    lore = (
-        menu.get("opener_lore") or f"Run /function {menu_function_prefix(menu)}/open"
-    ).replace("\\", "\\\\").replace('"', '\\"')
-    lines = [
-        "# Auto-generated give_opener",
-        "give @s minecraft:knowledge_book["
-        f'custom_name={{text:"{name}",italic:false,color:"gold"}},'
-        f'lore=[{{text:"{lore}",italic:false,color:"gray"}}],'
-        "custom_data={guigen:{opener:1b}}] 1",
-        "",
-        'tellraw @s [{"text":"[GUI-GENERATOR] ","color":"gray"},'
-        '{"text":"You received a Menu Key.","color":"gold"}]',
-        "",
-    ]
-    out[f"{menu_dir_path(menu)}/give_opener.mcfunction"] = "\n".join(lines)
 
 
 def generate_tags(menu: dict[str, Any], out: dict[str, str]) -> None:
