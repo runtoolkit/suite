@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>guigen</title>
+<style>
+:root {
+  --bg: #0d1210;
+  --bg-panel: #131a17;
+  --bg-panel-raised: #182019;
+  --line: #26332c;
+  --text: #d9e4dd;
+  --text-dim: #7d9187;
+  --text-faint: #4d5c54;
+  --accent: #6bcf8f;
+  --accent-dim: #3f7a56;
+  --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+.brand { font-family: var(--mono); font-size: 17px; margin-bottom: 6px; }
+.brand span { color: var(--accent); }
+.sub {
+  color: var(--text-dim);
+  font-size: 14px;
+  max-width: 420px;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 620px;
+}
+@media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 16px;
+}
+.card:hover {
+  border-color: var(--accent-dim);
+  background: var(--bg-panel-raised);
+}
+.card .tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.card h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.card p {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.card .meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.foot { margin-top: 32px; font-size: 12px; color: var(--text-faint); }
+.foot a { color: var(--text-dim); text-decoration: none; }
+.foot a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="brand"><span>●</span> guigen</div>
+<p class="sub">
+  JSON in, inventory GUI datapack out. Runs in the browser — no install.
+  Pick the Minecraft line you are on.
+</p>
+<div class="cards">
+  <a class="card" href="generator-1_21_4.html">
+    <div class="tag">1.21.4</div>
+    <h2>Garden Awakens</h2>
+    <p>
+      pack_format 61. Datapack, plus Paper plugin / Fabric / Forge scaffolds if you need them.
+    </p>
+    <div class="meta">datapack · plugin · fabric · forge</div>
+  </a>
+  <a class="card" href="generator-26_3.html">
+    <div class="tag">26.3</div>
+    <h2>Current line</h2>
+    <p>
+      Newer pack formats. Datapack only here — plugin and mod exports stay on 1.21.4 for now.
+    </p>
+    <div class="meta">datapack</div>
+  </a>
+</div>
+<p class="foot">
+  <a href="https://github.com/runtoolkit/guigen-site">github.com/runtoolkit/guigen-site</a>
+</p>
+</body>
+</html>
