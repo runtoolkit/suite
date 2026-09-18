@@ -154,8 +154,33 @@ def findMissingWatermarks = { List<File> packDirs ->
 // These helpers touch no Project API at all, so they stay valid there with
 // no change in behavior (same recursive copy, same zip entry layout).
 // -----------------------------------------------------------------------
+// SECURITY: copyDirRecursive/zipDirectory previously copied and zipped
+// *every* file under a pack directory with zero filtering. That means a
+// stray .git/, .env, IDE folder, or credential file accidentally sitting
+// inside a packs/<name>/ directory would be silently included in the
+// public distribution ZIP shipped to Modrinth/CurseForge/GitHub Releases.
+// Nothing sensitive was found in any current packs/ directory (checked),
+// but the pipeline itself had no safety net against it happening in the
+// future. This denylist is defense-in-depth, not a full whitelist rewrite
+// (that would need to know every legitimate top-level file every pack
+// uses, which risks silently dropping something valid) -- it blocks the
+// specific, well-known classes of accidental leaks the packaging skill
+// calls out.
+def SENSITIVE_PATH_NAMES = ['.git', '.env', '.idea', '.vscode', '.DS_Store', 'Thumbs.db', 'node_modules'] as Set
+def isSensitivePathEntry = { File srcDir, File f ->
+    srcDir.toPath().relativize(f.toPath()).any { part ->
+        def name = part.toString()
+        SENSITIVE_PATH_NAMES.contains(name) ||
+            name.startsWith('.env.') ||
+            name.endsWith('.pem') ||
+            name.endsWith('.key') ||
+            name.endsWith('.p12')
+    }
+}
+
 def copyDirRecursive = { File srcDir, File destDir ->
     srcDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+        if (isSensitivePathEntry(srcDir, f)) return
         def rel = srcDir.toPath().relativize(f.toPath())
         def target = destDir.toPath().resolve(rel)
         java.nio.file.Files.createDirectories(target.parent)
@@ -167,7 +192,10 @@ def zipDirectory = { File srcDir, File zipFile ->
     zipFile.parentFile.mkdirs()
     new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(zipFile)).withCloseable { zos ->
         def files = []
-        srcDir.eachFileRecurse(groovy.io.FileType.FILES) { files << it }
+        // Second, independent check at zip time (not just at copy time):
+        // stays correct even if a future caller zips a directory directly
+        // without going through copyDirRecursive first.
+        srcDir.eachFileRecurse(groovy.io.FileType.FILES) { f -> if (!isSensitivePathEntry(srcDir, f)) files << f }
         files.sort { it.path }.each { f ->
             def rel = srcDir.toPath().relativize(f.toPath()).toString().replace(File.separator, '/')
             zos.putNextEntry(new java.util.zip.ZipEntry(rel))
