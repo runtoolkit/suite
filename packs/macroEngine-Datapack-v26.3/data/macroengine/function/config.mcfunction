@@ -8,7 +8,7 @@ scoreboard players set #runtoolkit.packs.macroengine.version macroengine.meta 62
 
 # Archived flag: set to 1 to show archive warning on every /reload
 # scoreboard players set #runtoolkit.archivedpacks.macroengine macroengine.meta 1
-execute unless score #runtoolkit.archivedpacks.macroengine macroengine.meta = #runtoolkit.archivedpacks.macroengine macroengine.meta run scoreboard players set #runtoolkit.archivedpacks.macroengine macroengine.meta 0
+execute unless score #runtoolkit.archivedpacks.macroengine macroengine.meta matches -2147483648..2147483647 run scoreboard players set #runtoolkit.archivedpacks.macroengine macroengine.meta 0
 
 # ── Engine defaults (only fill missing keys — preserves live data) ─
 execute unless data storage macroengine:engine global run data modify storage macroengine:engine global set value {}
