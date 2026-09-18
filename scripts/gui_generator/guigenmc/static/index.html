@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>guigenmc — datapack generator</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="jszip.min.js"></script>
 <style>
 :root {
   --bg: #0d1210;
@@ -583,6 +583,19 @@ function componentsForToggle(w, state) {
   return [t.on_item, mkItemComponents({ custom_name: t.on_name, lore: t.on_lore.slice(), custom_data: data })];
 }
 
+function componentsForCycle(w, index) {
+  const opts = w.cycle.options;
+  const opt = opts[index % opts.length];
+  const data = guiCustomData(w);
+  return [opt.item, mkItemComponents({
+    custom_name: opt.name,
+    lore: (opt.lore || []).slice(),
+    custom_data: data,
+    enchanted: !!opt.enchanted,
+    custom_model_data: opt.custom_model_data,
+  })];
+}
+
 function isInteractive(w) {
   return !["label", "separator", "progress"].includes(w.kind);
 }
@@ -695,6 +708,7 @@ function collectScores(m) {
     if (w.toggle && !scores.includes(w.toggle.score)) scores.push(w.toggle.score);
     if (w.counter_score && !scores.includes(w.counter_score)) scores.push(w.counter_score);
     if (w.progress_score && !scores.includes(w.progress_score)) scores.push(w.progress_score);
+    if (w.cycle && !scores.includes(w.cycle.score)) scores.push(w.cycle.score);
   }
   return scores;
 }
@@ -726,7 +740,7 @@ function loaderTextList(raw) {
   return out;
 }
 
-const VALID_CONDITION_TYPES = ["item_count_lt", "item_count_gte", "score", "has_tag", "gamemode"];
+const VALID_CONDITION_TYPES = ["item_count_lt", "item_count_gte", "score", "has_tag", "gamemode", "has_advancement"];
 
 function loaderCondition(raw) {
   if (raw == null) return null;
@@ -742,6 +756,7 @@ function loaderCondition(raw) {
     matches: raw.matches ?? null,
     tag: raw.tag ?? null,
     gamemode: raw.gamemode ?? null,
+    advancement: raw.advancement ?? null,
     fail_message: loaderText(raw.fail_message),
   };
 }
@@ -790,10 +805,15 @@ const WIDGET_KIND_ALIASES = {
   page: "nav",
   bar: "progress",
   stepper: "counter",
+  url: "link",
+  hyperlink: "link",
+  selector: "cycle",
+  carousel: "cycle",
 };
 
 const VALID_WIDGET_KINDS = [
   "button", "label", "separator", "toggle", "counter", "nav", "progress", "close", "confirm", "random",
+  "link", "cycle",
 ];
 
 function loaderRandomReward(raw, index) {
@@ -877,6 +897,50 @@ function loaderWidget(raw) {
     w.random = loaderRandom(raw.random);
   }
 
+  if (kind === "link") {
+    const url = raw.url || raw.link;
+    if (!url) throw new Error("link widget requires 'url'");
+    w.url = String(url);
+    w.link_text = loaderText(raw.link_text || raw.message);
+    if (w.name == null) w.name = mkText("Open Link", { color: "aqua" });
+    if (!w.lore.length) w.lore = [mkText("Click to open URL", { color: "gray" })];
+    if (w.item === "minecraft:stone") w.item = "minecraft:writable_book";
+    if (!w.action_id) w.action_id = `link_${slot}`;
+  }
+
+  if (kind === "cycle") {
+    let cycleRaw = raw.cycle;
+    if (cycleRaw == null && (raw.options || raw.score)) {
+      cycleRaw = { score: raw.score || raw.cycle_score, options: raw.options, wrap: raw.wrap !== false };
+    }
+    if (!cycleRaw) throw new Error("cycle widget requires 'cycle' object (or score + options)");
+    if (!cycleRaw.score) throw new Error("cycle requires 'score'");
+    const opts = cycleRaw.options || [];
+    if (!Array.isArray(opts) || opts.length < 2) throw new Error("cycle requires at least 2 options");
+    w.cycle = {
+      score: String(cycleRaw.score),
+      wrap: cycleRaw.wrap !== false,
+      options: opts.map((o, i) => {
+        if (!o || typeof o !== "object") throw new TypeError(`cycle.options[${i}] must be an object`);
+        if (!o.item) throw new Error(`cycle.options[${i}] requires 'item'`);
+        if (!o.name) throw new Error(`cycle.options[${i}] requires 'name'`);
+        return {
+          item: String(o.item),
+          name: loaderText(o.name),
+          lore: loaderTextList(o.lore),
+          commands: (o.commands || []).slice(),
+          functions: (o.functions || []).slice(),
+          enchanted: !!o.enchanted,
+          custom_model_data: o.custom_model_data != null ? parseInt(o.custom_model_data, 10) : null,
+        };
+      }),
+    };
+    const first = w.cycle.options[0];
+    if (!w.item || w.item === "minecraft:stone") w.item = first.item;
+    if (w.name == null) w.name = first.name;
+    if (!w.action_id) w.action_id = w.cycle.score;
+  }
+
   if (kind === "nav" && w.target_page == null) throw new Error("nav widget requires target_page");
   if (kind === "confirm" && w.confirm_page == null) throw new Error("confirm widget requires confirm_page");
   if (kind === "counter" && !w.counter_score) throw new Error("counter widget requires score / counter_score");
@@ -893,6 +957,11 @@ function loaderWidget(raw) {
     if (w.name == null) w.name = mkText(" ", { color: "dark_gray" });
     if (w.item === "minecraft:stone") w.item = "minecraft:gray_stained_glass_pane";
   }
+
+  // action_id becomes a function filename; enforce identifier rules
+  const aid = w.action_id || `${w.kind}_${w.slot}`;
+  validateIdentifier(aid, "action_id");
+  if (w.action_id) validateIdentifier(w.action_id, "action_id");
 
   return w;
 }
@@ -922,10 +991,26 @@ function loaderContainer(raw) {
   });
 }
 
+function validateIdentifier(value, fieldName) {
+  const s = String(value);
+  if (!s) throw new Error(`Invalid ${fieldName}: must not be empty`);
+  if (s.includes("\0")) throw new Error(`Invalid ${fieldName}: contains NULL byte`);
+  if (s.includes("/") || s.includes("\\")) throw new Error(`Invalid ${fieldName}: contains path separator`);
+  if (s.includes("..")) throw new Error(`Invalid ${fieldName}: contains parent-directory segment`);
+  if (!/^[a-z0-9._-]+$/.test(s)) {
+    throw new Error(
+      `Invalid ${fieldName}: ${JSON.stringify(s)} — only lowercase a-z, 0-9, underscore, hyphen and period are allowed`
+    );
+  }
+  return s;
+}
+
 function menuFromDict(data) {
   if (!("namespace" in data) || !("menu_id" in data)) {
     throw new Error("config requires 'namespace' and 'menu_id'");
   }
+  const namespace = validateIdentifier(data.namespace, "namespace");
+  const menuId = validateIdentifier(data.menu_id, "menu_id");
   const pagesRaw = data.pages || [];
   if (!Array.isArray(pagesRaw) || !pagesRaw.length) {
     throw new Error("config requires non-empty 'pages' list");
@@ -933,9 +1018,9 @@ function menuFromDict(data) {
   const pages = pagesRaw.map((p, i) => loaderPage(p, i));
 
   return {
-    namespace: String(data.namespace),
-    menu_id: String(data.menu_id),
-    display_name: String(data.display_name ?? data.menu_id),
+    namespace: namespace,
+    menu_id: menuId,
+    display_name: String(data.display_name ?? menuId),
     timer_ticks: parseInt(data.timer_ticks ?? 900, 10),
     follow: data.follow ?? true,
     distance_close: parseFloat(data.distance_close ?? 32),
@@ -943,8 +1028,6 @@ function menuFromDict(data) {
     pages,
     extra_scores: (data.extra_scores || []).slice(),
     pack_description: data.pack_description ?? null,
-    opener_name: data.opener_name ?? null,
-    opener_lore: data.opener_lore ?? null,
   };
 }
 
@@ -982,6 +1065,18 @@ function emitToggle(menu, w) {
     const [item, comps] = componentsForToggle(w, state);
     const cmd = itemReplaceCommand(cartSelector(menu), w.slot, item, comps);
     lines.push(`execute if score @s ${w.toggle.score} matches ${state} run ${cmd}`);
+  }
+  return lines;
+}
+
+function emitCycle(menu, w) {
+  const lines = [];
+  const opts = w.cycle.options;
+  const score = w.cycle.score;
+  for (let i = 0; i < opts.length; i++) {
+    const [item, comps] = componentsForCycle(w, i);
+    const cmd = itemReplaceCommand(cartSelector(menu), w.slot, item, comps);
+    lines.push(`execute if score @s ${score} matches ${i} run ${cmd}`);
   }
   return lines;
 }
@@ -1026,6 +1121,7 @@ function generatePageFills(menu, out) {
     for (const w of page.widgets) {
       lines.push(`# slot ${w.slot}: ${resolvedActionId(w)} (${w.kind})`);
       if (w.kind === "toggle") lines.push(...emitToggle(menu, w));
+      else if (w.kind === "cycle") lines.push(...emitCycle(menu, w));
       else if (w.kind === "progress") lines.push(...emitProgress(menu, w));
       else lines.push(...emitStatic(menu, w));
       lines.push("");
@@ -1231,6 +1327,43 @@ function handlerFor(menu, w) {
     return lines;
   }
 
+  if (w.kind === "link") {
+    lines.push(...playsound(w.sound));
+    const url = w.url || "";
+    const lt = w.link_text || mkText("Click here to open", { color: "aqua" });
+    // Minecraft 1.21.5+: clickEvent → click_event, value → url
+    const body = `{"text":"${escapeJson(lt.text || "Open link")}","italic":false,"color":"${lt.color || "aqua"}","underlined":true,"click_event":{"action":"open_url","url":"${escapeJson(url)}"}}`;
+    lines.push(`tellraw @s [{"text":"[GUI-GENERATOR] ","color":"gray"},${body}]`);
+    if (w.success_message) lines.push(tellrawLine(w.success_message));
+    lines.push(`function ${menuFunctionPrefix(menu)}/fill`);
+    return lines;
+  }
+
+  if (w.kind === "cycle") {
+    const c = w.cycle;
+    const score = c.score;
+    const n = c.options.length;
+    lines.push(...playsound(w.sound));
+    lines.push(`scoreboard players add @s ${score} 1`);
+    if (c.wrap !== false) {
+      lines.push(`execute if score @s ${score} matches ${n}.. run scoreboard players set @s ${score} 0`);
+    } else {
+      lines.push(`execute if score @s ${score} matches ${n}.. run scoreboard players set @s ${score} ${n - 1}`);
+    }
+    for (let i = 0; i < c.options.length; i++) {
+      const opt = c.options[i];
+      const guard = `execute if score @s ${score} matches ${i} run `;
+      for (const cmd of opt.commands || []) lines.push(`${guard}${cmd}`);
+      for (const fn of opt.functions || []) lines.push(`${guard}function ${fn}`);
+    }
+    for (let i = 0; i < c.options.length; i++) {
+      const name = c.options[i].name || mkText(`Option ${i}`, { color: "yellow" });
+      lines.push(`execute if score @s ${score} matches ${i} run ${tellrawLine(name)}`);
+    }
+    lines.push(`function ${menuFunctionPrefix(menu)}/fill`);
+    return lines;
+  }
+
   if (w.condition != null) {
     const cond = w.condition;
     const fail = cond.fail_message || mkText("Condition failed.", { color: "red" });
@@ -1264,6 +1397,11 @@ function handlerFor(menu, w) {
       const ok = `execute if entity @s[gamemode=${cond.gamemode}] run `;
       lines.push(...successBlock(ok));
       lines.push(`execute unless entity @s[gamemode=${cond.gamemode}] run ${tellrawLine(fail)}`);
+    } else if (cond.type === "has_advancement") {
+      const adv = cond.advancement || "";
+      const ok = `execute if entity @s[advancements={${adv}=true}] run `;
+      lines.push(...successBlock(ok));
+      lines.push(`execute unless entity @s[advancements={${adv}=true}] run ${tellrawLine(fail)}`);
     } else {
       lines.push(...emitActions(w));
       if (w.success_message) lines.push(tellrawLine(w.success_message));
@@ -1330,6 +1468,7 @@ function generateOpen(menu, out) {
     if (w.toggle) scoresToInit.push(w.toggle.score);
     if (w.counter_score) scoresToInit.push(w.counter_score);
     if (w.progress_score) scoresToInit.push(w.progress_score);
+    if (w.cycle) scoresToInit.push(w.cycle.score);
     for (const sc of scoresToInit) {
       if (inited.has(sc)) continue;
       inited.add(sc);
@@ -1363,23 +1502,6 @@ function generateClose(menu, out) {
   out.set(`${menuDirPath(menu)}/close.mcfunction`, lines.join("\n"));
 }
 
-function generateGiveOpener(menu, out) {
-  const name = (menu.opener_name || "GUI Menu Key").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  const lore = (menu.opener_lore || `Run /function ${menuFunctionPrefix(menu)}/open`)
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"');
-  const lines = [
-    "# Auto-generated give_opener",
-    "give @s minecraft:knowledge_book[" +
-      `custom_name={text:"${name}",italic:false,color:"gold"},` +
-      `lore=[{text:"${lore}",italic:false,color:"gray"}],` +
-      "custom_data={guigen:{opener:1b}}] 1",
-    "",
-    `tellraw @s [{"text":"[GUI-GENERATOR] ","color":"gray"},{"text":"You received a Menu Key.","color":"gold"}]`,
-    "",
-  ];
-  out.set(`${menuDirPath(menu)}/give_opener.mcfunction`, lines.join("\n"));
-}
 
 function generateTags(menu, out) {
   out.set(
@@ -1529,7 +1651,6 @@ function generateDatapack(menu) {
   generateLoad(menu, out);
   generateOpen(menu, out);
   generateClose(menu, out);
-  generateGiveOpener(menu, out);
   generateFillRouter(menu, out);
   generatePageFills(menu, out);
   generateHandlers(menu, out);
@@ -1826,7 +1947,13 @@ function renderTree(out) {
       container.className = "tree-node";
       const header = document.createElement("div");
       header.className = "tree-dir";
-      header.innerHTML = `<span class="caret">▾</span><span>${dname}/</span>`;
+      const caret = document.createElement("span");
+      caret.className = "caret";
+      caret.textContent = "▾";
+      const dlabel = document.createElement("span");
+      dlabel.textContent = dname + "/";
+      header.appendChild(caret);
+      header.appendChild(dlabel);
       const childrenWrap = document.createElement("div");
       childrenWrap.className = "tree-children";
       childrenWrap.appendChild(renderDir(dnode, prefix + dname + "/", depth + 1));
@@ -1846,7 +1973,16 @@ function renderTree(out) {
       row.dataset.path = fullPath;
       const content = out.get(fullPath) || "";
       const sizeLabel = content.length < 1024 ? `${content.length}B` : `${(content.length / 1024).toFixed(1)}K`;
-      row.innerHTML = `<span>${iconFor(fname)}</span><span>${fname}</span><span class="fsize">${sizeLabel}</span>`;
+      const iconSpan = document.createElement("span");
+      iconSpan.textContent = iconFor(fname);
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = fname;
+      const sizeSpan = document.createElement("span");
+      sizeSpan.className = "fsize";
+      sizeSpan.textContent = sizeLabel;
+      row.appendChild(iconSpan);
+      row.appendChild(nameSpan);
+      row.appendChild(sizeSpan);
       row.addEventListener("click", () => {
         document.querySelectorAll(".tree-file.active").forEach((n) => n.classList.remove("active"));
         row.classList.add("active");
