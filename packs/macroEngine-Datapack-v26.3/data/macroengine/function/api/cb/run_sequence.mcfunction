@@ -19,9 +19,7 @@
 
 # Security gate — see core/internal/security/check_all.
 # No-op (always passes) unless flags.experimental.strict_gating is on.
-scoreboard players set $cbrs_gate macroengine.tmp 1
-execute store success score $cbrs_gate macroengine.tmp run function macroengine:core/internal/security/check_all {required:"cmd_min_level"}
-execute if score $cbrs_gate macroengine.tmp matches 0 run return 0
+execute unless function macroengine:core/internal/security/check_all {required:"cmd_min_level"} run return 0
 
 # Verify required input
 execute unless data storage macroengine:input cb.cmds[0] run tellraw @s [{"text":"[MACROENGINE/cb] ","color":"#00AAAA","bold":true},{"text":"cb.cmds is empty or not set","color":"red"}]
