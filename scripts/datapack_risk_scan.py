@@ -55,6 +55,12 @@ class Rule:
     severity: str
     message: str
     suggest: "callable"    # fn(match, line) -> str | None
+    # Optional second-pass filter: fn(line, self_function_id) -> bool.
+    # Runs only after `pattern` already matched. Returning False drops the
+    # finding as a known-safe/intentional pattern for this rule. Keeps the
+    # base `pattern` cheap and broad while letting a rule rule out the
+    # common idioms that would otherwise dominate the report with noise.
+    extra_filter: "Optional[callable]" = None
 
 
 # ---------------------------------------------------------------------------
@@ -144,6 +150,76 @@ def _suggest_kill_summon_spam(match, line):
     )
 
 
+# ---------------------------------------------------------------------------
+# Second-pass filters
+#
+# These exist because the base `pattern` regexes above are intentionally
+# cheap/broad, which means they also match extremely common, intentional
+# datapack idioms that carry none of the risk the rule is meant to catch.
+# Left unfiltered, RECURSIVE_TICK and UNSCOPED_SELECTOR drown a report in
+# thousands of findings against completely ordinary code (a one-shot
+# function call in a command wrapper; `tellraw @a` for a broadcast message;
+# `execute as @a run ...` to iterate players), which trains readers to
+# ignore the report rather than act on it.
+# ---------------------------------------------------------------------------
+
+_FUNC_CALL_ID = re.compile(r'function\s+([\w.]+:[\w./]+)\s*$')
+
+_AS_ITERATION = re.compile(r'\bas\s+@[ae](?!\[)', re.IGNORECASE)
+
+# Commands where an unscoped @a/@e is the point of the command (a broadcast
+# to everyone, or a bulk/idempotent bookkeeping op like tagging or resetting
+# a scoreboard objective), not a hazard.
+_SAFE_UNSCOPED_CMDS = re.compile(
+    r'^\s*\$?(execute[^\n]*run\s+)?\$?'
+    r'(tellraw|title|subtitle|actionbar|playsound|bossbar|tag|scoreboard|advancement)\b',
+    re.IGNORECASE,
+)
+
+
+def _function_id_from_path(path: Path) -> "Optional[str]":
+    """Derive this file's own `namespace:path/to/function` id from its
+    location under a `data/<namespace>/function(s)/...` tree, so
+    RECURSIVE_TICK can tell a genuine self-call apart from an ordinary
+    call to a different function."""
+    parts = path.as_posix().split("/")
+    for kw in ("functions", "function"):
+        if kw in parts:
+            idx = parts.index(kw)
+            if idx >= 1:
+                namespace = parts[idx - 1]
+                rel = "/".join(parts[idx + 1:])
+                if rel.endswith(".mcfunction"):
+                    rel = rel[: -len(".mcfunction")]
+                return f"{namespace}:{rel}"
+    return None
+
+
+def _is_genuine_self_recursion(line: str, self_id: "Optional[str]") -> bool:
+    """Only flag a bare `function ...` call as RECURSIVE_TICK when it
+    actually calls the function it appears in. An ordinary call from one
+    function to a *different* one -- the overwhelming majority of function
+    calls in any datapack -- is normal control flow, not a tick-loop risk."""
+    if not self_id:
+        return False
+    m = _FUNC_CALL_ID.search(line)
+    if not m:
+        return False
+    return m.group(1) == self_id
+
+
+def _is_risky_unscoped_selector(line: str, self_id: "Optional[str]") -> bool:
+    """Drop the two dominant safe idioms: `execute as @a/@e ... run ...`
+    (iterating per-entity context, not a mass-target) and broadcast/bulk
+    bookkeeping commands where targeting everyone is the intended
+    behavior (tellraw, title, playsound, tag, scoreboard, advancement)."""
+    if _AS_ITERATION.search(line):
+        return False
+    if _SAFE_UNSCOPED_CMDS.search(line):
+        return False
+    return True
+
+
 RULES: list[Rule] = [
     Rule(
         rule_id="FILL_UNBOUNDED",
@@ -161,6 +237,7 @@ RULES: list[Rule] = [
                 "(distance/limit/type/tag) -- affects every matching entity "
                 "on the server.",
         suggest=_suggest_unscoped_selector,
+        extra_filter=_is_risky_unscoped_selector,
     ),
     Rule(
         rule_id="RECURSIVE_TICK",
@@ -171,6 +248,7 @@ RULES: list[Rule] = [
                 "self-call, verify there's a stop condition somewhere in the "
                 "function body, not just at the call site.",
         suggest=_suggest_recursive_tick_gate,
+        extra_filter=_is_genuine_self_recursion,
     ),
     Rule(
         rule_id="GAMERULE_CHANGE",
@@ -209,12 +287,16 @@ def scan_file(path: Path) -> list[Finding]:
     except Exception as e:
         return [Finding(str(path), 0, "", "medium", "READ_ERROR", f"Could not read file: {e}")]
 
+    self_id = _function_id_from_path(path)
+
     for line_no, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
         for rule in RULES:
             m = rule.pattern.search(line)
+            if m and rule.extra_filter is not None and not rule.extra_filter(line, self_id):
+                continue
             if m:
                 findings.append(
                     Finding(
