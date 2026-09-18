@@ -20,15 +20,8 @@ execute unless data storage macroengine:engine config run data modify storage ma
 execute unless data storage macroengine:engine config.enabled run data modify storage macroengine:engine config.enabled set value 1b
 execute unless data storage macroengine:engine config.debug_default run data modify storage macroengine:engine config.debug_default set value 0b
 execute unless data storage macroengine:engine config.log_level run data modify storage macroengine:engine config.log_level set value 1
-execute unless data storage macroengine:engine config.sandbox run data modify storage macroengine:engine config.sandbox set value 1b
 execute unless data storage macroengine:engine config.reload_warn run data modify storage macroengine:engine config.reload_warn set value 1b
 execute unless data storage macroengine:engine config.namespace_allowlist run data modify storage macroengine:engine config.namespace_allowlist set value ["macroengine:"]
-
-# Mirror sandbox flag used by gate/* — gates are active by default (sandbox:1b).
-# Disabling requires confirmation via macroengine:core/internal/load/gate/toggle/disable; re-enabling
-# (macroengine:core/internal/load/gate/toggle/enable) does not.
-execute if data storage macroengine:engine config{sandbox:1b} run data modify storage macroengine:engine sandbox set value 1b
-execute unless data storage macroengine:engine config{sandbox:1b} run data modify storage macroengine:engine sandbox set value 0b
 
 # Admin/cmd/sandbox min level storage. Enforced by core/internal/security/check_all
 # ONLY while flags.experimental.strict_gating is on (see below) — otherwise these

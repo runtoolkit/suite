@@ -1,6 +1,8 @@
 
 # macroEngine (v26.3)
 
+> ⚠️ **Archived.** This datapack is archived and no longer maintained. The `runtoolkit/suite` datapacks are being superseded by [Fabric](https://fabricmc.net/) mods. Existing worlds using this pack will continue to work, but no new features or fixes are planned.
+
 **macroEngine** is a macro/module framework datapack for Minecraft Java Edition, providing a large library of reusable command-based systems (math, string, NBT, geo, permissions, UUID cache, hooks, rate limiting, and more) plus a multi-source text/value input system (dialogs, books, signs, lecterns, name tags, command block minecarts).
 
 > Owner: [runtoolkit](https://github.com/runtoolkit)

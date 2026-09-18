@@ -1,11 +1,7 @@
-# Gated storage removal: if the gate system is active (macroengine:engine
-# sandbox:1b, the default), route through confirmation — this command can
-# destroy arbitrary storage data (including macroengine's own engine state) so
-# it is treated as dangerous. If gates were turned off via
-# gate/toggle/disable, apply directly like before.
+# Storage removal: applies immediately (no confirmation gate). This command
+# can destroy arbitrary storage data (including macroengine's own engine
+# state) — callers should be careful with $(path).
 #
 # INPUT : $(storage) -> storage id, e.g. "macroengine:engine"
-#         $(path)    -> NBT path to remove, e.g. "pending_gate"
-$execute if data storage macroengine:engine {sandbox:1b} run return run function macroengine:core/internal/load/gate/request {type:"data_remove_storage",label:"Remove storage $(storage) → $(path)",action:"macroengine:core/internal/cmd/data_remove_storage_apply",args:{storage:"$(storage)",path:"$(path)"}}
-
+#         $(path)    -> NBT path to remove, e.g. "some_field"
 $function macroengine:core/internal/cmd/data_remove_storage_apply {storage:"$(storage)",path:"$(path)"}
