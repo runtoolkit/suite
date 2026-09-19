@@ -6,6 +6,9 @@
     "min_format": 107,
     "max_format": 107
   },
-  "include": [],
+  "include": [
+    "guikit-datapack",
+    "macroEngine-Datapack-v26.3"
+  ],
   "exclude": []
 }

@@ -14,6 +14,7 @@
     "inv_gui": { "locked": true },
     "macroEngine-Datapack-v26.3": { "locked": true },
     "macroEngine-Resourcepack-v26.3": { "locked": true },
-    "guikit-datapack": { "locked": true }
+    "guikit-datapack": { "locked": true },
+    "guikit-demo": { "locked": true }
   }
 }
