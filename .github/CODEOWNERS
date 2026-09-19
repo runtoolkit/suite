@@ -4,6 +4,9 @@
 # .github/workflows/datapack-immutability.yml.
 #
 # Replace the placeholder below with the actual GitHub team or usernames
-# for this repo, then turn on "Require review from Code Owners" under
-# Settings -> Branches -> Branch protection rules for `main`.
+# for this repo, then turn on "Require review from Codeowners" under
+# Settings -> Rulesets or Branches for `main`.
+
 /packs/.datapack-lock.json @runtoolkit/maintainers
+/packs/*/data/*/function/_rt_origin.mcfunction @runtoolkit/maintainers
+/packs/*/data/*/functions/_rt_origin.mcfunction @runtoolkit/maintainers
