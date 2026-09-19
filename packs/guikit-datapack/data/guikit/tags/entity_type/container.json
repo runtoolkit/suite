@@ -1,6 +1,7 @@
 {
   "values": [
     "minecraft:chest_minecart",
-    "minecraft:hopper_minecart"
+    "minecraft:hopper_minecart",
+    "minecraft:oak_chest_boat"
   ]
 }
