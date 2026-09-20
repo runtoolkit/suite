@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "guikit",
+  "version": "${version}",
+  "name": "guikit",
+  "description": "Server-authoritative container-menu GUI framework -- Fabric port of the guikit datapack.",
+  "authors": ["runtoolkit"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["net.runtoolkit.guikit.Guikit"]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "fabric-api": "*",
+    "minecraft": "~26.3"
+  }
+}

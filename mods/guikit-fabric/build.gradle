@@ -1,0 +1,55 @@
+plugins {
+    id 'fabric-loom' version '1.15.0'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+// ---- Custom tasks ----
+
+tasks.register('printModInfo') {
+    group = 'guikit'
+    description = 'Prints mod id, version and target Minecraft version.'
+    doLast {
+        println "mod=${project.name} version=${project.mod_version} minecraft=${project.minecraft_version}"
+    }
+}
+
+tasks.register('checkLicenses') {
+    group = 'guikit'
+    description = 'Fails the build if NOTICE.md or a bundled third-party license is missing.'
+    doLast {
+        def notice = file("${projectDir}/NOTICE.md")
+        if (!notice.exists()) {
+            throw new GradleException("NOTICE.md is missing — third-party attribution (macroEngine / StringLib / PlayerAction) must ship with every build.")
+        }
+    }
+}
+
+build.dependsOn checkLicenses
