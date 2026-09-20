@@ -1,0 +1,20 @@
+{
+  "criteria": {
+    "interact_cart": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "entity_type": "#macroengine:gui/container",
+            "nbt": "{Tags:[\"macroengine.gui_cart\"]}"
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "function": "macroengine:gui/internal/reset_cd"
+  }
+}

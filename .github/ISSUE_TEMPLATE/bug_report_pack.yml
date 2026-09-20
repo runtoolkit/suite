@@ -13,7 +13,7 @@ body:
         - RTWrapper-1.21.1
         - RTWrapper-v1.0.1
         - TunnelScript
-        - cmdTunnel-datapack
+        - guikit-datapack
         - inv_gui
         - macroEngine-Datapack-v26.3
         - macroEngine-Resourcepack-v26.3

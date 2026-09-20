@@ -23,3 +23,7 @@ execute unless score #sys_admin macroengine.tick_flags matches 1.. run scoreboar
 # Assign pid for any players already online at load time
 # (on_player_join won't fire for them after a /reload)
 execute as @a run function macroengine:core/internal/player/init_online
+
+# GUI module (ported from guikit): scoreboards, scratch cleanup, registry rebuild via #macroengine:gui/register.
+# Always runs, even if modules.gui is 0b, so re-enabling the module at runtime finds its scoreboards.
+function macroengine:gui/core/load
