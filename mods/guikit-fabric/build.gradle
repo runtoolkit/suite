@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15.5'
+    id 'net.fabricmc.fabric-loom' version '1.15.5'
     id 'maven-publish'
 }
 
@@ -7,26 +7,40 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+    // Loom zaten Minecraft + Fabric depolarını ekliyor.
+    // Sadece ekstra mod bağımlılıkları için ekle.
     mavenCentral()
 }
 
 dependencies {
+    // Minecraft
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+    // Official Mojang mappings (26.x için varsayılan ve önerilen)
     mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc:fabric-api:fabric-api:${project.fabric_version}"
+
+    // Fabric Loader
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Fabric API (doğru koordinatlar)
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
-    inputs.property "version", project.version
+    def version = project.version
+    inputs.property "version", version
+
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand "version": version
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
 }
 
 java {
     withSourcesJar()
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
-    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
