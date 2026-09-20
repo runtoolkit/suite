@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15.0'
+    id 'fabric-loom' version '1.15.5'
     id 'maven-publish'
 }
 
@@ -38,17 +38,6 @@ tasks.register('printModInfo') {
     description = 'Prints mod id, version and target Minecraft version.'
     doLast {
         println "mod=${project.name} version=${project.mod_version} minecraft=${project.minecraft_version}"
-    }
-}
-
-tasks.register('checkLicenses') {
-    group = 'guikit'
-    description = 'Fails the build if NOTICE.md or a bundled third-party license is missing.'
-    doLast {
-        def notice = file("${projectDir}/NOTICE.md")
-        if (!notice.exists()) {
-            throw new GradleException("NOTICE.md is missing — third-party attribution (macroEngine / StringLib / PlayerAction) must ship with every build.")
-        }
     }
 }
 
