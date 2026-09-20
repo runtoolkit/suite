@@ -30,15 +30,3 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
     toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
-
-// ---- Custom tasks ----
-
-tasks.register('printModInfo') {
-    group = 'guikit'
-    description = 'Prints mod id, version and target Minecraft version.'
-    doLast {
-        println "mod=${project.name} version=${project.mod_version} minecraft=${project.minecraft_version}"
-    }
-}
-
-build.dependsOn tasks.named('checkLicenses')
