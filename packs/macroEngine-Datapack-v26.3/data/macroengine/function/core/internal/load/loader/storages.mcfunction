@@ -161,6 +161,7 @@ execute unless data storage macroengine:engine modules.interaction run data modi
 execute unless data storage macroengine:engine modules.perm run data modify storage macroengine:engine modules.perm set value 1b
 execute unless data storage macroengine:engine modules.wand run data modify storage macroengine:engine modules.wand set value 1b
 execute unless data storage macroengine:engine modules.geo run data modify storage macroengine:engine modules.geo set value 1b
+execute unless data storage macroengine:engine modules.gui run data modify storage macroengine:engine modules.gui set value 1b
 
 # ─────────────────────────────────────────────────────────────────
 # cb module init

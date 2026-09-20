@@ -137,7 +137,7 @@ The following repos were moved into this monorepo and are now **private**:
 - [itemExampleMod](https://github.com/runtoolkit/itemExampleMod)
 - [template-datapack](https://github.com/runtoolkit/template-datapack)
 - [InteractionClickDetection](https://github.com/runtoolkit/InteractionClickDetection)
-- [cmdTunnel-datapack](https://github.com/runtoolkit/cmdTunnel-datapack)
+- [guikit-datapack](https://github.com/runtoolkit/guikit-datapack)
 - [dpgen](https://github.com/runtoolkit/dpgen)
 - [TEMPLATE-MOD](https://github.com/runtoolkit/TEMPLATE-MOD)
 - [inv_gui](https://github.com/runtoolkit/inv_gui)

@@ -15,6 +15,7 @@ function macroengine:core/internal/api/perm/trigger/tick_start
 # and api/toggle/show.mcfunction for the chat-menu replacement.
 
 function macroengine:core/internal/api/wand/tick_scan
+function macroengine:gui/core/tick
 function macroengine:core/internal/systems/hook/tick_scan
 
 function macroengine:core/internal/systems/geo/region_watch/tick_scan
