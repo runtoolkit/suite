@@ -1,28 +1,28 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.15.5'
+    id 'net.fabricmc.fabric-loom' version '1.18.2'
     id 'maven-publish'
 }
 
 version = project.mod_version
 group = project.maven_group
 
+base {
+    archivesName = project.archives_base_name
+}
+
 repositories {
-    // Loom zaten Minecraft + Fabric depolarını ekliyor.
-    // Sadece ekstra mod bağımlılıkları için ekle.
-    mavenCentral()
+    // Loom automatically adds the essential Fabric + Minecraft repositories.
+    // Only add extra repositories here if you depend on other mods.
 }
 
 dependencies {
-    // Minecraft
+    // Minecraft (26.3 is unobfuscated — do NOT declare mappings)
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-
-    // Official Mojang mappings (26.x için varsayılan ve önerilen)
-    mappings loom.officialMojangMappings()
 
     // Fabric Loader
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    // Fabric API (doğru koordinatlar)
+    // Fabric API
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
@@ -43,4 +43,22 @@ java {
     withSourcesJar()
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        // Add repositories to publish to here.
+    }
 }
