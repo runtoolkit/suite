@@ -1,3 +1,13 @@
+> **⚠️ ARCHIVED / MOVED**
+>
+> This repository (`runtoolkit/suite`) is **archived** and no longer maintained.
+>
+> All further development continues at:
+> **https://github.com/vortacraftmc/core**
+>
+> Please open issues, PRs, and use the latest releases from the new repository.
+> This repo is kept only as a historical snapshot.
+
 
 # macroEngine (v26.3)
 
@@ -7,7 +17,7 @@
 
 > Owner: [runtoolkit](https://github.com/runtoolkit)
 > Minecraft: **26.3** (`pack_format` / `min_format`–`max_format` **121**)
-> License: MIT
+> License: Unlicense
 > Namespace: `macroengine`
 
 ---
@@ -67,4 +77,4 @@ Internal systems under `systems/` are used by API functions and are not intended
 
 ## License
 
-MIT — see the repository [LICENSE](https://github.com/runtoolkit/suite/blob/main/LICENSE).
+Unlicense — see the repository [LICENSE](https://github.com/vortacraftmc/core/blob/main/LICENSE). (This repo is archived.)

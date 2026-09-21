@@ -12,7 +12,7 @@
     "issues": "https://github.com/runtoolkit/RTWrapper/issues",
     "sources": "https://github.com/runtoolkit/RTWrapper"
   },
-  "license": "MIT",
+  "license": "Unlicense",
   "icon": "icon.png",
   "provides": [
     "runtoolkit"

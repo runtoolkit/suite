@@ -349,7 +349,7 @@ tasks.register('zipPacks') {
         // 2. Pre-zip warning + confirmation.
         def watermarks = findOriginWatermarks(packsRoot)
         println "==================================================================="
-        println "runtoolkit/suite - MIT License, Copyright (c) 2026 Runtoolkit"
+        println "runtoolkit/suite - Unlicense (public domain)"
         println "See LICENSE for full license text and NOTICE.md / CONTRIBUTING.md"
         println "for the project's usage and _rt_origin.mcfunction watermark policy."
         println "-------------------------------------------------------------------"

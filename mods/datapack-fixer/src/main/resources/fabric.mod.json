@@ -4,8 +4,20 @@
   "version": "${version}",
   "name": "Datapack Fixer",
   "description": "Server-safe diagnostics for datapack syntax migrations.",
-  "authors": ["runtoolkit"],
+  "authors": [
+    "runtoolkit"
+  ],
   "environment": "*",
-  "entrypoints": { "main": ["io.runtoolkit.datapackfixer.DatapackFixerMod"] },
-  "depends": { "fabricloader": ">=0.19.3", "fabric-api": "*", "minecraft": "1.21.4", "java": ">=21" }
+  "entrypoints": {
+    "main": [
+      "io.runtoolkit.datapackfixer.DatapackFixerMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": "*",
+    "minecraft": "1.21.4",
+    "java": ">=21"
+  },
+  "license": "Unlicense"
 }

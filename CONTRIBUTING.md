@@ -1,4 +1,14 @@
-# Contributing to runtoolkit/suite
+> **⚠️ ARCHIVED / MOVED**
+>
+> This repository (`runtoolkit/suite`) is **archived** and no longer maintained.
+>
+> All further development continues at:
+> **https://github.com/vortacraftmc/core**
+>
+> Please open issues, PRs, and use the latest releases from the new repository.
+> This repo is kept only as a historical snapshot.
+
+# Contributing to runtoolkit/suite (ARCHIVED)
 
 Thanks for your interest in contributing to this project.
 
@@ -55,7 +65,7 @@ maintainers ask that it stay untouched in the source tree. Only `build.gradle`
 itself (via its `build/packs-remap/` working copy, never `packs/`) and
 maintainers acting through the project's own tooling are expected to
 touch these files. This is a contribution-conduct expectation, not a
-license restriction — the MIT license in `LICENSE` continues to govern
+license restriction — the Unlicense in `LICENSE` continues to govern (this repo is archived; see vortacraftmc/core)
 what anyone may do with a copy of this code once obtained.
 
 ## Code style

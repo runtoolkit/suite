@@ -8,7 +8,7 @@
   "contact": {
     "sources": "https://github.com/runtoolkit"
   },
-  "license": "MIT",
+  "license": "Unlicense",
   "icon": "assets/rtwrapper/icon.png",
   "environment": "*",
   "entrypoints": {
