@@ -5,7 +5,7 @@
   "name": "Custom Command Example",
   "description": "Argüman örneği: /mycommand <oyuncu> <miktar>",
   "authors": ["example"],
-  "license": "MIT",
+  "license": "Unlicense",
   "environment": "*",
   "entrypoints": {
     "main": ["com.example.customcmd.CustomCmdMod"],

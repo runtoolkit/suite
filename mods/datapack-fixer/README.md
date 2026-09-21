@@ -1,3 +1,13 @@
+> **⚠️ ARCHIVED / MOVED**
+>
+> This repository (`runtoolkit/suite`) is **archived** and no longer maintained.
+>
+> All further development continues at:
+> **https://github.com/vortacraftmc/core**
+>
+> Please open issues, PRs, and use the latest releases from the new repository.
+> This repo is kept only as a historical snapshot.
+
 # Datapack Fixer
 
 A **Fabric 1.21.4 server-safe diagnostic mod** for datapack syntax migration. It deliberately does not rewrite pack files, intercept datapack loading, patch network packets, or change gameplay. It only reads unpacked datapacks when the integrated or dedicated server starts and emits diagnostics to the server log.

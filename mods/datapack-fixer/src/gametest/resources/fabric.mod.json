@@ -5,8 +5,17 @@
   "name": "Datapack Fixer Game Tests",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["io.runtoolkit.datapackfixer.DatapackFixerGameTests"],
-    "fabric-client-gametest": ["io.runtoolkit.datapackfixer.DatapackFixerClientGameTests"]
+    "fabric-gametest": [
+      "io.runtoolkit.datapackfixer.DatapackFixerGameTests"
+    ],
+    "fabric-client-gametest": [
+      "io.runtoolkit.datapackfixer.DatapackFixerClientGameTests"
+    ]
   },
-  "depends": { "fabricloader": "*", "fabric-api": "*", "minecraft": "1.21.4" }
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "1.21.4"
+  },
+  "license": "Unlicense"
 }

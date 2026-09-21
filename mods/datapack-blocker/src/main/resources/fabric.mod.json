@@ -8,7 +8,7 @@
   "contact": {
     "sources": "https://github.com/runtoolkit"
   },
-  "license": "MIT",
+  "license": "Unlicense",
   "environment": "*",
   "entrypoints": {
     "main": ["com.runtoolkit.datapackblocker.DatapackBlockerMod"]
